@@ -70,9 +70,11 @@ def guess_site(sid, d):
             tries += 1
             try: base, txt = scan.get(f'https://{c}.{t}', timeout=10)
             except Exception: continue
+            host = (urllib.parse.urlsplit(base).hostname or '').removeprefix('www.')
+            if not host.startswith(c.replace('-', '') + '.') and not host.startswith(c + '.'): continue   # Weiterleitung auf fremde Domain
             if same_company(d.get('name'), txt) and not find_parked(txt): return base, txt
     return None, None
-def find_parked(txt): return bool(re.search(r'domain (is )?for sale|domain kaufen|parked|sedo|this domain', txt[:20000], re.I))
+def find_parked(txt): return bool(re.search(r'domain (is )?for sale|domain kaufen|parked|sedo|this domain|brandbucket', txt[:20000], re.I))
 def probe_ats(sid, d):
     # direkt bei den ATS nach dem Firmennamen fragen; nur übernehmen, wenn die Board-Seite den Firmennamen trägt
     cands, _ = slugs(sid, d)
@@ -128,14 +130,23 @@ def discover(sid, d):
     # verifizieren: erstes ATS, dessen API eine Stellenliste liefert
     if not seen or out.get('sm_err'):
         p = probe_ats(sid, d)
-        if p and p not in seen: seen.append(p); out['ats_via'] = 'slug'
-    for kind, url in seen[:5]:
+        if p and p not in seen: seen.append(p)
+    else: p = None
+    for kind, url in seen[:6]:
         fn, args = scan.route(url)
         try:
             jobs, n = fn(*args)
-            out.update(ats=kind, board=url, n=n if n is not None else len(jobs)); break
+            out.update(ats=kind, board=url, n=n if n is not None else len(jobs))
+            if (kind, url) == p: out['ats_via'] = 'slug'
+            break
         except Exception as e:
             out.setdefault('ats_fail', []).append(f'{kind}: {str(e)[:40]}')
+    # Konfidenz: ATS-Link auf der eigenen Website = hoch; nur über Namen gefunden = prüfen (Namensvetter möglich)
+    short = len(norm(d.get('name'))) <= 5
+    if out.get('ats'):
+        out['conf'] = 'pruefen' if out.get('ats_via') == 'slug' and (short or not out.get('site')) else ('mittel' if out.get('ats_via') == 'slug' else 'hoch')
+    elif out.get('career'):
+        out['conf'] = 'pruefen' if out.get('site_via') and short else ('mittel' if out.get('site_via') else 'hoch')
     return out
 
 def main():
