@@ -39,13 +39,73 @@ def website_of(sm_url):
     # bevorzugt Links mit Text wie "Website"/Domain, sonst der erste externe Link
     return (ext[0] if ext else None), txt
 
+# ---------------------------------------------------------------- Fallback ohne startupmap (Cloudflare blockt Cloud-IPs)
+LEGAL = re.compile(r'\b(gmbh|ag|se|inc|ltd|co|kg|ug|bv|sas|group|holding|technologies|technology|the)\b', re.I)
+def norm(s): return re.sub(r'[^a-z0-9]', '', LEGAL.sub(' ', str(s or '').lower().replace('ä', 'ae').replace('ö', 'oe').replace('ü', 'ue').replace('ß', 'ss')))
+def ident(txt):
+    # Selbstbezeichnung einer Seite: <title>, og:site_name, JSON "name"
+    out = re.findall(r'<title[^>]*>([^<]{1,200})', txt, re.I)[:1]
+    out += re.findall(r'og:site_name["\'][^>]*content=["\']([^"\']{1,100})', txt, re.I)[:1]
+    out += re.findall(r'"name"\s*:\s*"([^"]{1,100})"', txt[:3000])[:1]
+    return ' | '.join(scan.clean(x) for x in out)
+def same_company(name, txt):
+    n, i = norm(name), norm(ident(txt))
+    return len(n) >= 3 and n in i
+def slugs(sid, d):
+    sm = urllib.parse.urlsplit(d.get('sm_url') or '').path.rstrip('/').split('/')[-1]
+    sm_base = re.sub(r'_(de|com|io|ai|eu|tech|app|co)$', '', sm)
+    words = [w for w in re.split(r'[^a-z0-9]+', LEGAL.sub(' ', str(d.get('name') or '').lower())) if w]
+    out = []
+    for c in (''.join(words), '-'.join(words), sm_base.replace('_', ''), sm_base.replace('_', '-'), sid):
+        if c and len(c) >= 2 and c not in out: out.append(c)
+    return out[:4], (re.search(r'_(de|com|io|ai|eu|tech|app|co)$', sm) or [None, None])[1]
+def guess_site(sid, d):
+    cands, tld_hint = slugs(sid, d)
+    tlds = ['com', 'de', 'ai', 'io', 'tech', 'eu']
+    if tld_hint: tlds = [tld_hint] + [t for t in tlds if t != tld_hint]
+    tries = 0
+    for c in cands[:2]:
+        for t in tlds:
+            if tries >= 10: return None, None
+            tries += 1
+            try: base, txt = scan.get(f'https://{c}.{t}', timeout=10)
+            except Exception: continue
+            if same_company(d.get('name'), txt) and not find_parked(txt): return base, txt
+    return None, None
+def find_parked(txt): return bool(re.search(r'domain (is )?for sale|domain kaufen|parked|sedo|this domain', txt[:20000], re.I))
+def probe_ats(sid, d):
+    # direkt bei den ATS nach dem Firmennamen fragen; nur übernehmen, wenn die Board-Seite den Firmennamen trägt
+    cands, _ = slugs(sid, d)
+    name = d.get('name')
+    checks = [
+        ('ashby',      lambda c: f'https://jobs.ashbyhq.com/{c}', None),
+        ('greenhouse', lambda c: f'https://boards-api.greenhouse.io/v1/boards/{c}', lambda c: f'https://job-boards.greenhouse.io/{c}'),
+        ('lever',      lambda c: f'https://jobs.lever.co/{c}', None),
+        ('personio',   lambda c: f'https://{c}.jobs.personio.de/', None),
+        ('personio',   lambda c: f'https://{c}.jobs.personio.com/', None),
+        ('recruitee',  lambda c: f'https://{c}.recruitee.com/', None),
+        ('teamtailor', lambda c: f'https://{c}.teamtailor.com/jobs', None),
+        ('join',       lambda c: f'https://join.com/companies/{c}', None),
+    ]
+    for kind, mk, board in checks:
+        for c in cands[:3]:
+            u = mk(c)
+            try: base, txt = scan.get(u, timeout=12)
+            except Exception: continue
+            if urllib.parse.urlsplit(base).netloc != urllib.parse.urlsplit(u).netloc: continue   # Umleitung = kein Board
+            if kind == 'ashby' and '"organization":null' in txt.replace(' ', ''): continue
+            if same_company(name, txt): return kind, (board(c) if board else u)
+    return None
+
 def discover(sid, d):
     out = {'id': sid}
     try:
         site, smtxt = website_of(d['sm_url'])
     except Exception as e:
-        out['err'] = 'startupmap: ' + str(e)[:80]; return out
-    cands = find_ats(smtxt)
+        out['sm_err'] = str(e)[:80]
+        site, smtxt = guess_site(sid, d)
+        out['site_via'] = 'geraten' if site else ''
+    cands = find_ats(smtxt or '')
     out['site'] = site
     pages = []
     if site:
@@ -66,6 +126,9 @@ def discover(sid, d):
     for c in cands:
         if c not in seen: seen.append(c)
     # verifizieren: erstes ATS, dessen API eine Stellenliste liefert
+    if not seen or out.get('sm_err'):
+        p = probe_ats(sid, d)
+        if p and p not in seen: seen.append(p); out['ats_via'] = 'slug'
     for kind, url in seen[:5]:
         fn, args = scan.route(url)
         try:

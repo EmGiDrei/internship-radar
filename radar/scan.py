@@ -73,11 +73,13 @@ def a_ashby(org):
     jobs = [(j.get('title'), j.get('location') or '', j.get('jobUrl') or f'https://jobs.ashbyhq.com/{org}') for j in d.get('jobs', []) if j.get('isListed', True)]
     return jobs, len(jobs)
 def a_greenhouse(org, eu):
-    hosts = ['boards-api.eu.greenhouse.io', 'boards-api.greenhouse.io'] if eu else ['boards-api.greenhouse.io', 'boards-api.eu.greenhouse.io']
+    # Die US-API liefert auch EU-Boards; boards-api.eu.greenhouse.io ist nicht überall erreichbar → nur Ersatz
     last = None
-    for h in hosts:
+    for h in ('boards-api.greenhouse.io', 'boards-api.eu.greenhouse.io'):
         try: d = getjson(f'https://{h}/v1/boards/{org}/jobs')
-        except HttpErr as e: last = e; continue
+        except HttpErr as e:
+            if last is None or not str(last).startswith('HTTP'): last = e   # aussagekräftigsten Fehler (HTTP-Status) behalten
+            continue
         jobs = [(j.get('title'), (j.get('location') or {}).get('name', ''), j.get('absolute_url')) for j in d.get('jobs', [])]
         return jobs, len(jobs)
     raise last
@@ -85,8 +87,10 @@ def a_lever(org, eu):
     hosts = ['api.eu.lever.co', 'api.lever.co'] if eu else ['api.lever.co', 'api.eu.lever.co']
     last = None
     for h in hosts:
-        try: d = getjson(f'https://{h}/v0/postings/{org}?mode=json')
-        except HttpErr as e: last = e; continue
+        try: d = getjson(f'https://{h}/v0/postings/{org}?mode=json', timeout=45)
+        except HttpErr as e:
+            if last is None: last = e   # Fehler des Haupt-Hosts melden, nicht den 404 des Ersatz-Hosts
+            continue
         if isinstance(d, dict) and not d.get('ok', True): last = HttpErr('Lever: ' + str(d.get('error', ''))[:60]); continue
         jobs = [(j.get('text'), (j.get('categories') or {}).get('location', ''), j.get('hostedUrl')) for j in d]
         return jobs, len(jobs)
@@ -110,39 +114,44 @@ def a_smartrecruiters(org):
         off += 100
         if off >= total or not d.get('content'): break
     return jobs, total
-def a_join(org):
-    base, txt = get(f'https://join.com/companies/{org}')
-    jobs = []
+def _join_state(url):
+    base, txt = get(url)
     m = re.search(r'<script id="__NEXT_DATA__"[^>]*>(.*?)</script>', txt, re.S)
-    if m:
-        def walk(x):
-            if isinstance(x, dict):
-                t = x.get('title'); jid = x.get('idParam') or x.get('id')
-                if isinstance(t, str) and jid and ('employmentType' in x or 'idParam' in x or 'workplaceType' in x):
-                    city = ''
-                    c = x.get('city')
-                    if isinstance(c, dict): city = c.get('cityName') or c.get('name') or ''
-                    elif isinstance(c, str): city = c
-                    slug = x.get('idParam') or jid
-                    jobs.append((t, city, f'https://join.com/companies/{org}/{slug}'))
-                for v in x.values(): walk(v)
-            elif isinstance(x, list):
-                for v in x: walk(v)
-        try: walk(json.loads(m.group(1)))
-        except Exception: pass
-    if not jobs:
+    try: return base, txt, json.loads(m.group(1))['props']['pageProps']['initialState']['jobs']
+    except Exception: return base, txt, None
+def a_join(org):
+    # join.com rendert pro Seite nur 5 Stellen → alle Seiten (?page=N) über initialState.jobs lesen
+    base, txt, st = _join_state(f'https://join.com/companies/{org}')
+    jobs = []
+    if st is not None:
+        pages = min(int((st.get('pagination') or {}).get('pageCount') or 1), 40)
+        items = list(st.get('items') or [])
+        for p in range(2, pages + 1):
+            items += (_join_state(f'https://join.com/companies/{org}?page={p}')[2] or {}).get('items') or []
+        for x in items:
+            c = x.get('city') or {}
+            city = (c.get('cityName') or '') if isinstance(c, dict) else str(c)
+            jobs.append((x.get('title') or '', city, f'https://join.com/companies/{org}/{x.get("idParam") or x.get("id")}'))
+        total = (st.get('pagination') or {}).get('total')
+        if not jobs and total:   # z. B. nur Initiativbewerbung, die nicht in items steht
+            jobs = [(t, '', u) for u, t in links(base, txt) if f'/companies/{org}/' in u and t]
+    else:
         jobs = [(t, '', u) for u, t in links(base, txt) if f'/companies/{org}/' in u and t]
+        total = None
     seen, out = set(), []
     for j in jobs:
         if j[2] not in seen: seen.add(j[2]); out.append(j)
-    return out, len(out)
+    return out, total if isinstance(total, int) else len(out)
 def a_teamtailor(host):
-    base, txt = get(f'https://{host}/jobs')
-    jobs = [(t, '', u) for u, t in links(base, txt) if re.search(r'/jobs/\d+', u) and t]
-    seen, out = set(), []
-    for j in jobs:
-        if j[2] not in seen: seen.add(j[2]); out.append(j)
-    return out, len(out)
+    # RSS-Feed enthält alle Stellen (die HTML-Liste lädt nach); Umleitung auf eigene Domain = Board nicht mehr aktiv
+    base, txt = get(f'https://{host}/jobs.rss')
+    if urllib.parse.urlsplit(base).hostname != host: raise HttpErr('Teamtailor umgeleitet auf ' + base[:80])
+    root = ET.fromstring(txt.encode('utf-8'))
+    jobs = []
+    for it in root.iter('item'):
+        locs = [clean(e.text) for e in it.iter() if e.tag.endswith('}city') and e.text]
+        jobs.append((it.findtext('title') or '', ', '.join(dict.fromkeys(locs)), it.findtext('link') or f'https://{host}/jobs'))
+    return jobs, len(jobs)
 def a_web(url):
     # Generisch: alle Links, deren Text nach Stelle aussieht (Titel-Filter kommt später)
     base, txt = get(url)
