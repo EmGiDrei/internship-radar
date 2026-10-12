@@ -666,8 +666,8 @@ details.filters textarea { resize: vertical; min-height: 84px; }
     return [...set].sort();
   }
   function unapprovedSources() {
-    const ok = new Set(S.config?.approved || []);
-    return currentSources().filter((u) => !ok.has(u));
+    // Skript-Scan (seit 12.10.): kein Freigabeverfahren mehr nötig, das Skript ruft Quellen direkt ab.
+    return [];
   }
   function buildPrompt(urls) {
     const tpl = $("#scan-template").textContent;
@@ -771,9 +771,6 @@ details.filters textarea { resize: vertical; min-height: 84px; }
         await S.db.doc("startups/" + id).set({ ...v, liste: "eigene", stage: "", li_url: "", added: new Date().toISOString() });
       }
       $("#dlg").close(); toast("Gespeichert");
-      if (v.source_url && !v.source_url.includes("startupmap.one") && !(S.config?.approved || []).includes(v.source_url)) {
-        toast("Gespeichert – für geplante Läufe unter „Läufe“ freigeben");
-      }
     } catch (e) {
       $("#dlgMsg").textContent = e?.code === "invalid_argument" ? "Du hast keine Schreibrechte für diese Datenbank." : `Speichern fehlgeschlagen (${e?.code || "Fehler"}). Bitte erneut versuchen.`;
     } finally { $("#saveBtn").disabled = false; }
