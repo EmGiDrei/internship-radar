@@ -1,0 +1,4505 @@
+{
+"unosecur": {
+"id": "unosecur",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.unosecur.com/",
+"career": "https://www.unosecur.com/careers",
+"conf": "mittel"
+},
+"proxima-fusion": {
+"id": "proxima-fusion",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://proximafusion.com",
+"career": "https://proximafusion.com/careers/open-positions",
+"ats": "ashby",
+"board": "https://jobs.ashbyhq.com/proxima-fusion",
+"n": 50,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"hypcloud": {
+"id": "hypcloud",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.hypcloud.de/"
+},
+"byrd": {
+"id": "byrd",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://byrd.io"
+},
+"getmomo": {
+"id": "getmomo",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://getmomo.de",
+"career": "https://getmomo.de/magazin/artikel/hausmeister-auf-520-euro-basis.html",
+"ats": "join",
+"board": "https://join.com/companies/getmomo",
+"n": 2,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"localyze": {
+"id": "localyze",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.localyze.com/"
+},
+"amboss": {
+"id": "amboss",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.amboss.com/us",
+"career": "https://careers.amboss.com/",
+"ats": "ashby",
+"board": "https://jobs.ashbyhq.com/amboss",
+"n": 24,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"laserfocus": {
+"id": "laserfocus",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.laserfocus.de/"
+},
+"pina-earth": {
+"id": "pina-earth",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"airteam-aerial-intelligence": {
+"id": "airteam-aerial-intelligence",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null,
+"ats": "join",
+"board": "https://join.com/companies/airteam",
+"n": 2,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"apheris": {
+"id": "apheris",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.apheris.com/",
+"career": "https://www.apheris.com/careers",
+"ats": "personio",
+"board": "https://apheris.jobs.personio.de/",
+"n": 9,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"osapiens": {
+"id": "osapiens",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null,
+"ats": "join",
+"board": "https://join.com/companies/osapiens",
+"n": 0,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"moving-parts": {
+"id": "moving-parts",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.movingparts.de/"
+},
+"hero-software": {
+"id": "hero-software",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://herosoftware.io"
+},
+"topi": {
+"id": "topi",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.topi.eu/de",
+"career": "https://www.topi.eu/de/career",
+"ats": "personio",
+"board": "https://topi.jobs.personio.de/",
+"n": 2,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"buena": {
+"id": "buena",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://buena.ai",
+"ats": "ashby",
+"board": "https://jobs.ashbyhq.com/buena",
+"n": 16,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"ablefy": {
+"id": "ablefy",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://ablefy.io/",
+"career": "https://ablefy.io/loesungen/marketing-automatisierung/",
+"conf": "mittel"
+},
+"claimsforce": {
+"id": "claimsforce",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://claimsforce.com",
+"career": "https://claimsforce.com/karriere",
+"conf": "mittel"
+},
+"robco": {
+"id": "robco",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://robco.com/en/",
+"career": "https://robco.com/en/about/careers",
+"ats": "ashby",
+"board": "https://jobs.ashbyhq.com/robco",
+"n": 30,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"kenbi": {
+"id": "kenbi",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://kenbi.de"
+},
+"quantumdiamonds": {
+"id": "quantumdiamonds",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null,
+"ats": "ashby",
+"board": "https://jobs.ashbyhq.com/quantumdiamonds",
+"n": 2,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"mirantus-health": {
+"id": "mirantus-health",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"hypersonica": {
+"id": "hypersonica",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.hypersonica.com/",
+"career": "https://www.hypersonica.com/en/careers/",
+"ats": "lever",
+"board": "https://jobs.lever.co/hypersonica-prod",
+"n": 43,
+"conf": "hoch"
+},
+"traindoo": {
+"id": "traindoo",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.traindoo.io/"
+},
+"taktile": {
+"id": "taktile",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://taktile.com",
+"career": "https://taktile.com/careers",
+"ats": "ashby",
+"board": "https://jobs.ashbyhq.com/taktile",
+"n": 39,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"blueferrite": {
+"id": "blueferrite",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://blueferrite.eu"
+},
+"powerus": {
+"id": "powerus",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://powerus.de",
+"career": "https://powerus.de/anlagenmechaniker-shk-jobs",
+"ats": "ashby",
+"board": "https://jobs.ashbyhq.com/powerus",
+"n": 2,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"bluebottle": {
+"id": "bluebottle",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"arc-intelligence": {
+"id": "arc-intelligence",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.arcintelligence.ai/"
+},
+"zauber": {
+"id": "zauber",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://zauber.tech",
+"ats": "ashby",
+"board": "https://jobs.ashbyhq.com/zauber",
+"n": 5,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"bliq": {
+"id": "bliq",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.bliq.ai/",
+"career": "https://www.bliq.ai/careers",
+"ats": "personio",
+"board": "https://bliq.jobs.personio.de/",
+"n": 12,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"bunton": {
+"id": "bunton",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://bunton.de"
+},
+"super44": {
+"id": "super44",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://super44.ai/en-us?s44_locale=inferred",
+"career": "https://super44-jobs.notion.site/Join-Super44-2a7e8d1f07b5805b8748db49bd03a0b8?pvs=74",
+"conf": "mittel"
+},
+"aisupervision": {
+"id": "aisupervision",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.aisupervision.com/"
+},
+"everphone": {
+"id": "everphone",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://everphone.com:443/de",
+"ats": "join",
+"board": "https://join.com/companies/everphone",
+"n": 4,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"heycharge": {
+"id": "heycharge",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.heycharge.de/"
+},
+"bayshore-ai": {
+"id": "bayshore-ai",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://bayshoreai.com"
+},
+"ahron": {
+"id": "ahron",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://ahron.ai"
+},
+"celus": {
+"id": "celus",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.celus.io/",
+"career": "https://celus.jobs.personio.de/?language=en",
+"ats": "personio",
+"board": "https://celus.jobs.personio.de/",
+"n": 2,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"nomos": {
+"id": "nomos",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.nomos.de/",
+"career": "https://www.nomos.de/karriere/",
+"ats": "ashby",
+"board": "https://jobs.ashbyhq.com/nomos",
+"n": 11,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"wefox": {
+"id": "wefox",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"n8n": {
+"id": "n8n",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://n8n.io",
+"career": "https://n8n.io/careers/",
+"ats": "ashby",
+"board": "https://jobs.ashbyhq.com/n8n",
+"n": 40,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"metycle": {
+"id": "metycle",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.metycle.com/",
+"career": "https://metycle.jobs.personio.com/",
+"ats": "personio",
+"board": "https://metycle.jobs.personio.com/",
+"n": 4,
+"conf": "hoch"
+},
+"telli": {
+"id": "telli",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.telli.com/de",
+"career": "https://www.telli.com/careers",
+"ats": "ashby",
+"board": "https://jobs.ashbyhq.com/telli",
+"n": 20,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"tilla": {
+"id": "tilla",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.tilla.tech/",
+"career": "https://jobs.ashbyhq.com/tilla",
+"ats": "ashby",
+"board": "https://jobs.ashbyhq.com/tilla",
+"n": 0,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"daslab": {
+"id": "daslab",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://daslab.ai/en"
+},
+"purpose-green": {
+"id": "purpose-green",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.purpose-green.com/",
+"career": "https://www.purpose-green.com/karriere",
+"ats": "personio",
+"board": "https://purpose-green.jobs.personio.de/",
+"n": 0,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"pyne": {
+"id": "pyne",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://pyne.io",
+"ats": "join",
+"board": "https://join.com/companies/pyne",
+"n": 0,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"skalar": {
+"id": "skalar",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://skalar.de",
+"career": "https://skalar.de/careers",
+"ats": "ashby",
+"board": "https://jobs.ashbyhq.com/skalar",
+"n": 17,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"finanzguru": {
+"id": "finanzguru",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://finanzguru.de",
+"career": "https://finanzguru.de/karriere",
+"conf": "mittel"
+},
+"synthflow-ai": {
+"id": "synthflow-ai",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"nelly": {
+"id": "nelly",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://nelly.com/de/",
+"ats": "ashby",
+"board": "https://jobs.ashbyhq.com/nelly",
+"n": 14,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"mindpeak": {
+"id": "mindpeak",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://mindpeak.de",
+"ats": "ashby",
+"board": "https://jobs.ashbyhq.com/mindpeak",
+"n": 6,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"eleqtron": {
+"id": "eleqtron",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.eleqtron.nl/"
+},
+"twogee-biotech": {
+"id": "twogee-biotech",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.twogee-biotech.com/"
+},
+"experial": {
+"id": "experial",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.experial.ai/",
+"ats": "personio",
+"board": "https://experial.jobs.personio.de/",
+"n": 0,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"getsafe": {
+"id": "getsafe",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null,
+"ats_fail": [
+"personio: HTTP 404"
+]
+},
+"twaive": {
+"id": "twaive",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"milano-vice": {
+"id": "milano-vice",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"roger": {
+"id": "roger",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.roger.com/",
+"ats": "join",
+"board": "https://join.com/companies/roger",
+"n": 7,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"cozero": {
+"id": "cozero",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.cozero.io/",
+"career": "https://careers.cozero.io/",
+"conf": "mittel"
+},
+"gridscale": {
+"id": "gridscale",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://gridscale.io",
+"career": "https://gridscale.recruitee.com/",
+"ats": "recruitee",
+"board": "https://gridscale.recruitee.com/",
+"n": 3,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"erc-system": {
+"id": "erc-system",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.erc-system.com/",
+"career": "https://www.erc-system.com/careers",
+"ats": "personio",
+"board": "https://ercsystem.jobs.personio.de/",
+"n": 27,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"desion": {
+"id": "desion",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://desion.de"
+},
+"anybill": {
+"id": "anybill",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.anybill.de/",
+"career": "https://www.anybill.de/loesungen/tankstelle-und-convenience-stores",
+"ats": "personio",
+"board": "https://anybill.jobs.personio.de/",
+"n": 0,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"even-realities": {
+"id": "even-realities",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.evenrealities.com/"
+},
+"tawo": {
+"id": "tawo",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://tawo.de"
+},
+"enerkite": {
+"id": "enerkite",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"bavest": {
+"id": "bavest",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.bavest.co/de",
+"career": "https://www.bavest.co/de/career",
+"conf": "mittel"
+},
+"futurail": {
+"id": "futurail",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.futurail.com/"
+},
+"talon-one": {
+"id": "talon-one",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null,
+"ats": "greenhouse",
+"board": "https://job-boards.greenhouse.io/talonone",
+"n": 21,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"centinel-analytica": {
+"id": "centinel-analytica",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.centinelanalytica.com/",
+"career": "https://www.centinelanalytica.com/careers",
+"conf": "mittel"
+},
+"enviria": {
+"id": "enviria",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://enviria.energy/",
+"career": "https://enviria.energy/anfrage",
+"ats": "personio",
+"board": "https://enviria.jobs.personio.de/",
+"n": 8,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"trawa": {
+"id": "trawa",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null,
+"ats": "ashby",
+"board": "https://jobs.ashbyhq.com/trawa",
+"n": 19,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"billie": {
+"id": "billie",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.billie.de/",
+"ats": "ashby",
+"board": "https://jobs.ashbyhq.com/billie",
+"n": 1,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"truemetrics": {
+"id": "truemetrics",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://truemetrics.eu"
+},
+"motor-ai": {
+"id": "motor-ai",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://motorai.tech",
+"ats": "join",
+"board": "https://join.com/companies/motor-ai",
+"n": 13,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"alpine-eagle": {
+"id": "alpine-eagle",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://alpineeagle.com",
+"career": "https://alpineeagle.com/join-us/",
+"ats": "greenhouse",
+"board": "https://job-boards.eu.greenhouse.io/alpineeagle",
+"n": 15,
+"conf": "hoch"
+},
+"peec-ai": {
+"id": "peec-ai",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"lumoview-building-analytics": {
+"id": "lumoview-building-analytics",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"mcmakler": {
+"id": "mcmakler",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.mcmakler.de/",
+"career": "https://www.mcmakler.de/karriere",
+"ats": "join",
+"board": "https://join.com/companies/mcmakler",
+"n": 0,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"superchat": {
+"id": "superchat",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.superchat.de/",
+"career": "https://www.superchat.de/karriere",
+"ats": "greenhouse",
+"board": "https://job-boards.eu.greenhouse.io/superchat",
+"n": 15,
+"conf": "hoch"
+},
+"hypatos": {
+"id": "hypatos",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.hypatos.ai/",
+"career": "https://www.hypatos.ai/careers",
+"ats": "personio",
+"board": "https://hypatos-gmbh.jobs.personio.de/",
+"n": 3,
+"conf": "hoch"
+},
+"yepoda": {
+"id": "yepoda",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://yepoda.de",
+"career": "https://yepoda.de/collections/your-4-favorites",
+"ats": "ashby",
+"board": "https://jobs.ashbyhq.com/yepoda",
+"n": 12,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"ory": {
+"id": "ory",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.ory.com/",
+"career": "https://www.ory.com/jobs",
+"ats": "personio",
+"board": "https://ory.jobs.personio.de/",
+"n": 0,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"ellipsus": {
+"id": "ellipsus",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://ellipsus.com"
+},
+"payrails": {
+"id": "payrails",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.payrails.com/",
+"career": "https://www.payrails.com/careers",
+"ats": "ashby",
+"board": "https://jobs.ashbyhq.com/payrails",
+"n": 2,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"praxipal": {
+"id": "praxipal",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null,
+"ats": "ashby",
+"board": "https://jobs.ashbyhq.com/praxipal",
+"n": 8,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"green-banana-group": {
+"id": "green-banana-group",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://greenbanana.group/"
+},
+"kraftling": {
+"id": "kraftling",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null,
+"ats": "personio",
+"board": "https://kraftling.jobs.personio.de/",
+"n": 3,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"deepslate": {
+"id": "deepslate",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://deepslate.eu/",
+"ats": "ashby",
+"board": "https://jobs.ashbyhq.com/deepslate",
+"n": 5,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"simpleclub": {
+"id": "simpleclub",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://simpleclub.com/",
+"career": "https://simpleclub.com/careers",
+"ats_fail": [
+"greenhouse: HTTP 404"
+],
+"ats": "join",
+"board": "https://join.com/companies/simpleclub",
+"n": 3,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"ostrom": {
+"id": "ostrom",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.ostrom.de/",
+"career": "https://store.ostrom.de/",
+"ats": "ashby",
+"board": "https://jobs.ashbyhq.com/Ostrom",
+"n": 4,
+"conf": "hoch"
+},
+"claro": {
+"id": "claro",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.claro.com/"
+},
+"equipme": {
+"id": "equipme",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://equipme.io",
+"ats_fail": [
+"personio: HTTP 404",
+"personio: HTTP 404"
+]
+},
+"timeless-investments": {
+"id": "timeless-investments",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://timelessinvestments.com",
+"ats": "personio",
+"board": "https://timeless-investments.jobs.personio.de/",
+"n": 3,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"donnerstag-ai": {
+"id": "donnerstag-ai",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"valuecase": {
+"id": "valuecase",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.valuecase.com/",
+"ats": "join",
+"board": "https://join.com/companies/valuecase",
+"n": 0,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"amber": {
+"id": "amber",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://amber.de",
+"career": "https://amber.de/karriere/",
+"ats": "ashby",
+"board": "https://jobs.ashbyhq.com/amber",
+"n": 21,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"vaayu": {
+"id": "vaayu",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null,
+"ats": "join",
+"board": "https://join.com/companies/vaayu",
+"n": 0,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"nilo": {
+"id": "nilo",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://nilo.io",
+"career": "https://nilo.io/careers",
+"conf": "pruefen"
+},
+"shipzero": {
+"id": "shipzero",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.shipzero.com/",
+"career": "https://www.shipzero.com/career",
+"ats": "personio",
+"board": "https://shipzero.jobs.personio.de/",
+"n": 3,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"kraftblock": {
+"id": "kraftblock",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.kraftblock.com/de",
+"career": "https://www.kraftblock.com/de/industrien/individuelle-loesungen",
+"ats": "personio",
+"board": "https://kraftblock.jobs.personio.de/",
+"n": 0,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"neutron-star-systems": {
+"id": "neutron-star-systems",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"cosy-green": {
+"id": "cosy-green",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"speekly": {
+"id": "speekly",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://speekly.de",
+"career": "https://speekly.de/karriere",
+"ats": "join",
+"board": "https://join.com/companies/speekly",
+"n": 1,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"buildjet": {
+"id": "buildjet",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://buildjet.com/for-github-actions"
+},
+"mirelo-ai": {
+"id": "mirelo-ai",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"curevision": {
+"id": "curevision",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://curevision.de",
+"ats": "join",
+"board": "https://join.com/companies/curevision",
+"n": 2,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"tangany": {
+"id": "tangany",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://tangany.com",
+"career": "https://tangany.com/jobs",
+"ats": "join",
+"board": "https://join.com/companies/tangany",
+"n": 1,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"aivy": {
+"id": "aivy",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null,
+"ats": "join",
+"board": "https://join.com/companies/aivy",
+"n": 1,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"peopleix": {
+"id": "peopleix",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.peopleix.com/de",
+"ats": "join",
+"board": "https://join.com/companies/peopleix",
+"n": 1,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"midas": {
+"id": "midas",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.midas.com/",
+"career": "https://www.midas.com/careers",
+"conf": "pruefen"
+},
+"roofline": {
+"id": "roofline",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.roofline.ai/",
+"career": "https://www.roofline.ai/#career",
+"ats": "personio",
+"board": "https://rooflineai-gmbh.jobs.personio.de/",
+"n": 3,
+"conf": "hoch"
+},
+"epilot": {
+"id": "epilot",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.epilot.cloud/",
+"career": "https://www.epilot.cloud/unternehmen/karriere",
+"ats": "recruitee",
+"board": "https://epilot.recruitee.com/",
+"n": 10,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"aignostics": {
+"id": "aignostics",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.aignostics.com/",
+"career": "https://www.aignostics.com/company/careers",
+"ats": "personio",
+"board": "https://aignostics.jobs.personio.de/",
+"n": 0,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"pult": {
+"id": "pult",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.pult.com/de",
+"career": "https://join.com/companies/pult",
+"ats": "join",
+"board": "https://join.com/companies/pult",
+"n": 1,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"orbit-health": {
+"id": "orbit-health",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.orbithealth.com/",
+"career": "https://www.orbithealth.com/careers/",
+"ats": "ashby",
+"board": "https://jobs.ashbyhq.com/orbithealth",
+"n": 1,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"langfuse": {
+"id": "langfuse",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://langfuse.com",
+"career": "https://langfuse.com/careers",
+"conf": "mittel"
+},
+"pruna-ai": {
+"id": "pruna-ai",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"legaltegrity": {
+"id": "legaltegrity",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://legaltegrity.com",
+"ats": "join",
+"board": "https://join.com/companies/legaltegrity",
+"n": 0,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"kittl": {
+"id": "kittl",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.kittl.com:443/"
+},
+"tl-dv": {
+"id": "tl-dv",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://tldv.io"
+},
+"finmid": {
+"id": "finmid",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://finmid.com"
+},
+"autonomo-technologies": {
+"id": "autonomo-technologies",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://autonomo.ai"
+},
+"finao": {
+"id": "finao",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://finao.se/"
+},
+"cognigy": {
+"id": "cognigy",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.cognigy.com/de/",
+"career": "https://www.cognigy.com/careers",
+"conf": "mittel"
+},
+"tabula": {
+"id": "tabula",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://tabula.de",
+"career": "https://tabula.de/jobs",
+"conf": "mittel"
+},
+"ecoplanet": {
+"id": "ecoplanet",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.ecoplanet.com/"
+},
+"plancraft": {
+"id": "plancraft",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null,
+"ats": "ashby",
+"board": "https://jobs.ashbyhq.com/plancraft",
+"n": 17,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"revideo": {
+"id": "revideo",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://revideo.ai/en"
+},
+"retraced": {
+"id": "retraced",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.retraced.com/",
+"career": "https://www.retraced.com/pages/careers",
+"ats": "teamtailor",
+"board": "https://retraced.teamtailor.com/jobs",
+"n": 0,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"autarc": {
+"id": "autarc",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null,
+"ats": "join",
+"board": "https://join.com/companies/autarc",
+"n": 0,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"reado": {
+"id": "reado",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://reado.app/de",
+"career": "https://reado.app/de/book/die-psychiaterin-wurde-ihr-der-job-zum-verhaengnis-freida-mcfadden/9783453443556",
+"ats": "join",
+"board": "https://join.com/companies/reado",
+"n": 0,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"feld-energy": {
+"id": "feld-energy",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null,
+"ats": "personio",
+"board": "https://feld-energy.jobs.personio.de/",
+"n": 5,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"arcos": {
+"id": "arcos",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://arcos.de",
+"career": "https://arcos.de/unternehmen/#Karriere",
+"conf": "pruefen"
+},
+"comstruct": {
+"id": "comstruct",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://comstruct.com/en/general-contractors",
+"career": "https://comstruct.com/en/karriere",
+"ats": "ashby",
+"board": "https://jobs.ashbyhq.com/comstruct",
+"n": 12,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"usercentrics": {
+"id": "usercentrics",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"myriameat": {
+"id": "myriameat",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://myriameat.com",
+"career": "https://myriameat.com/#careers",
+"conf": "mittel"
+},
+"focused-energy": {
+"id": "focused-energy",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"hawk-ai": {
+"id": "hawk-ai",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://hawkai.com"
+},
+"instagrid": {
+"id": "instagrid",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://instagrid.co/de",
+"ats": "join",
+"board": "https://join.com/companies/instagrid",
+"n": 0,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"niostem": {
+"id": "niostem",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://niostem.com/de"
+},
+"atira": {
+"id": "atira",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://atira.ai",
+"career": "https://atira.ai/company",
+"ats": "ashby",
+"board": "https://jobs.ashbyhq.com/atira",
+"n": 11,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"disco-pharmaceuticals": {
+"id": "disco-pharmaceuticals",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"key-ward": {
+"id": "key-ward",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://keyward.com"
+},
+"ona": {
+"id": "ona",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://ona.com",
+"career": "https://ona.com/careers",
+"ats_fail": [
+"ashby: HTTP 404"
+],
+"conf": "pruefen"
+},
+"sosafe": {
+"id": "sosafe",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://sosafe.ae/",
+"ats": "ashby",
+"board": "https://jobs.ashbyhq.com/sosafe",
+"n": 25,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"meet5": {
+"id": "meet5",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.meet5.de/",
+"site_err": "HTTP 429",
+"ats": "join",
+"board": "https://join.com/companies/meet5",
+"n": 5,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"ucaneo": {
+"id": "ucaneo",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://ucaneo.com",
+"career": "https://ucaneo.com/company#careers",
+"ats": "personio",
+"board": "https://ucaneo.jobs.personio.com/",
+"n": 8,
+"conf": "hoch"
+},
+"cansativa": {
+"id": "cansativa",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.cansativa.de/",
+"career": "https://www.cansativa.de/karriere/",
+"ats": "personio",
+"board": "https://cansativa.jobs.personio.de/",
+"n": 2,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"galvany": {
+"id": "galvany",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://galvany.de",
+"career": "https://galvany.de/karriere",
+"ats": "ashby",
+"board": "https://jobs.ashbyhq.com/galvany",
+"n": 24,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"yappybuy": {
+"id": "yappybuy",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://yappybuy.com"
+},
+"tytan-technologies": {
+"id": "tytan-technologies",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://tytan.com"
+},
+"tower": {
+"id": "tower",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://tower.com"
+},
+"langdock": {
+"id": "langdock",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null,
+"ats": "ashby",
+"board": "https://jobs.ashbyhq.com/langdock",
+"n": 22,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"doctorly": {
+"id": "doctorly",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.doctorly.de/",
+"career": "https://doctorly-germany.jobs.personio.de/",
+"ats": "personio",
+"board": "https://doctorly-germany.jobs.personio.de/",
+"n": 0,
+"conf": "hoch"
+},
+"tiptap": {
+"id": "tiptap",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"certif-id-international": {
+"id": "certif-id-international",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"voiceline": {
+"id": "voiceline",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://voiceline.ai/",
+"career": "https://voiceline.jobs.personio.de/",
+"ats_fail": [
+"personio: HTTP 404"
+],
+"conf": "mittel"
+},
+"diligent": {
+"id": "diligent",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.diligent.com/de",
+"career": "https://www.diligent.com/company/careers",
+"ats": "greenhouse",
+"board": "https://job-boards.greenhouse.io/diligent",
+"n": 6,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"meisterwerk": {
+"id": "meisterwerk",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null,
+"ats": "join",
+"board": "https://join.com/companies/meisterwerk",
+"n": 0,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"voltfang": {
+"id": "voltfang",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://voltfang.de",
+"career": "https://voltfang.de/ueber-uns/karriere/",
+"ats": "personio",
+"board": "https://voltfang.jobs.personio.de/",
+"n": 14,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"mitte": {
+"id": "mitte",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://mitte.ai",
+"career": "https://mitte.ai/careers",
+"conf": "pruefen"
+},
+"inplanet": {
+"id": "inplanet",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"li-fi": {
+"id": "li-fi",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://lifi.io/de"
+},
+"koro": {
+"id": "koro",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null,
+"ats": "ashby",
+"board": "https://jobs.ashbyhq.com/koro",
+"n": 16,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"helsing": {
+"id": "helsing",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.helsing.com/",
+"career": "https://www.helsing.com/careers/",
+"ats": "greenhouse",
+"board": "https://job-boards.greenhouse.io/helsing",
+"n": 156,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"tripleye": {
+"id": "tripleye",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.tripleye.com/",
+"site_err": "HTTP 429",
+"ats": "join",
+"board": "https://join.com/companies/tripleye",
+"n": 0,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"blocksize": {
+"id": "blocksize",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"dexter": {
+"id": "dexter",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://dexter.com",
+"career": "https://dexter.com/about-us/careers/",
+"conf": "mittel"
+},
+"ahead-solutions": {
+"id": "ahead-solutions",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"likeminded": {
+"id": "likeminded",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null,
+"ats": "join",
+"board": "https://join.com/companies/likeminded",
+"n": 0,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"kausable": {
+"id": "kausable",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://kausable.ai/"
+},
+"edurino": {
+"id": "edurino",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.edurino.com/",
+"career": "https://www.edurino.com/products/bundle-builder",
+"ats": "personio",
+"board": "https://edurino.jobs.personio.de/",
+"n": 2,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"demodesk": {
+"id": "demodesk",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://demodesk.ai/de",
+"career": "https://demodesk.ai/case-studies/heyjobs",
+"ats": "personio",
+"board": "https://demodesk-gmbh.jobs.personio.de/",
+"n": 5,
+"conf": "hoch"
+},
+"aumio": {
+"id": "aumio",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.aumio.com/"
+},
+"askui": {
+"id": "askui",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.askui.com/",
+"career": "https://askui-gmbh.jobs.personio.com/",
+"ats": "personio",
+"board": "https://askui-gmbh.jobs.personio.com/",
+"n": 0,
+"conf": "hoch"
+},
+"zapdeck": {
+"id": "zapdeck",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.zapdeck.ai/",
+"ats": "join",
+"board": "https://join.com/companies/zapdeck",
+"n": 0,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"forgent": {
+"id": "forgent",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.forgent.ai/",
+"career": "https://www.forgent.ai/company/careers",
+"conf": "mittel"
+},
+"neocarbon": {
+"id": "neocarbon",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://neocarbon.tech/de",
+"career": "https://neocarbon.tech/de/careers",
+"conf": "mittel"
+},
+"fernride": {
+"id": "fernride",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.fernride.com/",
+"career": "https://www.fernride.com/open-positions",
+"ats": "greenhouse",
+"board": "https://job-boards.greenhouse.io/fernride",
+"n": 0,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"blindmate": {
+"id": "blindmate",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://blindmate.de"
+},
+"freshflow": {
+"id": "freshflow",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://freshflow.ai",
+"career": "https://freshflow.ai/careers/",
+"conf": "mittel"
+},
+"cakewalk": {
+"id": "cakewalk",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.cakewalk.com/"
+},
+"textcortex": {
+"id": "textcortex",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://textcortex.com",
+"ats": "join",
+"board": "https://join.com/companies/textcortex",
+"n": 0,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"hexafarms": {
+"id": "hexafarms",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://hexafarms.com",
+"ats": "personio",
+"board": "https://hexafarms.jobs.personio.de/",
+"n": 3,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"upvest": {
+"id": "upvest",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://upvest.co/",
+"career": "https://upvest.co/careers",
+"ats": "ashby",
+"board": "https://jobs.ashbyhq.com/upvest",
+"n": 15,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"pliant": {
+"id": "pliant",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null,
+"ats": "ashby",
+"board": "https://jobs.ashbyhq.com/pliant",
+"n": 38,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"anytype": {
+"id": "anytype",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://anytype.io/"
+},
+"avextra": {
+"id": "avextra",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://avextra.com/",
+"career": "https://avextra.com/karriere-bei-avextra/",
+"ats": "join",
+"board": "https://join.com/companies/avextra",
+"n": 1,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"tacto": {
+"id": "tacto",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.tacto.ai/de",
+"career": "https://www.tacto.ai/de/karriere",
+"ats": "ashby",
+"board": "https://jobs.ashbyhq.com/tacto",
+"n": 22,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"propel": {
+"id": "propel",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://propel.io",
+"ats": "ashby",
+"board": "https://jobs.ashbyhq.com/propel",
+"n": 6,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"alphin": {
+"id": "alphin",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.alphin.com/",
+"career": "https://www.alphin.com/en/career",
+"ats_fail": [
+"personio: HTTP 404"
+],
+"ats": "join",
+"board": "https://join.com/companies/alphin",
+"n": 0,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"cashlink": {
+"id": "cashlink",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://cashlink.de/de/",
+"career": "https://cashlink.de/de/karriere/",
+"ats": "personio",
+"board": "https://cashlink.jobs.personio.de/",
+"n": 1,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"einhundert-energy": {
+"id": "einhundert-energy",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"climatiq": {
+"id": "climatiq",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.climatiq.io/",
+"career": "https://www.climatiq.io/about#jobs",
+"ats": "ashby",
+"board": "https://jobs.ashbyhq.com/climatiq",
+"n": 1,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"sastrify": {
+"id": "sastrify",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.sastrify.com/",
+"career": "https://www.sastrify.com/careers",
+"ats": "personio",
+"board": "https://sastrify.jobs.personio.de/",
+"n": 0,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"building-radar": {
+"id": "building-radar",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://buildingradar.com",
+"career": "https://buildingradar.com/career",
+"ats": "personio",
+"board": "https://building-radar.jobs.personio.de/",
+"n": 1,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"rulemapping": {
+"id": "rulemapping",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://rulemapping.com/de",
+"career": "https://rulemapping.com/de/careers",
+"ats": "personio",
+"board": "https://rulemapping.jobs.personio.com/",
+"n": 14,
+"conf": "hoch"
+},
+"gotiger": {
+"id": "gotiger",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"venta-ai": {
+"id": "venta-ai",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"oska-health": {
+"id": "oska-health",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.oska-health.com/"
+},
+"otark": {
+"id": "otark",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://otark.com/de",
+"career": "https://otark.com/de/careers",
+"ats": "join",
+"board": "https://join.com/companies/otark",
+"n": 0,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"restate": {
+"id": "restate",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://restate.com",
+"ats": "ashby",
+"board": "https://jobs.ashbyhq.com/restate",
+"n": 7,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"louco": {
+"id": "louco",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"leonardo-impact": {
+"id": "leonardo-impact",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"workmotion": {
+"id": "workmotion",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.workmotion.de/"
+},
+"black-forest-labs": {
+"id": "black-forest-labs",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null,
+"ats": "ashby",
+"board": "https://jobs.ashbyhq.com/black-forest-labs",
+"n": 14,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"minubo": {
+"id": "minubo",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.minubo.com/de/",
+"career": "https://www.minubo.com/de/karriere",
+"conf": "mittel"
+},
+"inkitt": {
+"id": "inkitt",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.inkitt.com/",
+"career": "https://www.inkitt.com/jobs",
+"ats": "lever",
+"board": "https://jobs.lever.co/inkitt",
+"n": 11,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"sinpex": {
+"id": "sinpex",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.sinpex.de/",
+"career": "https://www.sinpex.de/about-us#careers",
+"conf": "mittel"
+},
+"allo": {
+"id": "allo",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://allo.io/de"
+},
+"clue": {
+"id": "clue",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://clue.ch/",
+"career": "https://clue.ch/about/?target=join_us_section&offset=-10",
+"conf": "pruefen"
+},
+"planqc": {
+"id": "planqc",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://planqc.eu",
+"career": "https://planqc.eu/company/careers",
+"ats": "personio",
+"board": "https://planqc-gmbh.jobs.personio.de/",
+"n": 20,
+"conf": "hoch"
+},
+"kugelaudio": {
+"id": "kugelaudio",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.kugelaudio.com/de",
+"career": "https://www.kugelaudio.com/en/careers",
+"conf": "mittel"
+},
+"finnyx-ai": {
+"id": "finnyx-ai",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"kitekraft": {
+"id": "kitekraft",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.kitekraft.de/"
+},
+"konvo-ai": {
+"id": "konvo-ai",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://konvoai.com",
+"career": "https://konvoai.com/careers",
+"conf": "mittel"
+},
+"cerpro": {
+"id": "cerpro",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"unchained-robotics": {
+"id": "unchained-robotics",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://unchainedrobotics.de",
+"career": "https://unchainedrobotics.de/karriere",
+"ats": "personio",
+"board": "https://unchained-robotics-gmbh.jobs.personio.de/",
+"n": 10,
+"conf": "hoch"
+},
+"vinlivt": {
+"id": "vinlivt",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.vinlivt.de/",
+"career": "https://www.vinlivt.de/careers",
+"conf": "mittel"
+},
+"spotixx": {
+"id": "spotixx",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://spotixx.com/",
+"career": "https://spotixx.com/career-at-spotixx/",
+"ats": "join",
+"board": "https://join.com/companies/spotixxcom",
+"n": 3,
+"conf": "hoch"
+},
+"vamo": {
+"id": "vamo",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null,
+"ats": "ashby",
+"board": "https://jobs.ashbyhq.com/vamo",
+"n": 0,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"rail-flow": {
+"id": "rail-flow",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://railflow.ai",
+"ats": "personio",
+"board": "https://rail-flow.jobs.personio.de/",
+"n": 4,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"sedivention": {
+"id": "sedivention",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://sedivention.de/de"
+},
+"pretzel-ai": {
+"id": "pretzel-ai",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"plato": {
+"id": "plato",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://plato.ai"
+},
+"atlin-tech": {
+"id": "atlin-tech",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"comas": {
+"id": "comas",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://comas.tech"
+},
+"ivycheck": {
+"id": "ivycheck",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"munevo": {
+"id": "munevo",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://munevo.com/de",
+"site_err": "URLError: <urlopen error [Errno 104] Connection reset by peer>"
+},
+"nvision-quantum-technologies": {
+"id": "nvision-quantum-technologies",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"vay": {
+"id": "vay",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null,
+"ats": "greenhouse",
+"board": "https://job-boards.greenhouse.io/vay",
+"n": 16,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"5u-ai": {
+"id": "5u-ai",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"apaleo": {
+"id": "apaleo",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.apaleo.com/de",
+"career": "https://www.apaleo.com/de/karriere",
+"ats": "greenhouse",
+"board": "https://job-boards.greenhouse.io/apaleo",
+"n": 8,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"embold-technologies": {
+"id": "embold-technologies",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://embold.com"
+},
+"hallo-theo": {
+"id": "hallo-theo",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null,
+"ats": "join",
+"board": "https://join.com/companies/hallo-theo",
+"n": 1,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"thermosphr": {
+"id": "thermosphr",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"cylib": {
+"id": "cylib",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.cylib.de/",
+"career": "https://www.cylib.de/jobs",
+"ats": "personio",
+"board": "https://cylib-gmbh.jobs.personio.com/",
+"n": 14,
+"conf": "hoch"
+},
+"violet": {
+"id": "violet",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.violet.de/",
+"ats": "ashby",
+"board": "https://jobs.ashbyhq.com/violet",
+"n": 0,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"knowunity": {
+"id": "knowunity",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://knowunity.de",
+"career": "https://knowunity.de/careers",
+"ats": "ashby",
+"board": "https://jobs.ashbyhq.com/knowunity",
+"n": 6,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"manex-ai": {
+"id": "manex-ai",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"born": {
+"id": "born",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.born.com/",
+"career": "https://www.born.com/#careers",
+"ats": "join",
+"board": "https://join.com/companies/slay",
+"n": 0,
+"conf": "hoch"
+},
+"onyo": {
+"id": "onyo",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.onyo.de/",
+"career": "https://www.onyo.de/karriere",
+"ats_fail": [
+"personio: HTTP 404"
+],
+"conf": "pruefen"
+},
+"choco": {
+"id": "choco",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://choco.com/us",
+"career": "https://choco.com/us/careers",
+"ats": "ashby",
+"board": "https://jobs.ashbyhq.com/choco",
+"n": 1,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"implify": {
+"id": "implify",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.implify.de/",
+"career": "https://www.implify.de/job-openings/",
+"ats": "join",
+"board": "https://join.com/companies/implify",
+"n": 4,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"latana": {
+"id": "latana",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.latana.com/"
+},
+"auditone": {
+"id": "auditone",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://auditone.com/index.html",
+"ats": "join",
+"board": "https://join.com/companies/auditone",
+"n": 0,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"levity": {
+"id": "levity",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://levity.ai/en",
+"career": "https://levity.ai/en/about#jobs",
+"conf": "mittel"
+},
+"airmo": {
+"id": "airmo",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.airmo.com/",
+"career": "https://www.airmo.com/careers/",
+"ats": "personio",
+"board": "https://airmo.jobs.personio.de/",
+"n": 9,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"pyroccs": {
+"id": "pyroccs",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://pyroccs.com"
+},
+"karla": {
+"id": "karla",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.karla.de/"
+},
+"se3-labs": {
+"id": "se3-labs",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://se3labs.ai"
+},
+"atmen": {
+"id": "atmen",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null,
+"ats": "join",
+"board": "https://join.com/companies/atmen",
+"n": 1,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"emidat": {
+"id": "emidat",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.emidat.com/de",
+"ats": "ashby",
+"board": "https://jobs.ashbyhq.com/emidat",
+"n": 3,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"fulfillmenttools": {
+"id": "fulfillmenttools",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.fulfillmenttools.com/",
+"career": "https://www.fulfillmenttools.com/company/careers",
+"conf": "mittel"
+},
+"finto": {
+"id": "finto",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null,
+"ats": "ashby",
+"board": "https://jobs.ashbyhq.com/finto",
+"n": 7,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"cloudchipr": {
+"id": "cloudchipr",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://cloudchipr.com"
+},
+"voize": {
+"id": "voize",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.voize.com/",
+"ats": "ashby",
+"board": "https://jobs.ashbyhq.com/voize",
+"n": 45,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"prior-labs": {
+"id": "prior-labs",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://priorlabs.ai",
+"career": "https://priorlabs.ai/careers",
+"ats": "ashby",
+"board": "https://jobs.ashbyhq.com/prior-labs",
+"n": 24,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"appinio": {
+"id": "appinio",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.appinio.com/de/",
+"career": "https://www.appinio.com/en/careers",
+"ats": "greenhouse",
+"board": "https://job-boards.eu.greenhouse.io/appinio",
+"n": 11,
+"conf": "hoch"
+},
+"differential-bio": {
+"id": "differential-bio",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null,
+"ats": "join",
+"board": "https://join.com/companies/differentialbio",
+"n": 0,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"collato": {
+"id": "collato",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://collato.io"
+},
+"aedifion": {
+"id": "aedifion",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://aedifion.com",
+"career": "https://aedifion.com/karriere",
+"ats_fail": [
+"personio: HTTP 404"
+],
+"ats": "recruitee",
+"board": "https://aedifion.recruitee.com/",
+"n": 3,
+"conf": "hoch"
+},
+"remberg": {
+"id": "remberg",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://remberg.com/de",
+"career": "https://remberg.com/career",
+"ats": "ashby",
+"board": "https://jobs.ashbyhq.com/remberg",
+"n": 4,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"second-ride": {
+"id": "second-ride",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://second-ride.de/de"
+},
+"banxware": {
+"id": "banxware",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.banxware.com/",
+"career": "https://www.banxware.com/careers",
+"ats": "personio",
+"board": "https://banxware.jobs.personio.com/",
+"n": 1,
+"conf": "hoch"
+},
+"flank": {
+"id": "flank",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://flank.ai",
+"career": "https://flank.ai/careers",
+"conf": "pruefen"
+},
+"hyperdrives": {
+"id": "hyperdrives",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.hyperdrives.com/",
+"career": "https://www.hyperdrives.com/careers/",
+"conf": "mittel"
+},
+"orbiq": {
+"id": "orbiq",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"regpit": {
+"id": "regpit",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"graswald": {
+"id": "graswald",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"candis": {
+"id": "candis",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.candis.com/"
+},
+"vytal": {
+"id": "vytal",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://vytal.de",
+"ats": "join",
+"board": "https://join.com/companies/vytal",
+"n": 0,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"strive-school": {
+"id": "strive-school",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"embedded-ocean": {
+"id": "embedded-ocean",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://embeddedocean.com"
+},
+"forward-earth": {
+"id": "forward-earth",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.forward-earth.com/",
+"career": "https://forwardearth.recruitee.com",
+"ats": "recruitee",
+"board": "https://forwardearth.recruitee.com/",
+"n": 3,
+"conf": "hoch"
+},
+"quantilope": {
+"id": "quantilope",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.quantilope.com/",
+"career": "https://www.quantilope.com/career-jobs",
+"ats": "personio",
+"board": "https://quantilope-gmbh.jobs.personio.de/",
+"n": 5,
+"conf": "hoch"
+},
+"luca": {
+"id": "luca",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.luca.eu/",
+"career": "https://www.luca.eu/job-und-kariere/",
+"conf": "pruefen"
+},
+"turbit": {
+"id": "turbit",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://turbit.com/de",
+"career": "https://turbit.com/de/career",
+"ats": "join",
+"board": "https://join.com/companies/turbit",
+"n": 0,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"foom": {
+"id": "foom",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://foom.de",
+"career": "https://foom.de/about/#jobs",
+"conf": "pruefen"
+},
+"digid": {
+"id": "digid",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.digid.com/",
+"career": "https://www.digid.com/careers",
+"conf": "pruefen"
+},
+"cello": {
+"id": "cello",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null,
+"ats": "ashby",
+"board": "https://jobs.ashbyhq.com/cello",
+"n": 3,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"qualifyze": {
+"id": "qualifyze",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.qualifyze.com/",
+"career": "https://www.qualifyze.com/careers/",
+"ats": "recruitee",
+"board": "https://qualifyzegmbh.recruitee.com/",
+"n": 13,
+"conf": "hoch"
+},
+"lemonflow": {
+"id": "lemonflow",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://lemonflow.ai"
+},
+"raus": {
+"id": "raus",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.raus.life/de",
+"career": "https://stayraus-gmbh.jobs.personio.de/",
+"ats": "personio",
+"board": "https://stayraus-gmbh.jobs.personio.de/",
+"n": 4,
+"conf": "hoch"
+},
+"sensmore": {
+"id": "sensmore",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://sensmore.com",
+"ats": "ashby",
+"board": "https://jobs.ashbyhq.com/sensmore",
+"n": 11,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"hellgrun": {
+"id": "hellgrun",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null,
+"ats": "join",
+"board": "https://join.com/companies/hellgruen",
+"n": 0,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"ai-omatic-solutions": {
+"id": "ai-omatic-solutions",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"sereact": {
+"id": "sereact",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://sereact.ai",
+"career": "https://sereact.ai/careers",
+"ats": "ashby",
+"board": "https://jobs.ashbyhq.com/sereact",
+"n": 37,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"complydo": {
+"id": "complydo",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.complydo.io/"
+},
+"circula": {
+"id": "circula",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://circula.ai"
+},
+"passbase": {
+"id": "passbase",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"gaussml": {
+"id": "gaussml",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"turian": {
+"id": "turian",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.turian.ai/"
+},
+"heyflow": {
+"id": "heyflow",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://heyflow.com/",
+"career": "https://heyflow.com/jobs/",
+"conf": "mittel"
+},
+"bounti": {
+"id": "bounti",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://bounti.ai",
+"ats": "personio",
+"board": "https://bounti.jobs.personio.de/",
+"n": 3,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"reflex-aerospace": {
+"id": "reflex-aerospace",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.reflexaerospace.com/",
+"career": "https://www.reflexaerospace.com/careers",
+"ats": "personio",
+"board": "https://reflex-aerospace-gmbh.jobs.personio.de/",
+"n": 19,
+"conf": "hoch"
+},
+"checkly": {
+"id": "checkly",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://checkly.ai",
+"ats": "ashby",
+"board": "https://jobs.ashbyhq.com/checkly",
+"n": 3,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"prosion-therapeutics": {
+"id": "prosion-therapeutics",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null,
+"ats": "join",
+"board": "https://join.com/companies/prosion",
+"n": 0,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"alpas": {
+"id": "alpas",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://alpas.ai",
+"career": "https://alpas.ai/company/#careers",
+"ats_fail": [
+"personio: HTTP 404"
+],
+"ats": "join",
+"board": "https://join.com/companies/alpas",
+"n": 2,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"tourlane": {
+"id": "tourlane",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.tourlane.de/",
+"ats": "ashby",
+"board": "https://jobs.ashbyhq.com/tourlane",
+"n": 5,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"ororatech": {
+"id": "ororatech",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://ororatech.com/",
+"career": "https://ororatech.com/company/careers",
+"ats": "personio",
+"board": "https://ororatech.jobs.personio.de/",
+"n": 1,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"allride": {
+"id": "allride",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.allride.io/",
+"ats": "join",
+"board": "https://join.com/companies/ticket-plus",
+"n": 0,
+"conf": "hoch"
+},
+"mily-technologies": {
+"id": "mily-technologies",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"project-q": {
+"id": "project-q",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://projectq.com",
+"ats": "personio",
+"board": "https://project-q.jobs.personio.de/",
+"n": 3,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"tradingtwins": {
+"id": "tradingtwins",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.tradingtwins.com/",
+"career": "https://www.tradingtwins.com/karriere",
+"conf": "mittel"
+},
+"kalia-lab": {
+"id": "kalia-lab",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.kalialab.de/",
+"career": "https://www.kalialab.de/karriere",
+"ats": "join",
+"board": "https://join.com/companies/kalialab",
+"n": 0,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"mogenius": {
+"id": "mogenius",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://mogenius.com",
+"career": "https://mogenius.com/career",
+"ats": "join",
+"board": "https://join.com/companies/mogenius",
+"n": 0,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"withida": {
+"id": "withida",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"cheminnovation": {
+"id": "cheminnovation",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://cheminnovation.com"
+},
+"one-five": {
+"id": "one-five",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.one-five.com/"
+},
+"naroiq": {
+"id": "naroiq",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.naroiq.com/",
+"career": "https://join.com/companies/naroiqcom",
+"ats": "join",
+"board": "https://join.com/companies/naroiqcom",
+"n": 2,
+"conf": "hoch"
+},
+"primefold": {
+"id": "primefold",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://primefold.ai",
+"career": "https://primefold.ai/careers",
+"ats_fail": [
+"personio: HTTP 404"
+],
+"conf": "mittel"
+},
+"senvo": {
+"id": "senvo",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.senvo.ai/",
+"ats": "join",
+"board": "https://join.com/companies/senvo",
+"n": 0,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"patronus": {
+"id": "patronus",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.patronus.de/",
+"ats": "ashby",
+"board": "https://jobs.ashbyhq.com/patronus",
+"n": 5,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"luna-europa": {
+"id": "luna-europa",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"bezahl-de": {
+"id": "bezahl-de",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"koppla": {
+"id": "koppla",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://koppla.ai/sv/",
+"ats": "personio",
+"board": "https://koppla.jobs.personio.de/",
+"n": 3,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"dlthub": {
+"id": "dlthub",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://dlthub.com",
+"ats_fail": [
+"workable: HTTP 429"
+]
+},
+"agenta": {
+"id": "agenta",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.agenta.de/",
+"ats": "join",
+"board": "https://join.com/companies/agenta",
+"n": 0,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"smalt": {
+"id": "smalt",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.smalt.com/de/",
+"ats": "join",
+"board": "https://join.com/companies/smalt",
+"n": 0,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"finvia": {
+"id": "finvia",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null,
+"ats": "personio",
+"board": "https://finvia.jobs.personio.de/",
+"n": 2,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"getquin": {
+"id": "getquin",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.getquin.com/de/",
+"career": "https://jobs.getquin.com/",
+"ats": "personio",
+"board": "https://getquin.jobs.personio.de/",
+"n": 9,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"fived": {
+"id": "fived",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://fived.ai/",
+"career": "https://fived.ai/careers/",
+"conf": "pruefen"
+},
+"deepset": {
+"id": "deepset",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"arx-robotics": {
+"id": "arx-robotics",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.arx-robotics.com/",
+"career": "https://www.arx-robotics.com/careers",
+"ats": "greenhouse",
+"board": "https://job-boards.eu.greenhouse.io/arxroboticsgmbh",
+"n": 58,
+"conf": "hoch"
+},
+"archigas": {
+"id": "archigas",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://archigas.com/"
+},
+"lumen-payments": {
+"id": "lumen-payments",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"orbem": {
+"id": "orbem",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.orbem.ai/",
+"career": "https://www.orbem.ai/careers",
+"ats": "ashby",
+"board": "https://jobs.ashbyhq.com/orbem",
+"n": 7,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"dunia-innovations": {
+"id": "dunia-innovations",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"gunzilla-games": {
+"id": "gunzilla-games",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://gunzillagames.de"
+},
+"needle": {
+"id": "needle",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://needle.ai"
+},
+"fratch": {
+"id": "fratch",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://fratch.io/de/"
+},
+"alpha-sophia": {
+"id": "alpha-sophia",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.alphasophia.com/",
+"career": "https://www.alphasophia.com/careers",
+"ats": "join",
+"board": "https://join.com/companies/alphasophia",
+"n": 0,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"everstores": {
+"id": "everstores",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"ottobahn": {
+"id": "ottobahn",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://ottobahn.de",
+"career": "https://ottobahn.de/karriere/",
+"conf": "mittel"
+},
+"stratifai": {
+"id": "stratifai",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.stratifai.com/",
+"career": "https://stratifai.jobs.personio.com/",
+"ats_fail": [
+"personio: HTTP 404",
+"personio: HTTP 404"
+],
+"conf": "mittel"
+},
+"blackwave": {
+"id": "blackwave",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://blackwave.com",
+"career": "https://blackwave.com/career",
+"ats": "personio",
+"board": "https://blackwave.jobs.personio.de/",
+"n": 28,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"ariceum-therapeutics": {
+"id": "ariceum-therapeutics",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"sugartrends": {
+"id": "sugartrends",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"genow": {
+"id": "genow",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.genow.ai/de/",
+"career": "https://genow.jobs.personio.com/?language=de",
+"ats": "personio",
+"board": "https://genow.jobs.personio.com/",
+"n": 1,
+"conf": "hoch"
+},
+"helrom": {
+"id": "helrom",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.helrom.com/",
+"career": "https://www.helrom.com/jobs",
+"ats": "personio",
+"board": "https://helrom-gmbh.jobs.personio.de/",
+"n": 0,
+"conf": "hoch"
+},
+"leadrealizer": {
+"id": "leadrealizer",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.leadrealizer.ai/"
+},
+"sunhat": {
+"id": "sunhat",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null,
+"ats_fail": [
+"personio: HTTP 404"
+]
+},
+"moss": {
+"id": "moss",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.moss.de/",
+"career": "https://www.moss.de/karriere/",
+"ats": "ashby",
+"board": "https://jobs.ashbyhq.com/moss",
+"n": 31,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"aiomics": {
+"id": "aiomics",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.aiomics.io/de",
+"career": "https://www.aiomics.io/de/fuer-krankenhaeuser/aktenabrechnung",
+"conf": "mittel"
+},
+"terra-one": {
+"id": "terra-one",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"sanvivo": {
+"id": "sanvivo",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.sanvivo.eu/"
+},
+"fraugster": {
+"id": "fraugster",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://fraugster.com/",
+"site_err": "HTTP 522"
+},
+"trustnxt": {
+"id": "trustnxt",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://trustnxt.com/de"
+},
+"dash0": {
+"id": "dash0",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.dash0.com/",
+"career": "https://jobs.ashbyhq.com/dash0",
+"ats": "ashby",
+"board": "https://jobs.ashbyhq.com/dash0",
+"n": 46,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"unitelabs": {
+"id": "unitelabs",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://unitelabs.io/",
+"career": "https://unitelabs.jobs.personio.com/",
+"ats": "personio",
+"board": "https://unitelabs.jobs.personio.com/",
+"n": 3,
+"conf": "hoch"
+},
+"kombo": {
+"id": "kombo",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.kombo.co/de",
+"ats": "ashby",
+"board": "https://jobs.ashbyhq.com/kombo",
+"n": 15,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"bita": {
+"id": "bita",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://bita.io"
+},
+"planet-a-foods": {
+"id": "planet-a-foods",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://planet-a-foods.com",
+"career": "https://planet-a-foods.com/careers",
+"ats": "personio",
+"board": "https://planetafoods.jobs.personio.de/",
+"n": 7,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"caelith": {
+"id": "caelith",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://caelith.de",
+"site_err": "URLError: <urlopen error [Errno 104] Connection reset by peer>"
+},
+"buynomics": {
+"id": "buynomics",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.buynomics.com/",
+"career": "https://www.buynomics.com/careers",
+"ats": "greenhouse",
+"board": "https://job-boards.eu.greenhouse.io/buynomics",
+"n": 7,
+"conf": "hoch"
+},
+"tyles": {
+"id": "tyles",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.tyles.be/nl"
+},
+"solsten": {
+"id": "solsten",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://solsten.io",
+"career": "https://solsten.io/careers",
+"conf": "mittel"
+},
+"shiftmove": {
+"id": "shiftmove",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.shiftmove.com/",
+"career": "https://www.shiftmove.com/careers/home",
+"conf": "mittel"
+},
+"cariqa": {
+"id": "cariqa",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.cariqa.com/en",
+"career": "https://cariqa.jobs.personio.com/",
+"ats": "personio",
+"board": "https://cariqa.jobs.personio.com/",
+"n": 0,
+"conf": "hoch"
+},
+"black-semiconductor": {
+"id": "black-semiconductor",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null,
+"ats": "ashby",
+"board": "https://jobs.ashbyhq.com/blacksemiconductor",
+"n": 37,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"rebike": {
+"id": "rebike",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://rebike.com/",
+"career": "https://career.rebike.com/de",
+"ats": "join",
+"board": "https://join.com/companies/rebike",
+"n": 0,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"taxfix": {
+"id": "taxfix",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://taxfix.de",
+"career": "https://taxfix.de/steuerklasse-6-zweitjob/",
+"conf": "mittel"
+},
+"softr": {
+"id": "softr",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.softr.io/",
+"career": "https://www.softr.io/jobs",
+"ats": "join",
+"board": "https://join.com/companies/softr",
+"n": 1,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"feather": {
+"id": "feather",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null,
+"ats": "personio",
+"board": "https://feather.jobs.personio.de/",
+"n": 1,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"markt-pilot": {
+"id": "markt-pilot",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.marktpilot.io/",
+"ats": "join",
+"board": "https://join.com/companies/markt-pilot",
+"n": 0,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"cerepal-ai": {
+"id": "cerepal-ai",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"maze": {
+"id": "maze",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.maze.de/",
+"career": "https://www.maze.de/career/",
+"ats": "join",
+"board": "https://join.com/companies/maze",
+"n": 2,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"sykell": {
+"id": "sykell",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.sykell.com/",
+"career": "https://sykell-gmbh.jobs.personio.de/?language=en",
+"ats": "personio",
+"board": "https://sykell-gmbh.jobs.personio.de/",
+"n": 0,
+"conf": "hoch"
+},
+"blockbrain": {
+"id": "blockbrain",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://blockbrain.de/de",
+"ats": "personio",
+"board": "https://blockbrain.jobs.personio.de/",
+"n": 5,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"cedardb": {
+"id": "cedardb",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://cedardb.com"
+},
+"solaris": {
+"id": "solaris",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"ovra": {
+"id": "ovra",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://ovra.ai"
+},
+"nexdash": {
+"id": "nexdash",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.nexdash.com/",
+"career": "https://www.nexdash.com/about#apply",
+"conf": "mittel"
+},
+"nui-care": {
+"id": "nui-care",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"universal-quantum-deutschland": {
+"id": "universal-quantum-deutschland",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"recyda": {
+"id": "recyda",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.recyda.com/",
+"career": "https://www.recyda.com/company/careers",
+"ats": "personio",
+"board": "https://recyda-gmbh.jobs.personio.com/",
+"n": 2,
+"conf": "hoch"
+},
+"passionfroot": {
+"id": "passionfroot",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null,
+"ats": "ashby",
+"board": "https://jobs.ashbyhq.com/passionfroot",
+"n": 13,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"dance": {
+"id": "dance",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"oniq": {
+"id": "oniq",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://oniq.com/de",
+"career": "https://oniq.com/de/karriere",
+"ats": "personio",
+"board": "https://oniq.jobs.personio.com/",
+"n": 8,
+"conf": "hoch"
+},
+"resourcify": {
+"id": "resourcify",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.resourcify.com/",
+"ats": "teamtailor",
+"board": "https://resourcify.teamtailor.com/jobs",
+"n": 5,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"telura": {
+"id": "telura",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.telura.com/",
+"career": "https://www.telura.com/careers",
+"conf": "mittel"
+},
+"aware": {
+"id": "aware",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://aware.io",
+"ats": "personio",
+"board": "https://aware.jobs.personio.de/",
+"n": 0,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"leaping-ai": {
+"id": "leaping-ai",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://leapingai.com",
+"ats": "join",
+"board": "https://join.com/companies/leapingai",
+"n": 0,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"vestlane": {
+"id": "vestlane",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://vestlane.com",
+"career": "https://join.com/companies/vestlane",
+"ats": "join",
+"board": "https://join.com/companies/vestlane",
+"n": 2,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"powerdocs": {
+"id": "powerdocs",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"project-eaden": {
+"id": "project-eaden",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.projecteaden.com/",
+"career": "https://project-eaden-1.jobs.personio.com/",
+"ats": "personio",
+"board": "https://project-eaden-1.jobs.personio.com/",
+"n": 5,
+"conf": "hoch"
+},
+"the-exploration-company": {
+"id": "the-exploration-company",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"w1nnas": {
+"id": "w1nnas",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://w1nnas.com/"
+},
+"penzilla": {
+"id": "penzilla",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://penzilla.de",
+"career": "https://penzilla.de/jobs/",
+"ats": "personio",
+"board": "https://penzilla-gmbh.jobs.personio.de/",
+"n": 4,
+"conf": "hoch"
+},
+"ordio": {
+"id": "ordio",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.ordio.com/",
+"career": "https://www.ordio.com/ueber-uns#ueber-uns-careers-heading",
+"ats": "join",
+"board": "https://join.com/companies/ordio",
+"n": 3,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"quantum-systems": {
+"id": "quantum-systems",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://quantumsystems.de/de",
+"ats": "join",
+"board": "https://join.com/companies/quantum-systems",
+"n": 0,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"myne": {
+"id": "myne",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://myne.io"
+},
+"hopkins": {
+"id": "hopkins",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.hopkins.com/",
+"ats": "join",
+"board": "https://join.com/companies/hopkins",
+"n": 2,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"bullfinch": {
+"id": "bullfinch",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.bullfinch.com/",
+"ats": "teamtailor",
+"board": "https://bullfinch.teamtailor.com/jobs",
+"n": 1,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"apadua": {
+"id": "apadua",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://apadua.com"
+},
+"accessowl": {
+"id": "accessowl",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.accessowl.com/"
+},
+"planted-green": {
+"id": "planted-green",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"soji-ai": {
+"id": "soji-ai",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null,
+"ats": "join",
+"board": "https://join.com/companies/soji",
+"n": 1,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"clark": {
+"id": "clark",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.clark.de:443/",
+"career": "https://www.clark.de:443/ueber-uns/karriere/",
+"ats": "personio",
+"board": "https://clark.jobs.personio.de/",
+"n": 4,
+"conf": "hoch"
+},
+"vilisto": {
+"id": "vilisto",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.vilisto.de/",
+"site_err": "URLError: <urlopen error [Errno 104] Connection reset by peer>"
+},
+"vivenu": {
+"id": "vivenu",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://vivenu.com/de",
+"career": "https://vivenu.com/de/careers",
+"ats": "lever",
+"board": "https://jobs.lever.co/vivenu",
+"n": 31,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"kilo-iot": {
+"id": "kilo-iot",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://kiloiot.io/"
+},
+"mo-re": {
+"id": "mo-re",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://more.de",
+"career": "https://more.de/unternehmen/karriere",
+"ats": "join",
+"board": "https://join.com/companies/more",
+"n": 1,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"lemon-markets": {
+"id": "lemon-markets",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null,
+"ats": "ashby",
+"board": "https://jobs.ashbyhq.com/lemon-markets",
+"n": 15,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"deltavision": {
+"id": "deltavision",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://deltavision.com",
+"ats": "greenhouse",
+"board": "https://job-boards.greenhouse.io/deltavision",
+"n": 0,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"supertab": {
+"id": "supertab",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://supertab.io"
+},
+"nexus-politics": {
+"id": "nexus-politics",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"nao": {
+"id": "nao",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.nao.eu/index-deutsch.html"
+},
+"jacobian": {
+"id": "jacobian",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.jacobian.com/",
+"career": "https://www.jacobian.com/careers",
+"conf": "mittel"
+},
+"makersite": {
+"id": "makersite",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"specter-automation": {
+"id": "specter-automation",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null,
+"ats_fail": [
+"personio: HTTP 404"
+]
+},
+"rally": {
+"id": "rally",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"tvarit": {
+"id": "tvarit",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://tvarit.com",
+"career": "https://tvarit.com/career/",
+"conf": "mittel"
+},
+"vanilla-steel": {
+"id": "vanilla-steel",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://vanillasteel.com",
+"career": "https://vanillasteel.com/careers",
+"ats": "personio",
+"board": "https://vanilla-steel-gmbh.jobs.personio.com/",
+"n": 5,
+"conf": "hoch"
+},
+"exporo": {
+"id": "exporo",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://exporo.de",
+"career": "https://exporo.de/jobs",
+"conf": "mittel"
+},
+"whaaat-ai": {
+"id": "whaaat-ai",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"sizekick": {
+"id": "sizekick",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.sizekick.io/",
+"career": "https://www.sizekick.io/careers#positions",
+"ats_fail": [
+"personio: HTTP 404"
+],
+"conf": "mittel"
+},
+"aleph-alpha": {
+"id": "aleph-alpha",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://aleph-alpha.com",
+"career": "https://jobs.ashbyhq.com/AlephAlpha",
+"ats": "ashby",
+"board": "https://jobs.ashbyhq.com/AlephAlpha",
+"n": 3,
+"conf": "hoch"
+},
+"quointelligence": {
+"id": "quointelligence",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://quointelligence.eu",
+"career": "https://jobs.quointelligence.eu",
+"conf": "mittel"
+},
+"vestigas": {
+"id": "vestigas",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://vestigas.com",
+"ats": "personio",
+"board": "https://vestigas.jobs.personio.de/",
+"n": 8,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"arbio": {
+"id": "arbio",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://arbio.com",
+"career": "https://careers.arbio.com/",
+"conf": "pruefen"
+},
+"impossible-cloud": {
+"id": "impossible-cloud",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.impossiblecloud.com/",
+"career": "https://jobs.lever.co/impossiblecloud",
+"ats": "lever",
+"board": "https://jobs.lever.co/impossiblecloud",
+"n": 9,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"pandasai": {
+"id": "pandasai",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"colonia-technologies": {
+"id": "colonia-technologies",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"neura-robotics": {
+"id": "neura-robotics",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://neura-robotics.com",
+"career": "https://jobs.neura-robotics.com/",
+"conf": "mittel"
+},
+"greenlyte": {
+"id": "greenlyte",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.greenlyte.tech/",
+"ats": "join",
+"board": "https://join.com/companies/greenlyte",
+"n": 0,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"m-zero-labs": {
+"id": "m-zero-labs",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"world": {
+"id": "world",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"konfetti": {
+"id": "konfetti",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"bruin": {
+"id": "bruin",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null,
+"ats": "greenhouse",
+"board": "https://job-boards.greenhouse.io/bruin",
+"n": 2,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"ai-coustics": {
+"id": "ai-coustics",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://ai-coustics.com/",
+"career": "https://join.com/companies/ai-coustics",
+"ats": "join",
+"board": "https://join.com/companies/ai-coustics",
+"n": 6,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"invitris": {
+"id": "invitris",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.invitris.com/",
+"career": "https://www.invitris.com/careers",
+"conf": "mittel"
+},
+"wallround": {
+"id": "wallround",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.wallround.de/",
+"career": "https://www.wallround.de/karriere",
+"ats": "personio",
+"board": "https://wallround.jobs.personio.com/",
+"n": 2,
+"conf": "hoch"
+},
+"metiundo": {
+"id": "metiundo",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"jupus": {
+"id": "jupus",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://jupus.de",
+"career": "https://jupus.de/karriere",
+"ats": "ashby",
+"board": "https://jobs.ashbyhq.com/jupus",
+"n": 6,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"ngena": {
+"id": "ngena",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"fels-group": {
+"id": "fels-group",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.fels.de/de/",
+"career": "https://www.fels.de/de/karriere-ausbildung/",
+"conf": "pruefen"
+},
+"qplix": {
+"id": "qplix",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.qplix.com/de",
+"career": "https://www.qplix.com/career",
+"ats": "personio",
+"board": "https://qplix.jobs.personio.com/",
+"n": 28,
+"conf": "hoch"
+},
+"floy": {
+"id": "floy",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://floy.de",
+"ats": "personio",
+"board": "https://floy.jobs.personio.de/",
+"n": 3,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"abaut": {
+"id": "abaut",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.abaut.de/",
+"career": "https://www.abaut.de/stellenangebote",
+"conf": "pruefen"
+},
+"lio": {
+"id": "lio",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"leverest": {
+"id": "leverest",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null,
+"ats": "join",
+"board": "https://join.com/companies/leverest",
+"n": 0,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"cognee": {
+"id": "cognee",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.cognee.ai/",
+"career": "https://www.cognee.ai/careers",
+"conf": "mittel"
+},
+"bitscrunch": {
+"id": "bitscrunch",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"seatti": {
+"id": "seatti",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.seatti.co/?utm_source=seatti.de&utm_medium=redirect&utm_campaign=domains"
+},
+"tupu": {
+"id": "tupu",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.tupu.io/"
+},
+"ocell": {
+"id": "ocell",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.ocell.io/de-de",
+"career": "https://www.ocell.io/de-de/career",
+"ats_fail": [
+"personio: HTTP 404"
+],
+"conf": "pruefen"
+},
+"didit": {
+"id": "didit",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://didit.com",
+"career": "https://didit.com/careers",
+"ats": "personio",
+"board": "https://didit.jobs.personio.de/",
+"n": 0,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"akirolabs": {
+"id": "akirolabs",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.akirolabs.com/",
+"career": "https://www.akirolabs.com/careers",
+"ats": "smartrecruiters",
+"board": "https://careers.smartrecruiters.com/Akirolabs",
+"n": 7,
+"conf": "hoch"
+},
+"kiutra": {
+"id": "kiutra",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null,
+"ats": "personio",
+"board": "https://kiutra.jobs.personio.de/",
+"n": 6,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"dataguard": {
+"id": "dataguard",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.dataguard.de/",
+"ats": "ashby",
+"board": "https://jobs.ashbyhq.com/dataguard",
+"n": 14,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"coachhub": {
+"id": "coachhub",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.coachhub.com/",
+"career": "https://www.coachhub.com/career",
+"ats": "ashby",
+"board": "https://jobs.ashbyhq.com/CoachHub%20Careers",
+"n": 2,
+"conf": "hoch"
+},
+"snke-os": {
+"id": "snke-os",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"qdrant": {
+"id": "qdrant",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://qdrant.tech/"
+},
+"kolsetu": {
+"id": "kolsetu",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://kolsetu.com"
+},
+"cloover": {
+"id": "cloover",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null,
+"ats": "personio",
+"board": "https://cloover.jobs.personio.de/",
+"n": 19,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"carbonsate": {
+"id": "carbonsate",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.carbonsate.com/",
+"career": "https://www.carbonsate.com/company/open-positions",
+"conf": "mittel"
+},
+"rencore": {
+"id": "rencore",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://rencore.com/de/",
+"career": "https://rencore.com/en/company/career/",
+"ats_fail": [
+"personio: HTTP 404"
+],
+"conf": "mittel"
+},
+"yasp": {
+"id": "yasp",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://yasp.ru/"
+},
+"chronext": {
+"id": "chronext",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.chronext.de/",
+"career": "https://chronext.jobs.personio.de/?language=de",
+"ats_fail": [
+"personio: HTTP 404"
+],
+"conf": "mittel"
+},
+"holy-technologies": {
+"id": "holy-technologies",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null,
+"ats": "personio",
+"board": "https://holy.jobs.personio.de/",
+"n": 37,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"secjur": {
+"id": "secjur",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.secjur.com/",
+"career": "https://www.secjur.com/karriere",
+"ats_fail": [
+"personio: HTTP 404",
+"personio: HTTP 404"
+],
+"ats": "join",
+"board": "https://join.com/companies/secjur",
+"n": 0,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"vly": {
+"id": "vly",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://vly.com"
+},
+"ortivity": {
+"id": "ortivity",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.ortivity.de/",
+"career": "https://www.ortivity.de/karriere/",
+"ats": "join",
+"board": "https://join.com/companies/ortivity",
+"n": 0,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"workerhero": {
+"id": "workerhero",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.workerhero.com/",
+"career": "https://app.workerhero.com/auth/register",
+"ats": "personio",
+"board": "https://workerhero.jobs.personio.de/",
+"n": 0,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"reonic": {
+"id": "reonic",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://reonic.com/de-de/",
+"career": "https://reonic.com/en-gb/about/jobs/",
+"ats": "ashby",
+"board": "https://jobs.ashbyhq.com/reonic",
+"n": 30,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"hades-mining": {
+"id": "hades-mining",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"jumingo": {
+"id": "jumingo",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null,
+"ats": "personio",
+"board": "https://jumingo.jobs.personio.de/",
+"n": 5,
+"ats_via": "slug",
+"conf": "pruefen"
+},
+"carbon-one": {
+"id": "carbon-one",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"roclub": {
+"id": "roclub",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://roclub.com",
+"career": "https://roclub.com/ueber-uns#karriere",
+"conf": "mittel"
+},
+"frontnow": {
+"id": "frontnow",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://frontnow.com/",
+"career": "https://frontnow.com/careers",
+"ats": "join",
+"board": "https://join.com/companies/frontnow",
+"n": 0,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"beatvest": {
+"id": "beatvest",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.beatvest.com/",
+"ats": "join",
+"board": "https://join.com/companies/beatvest",
+"n": 0,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"senic": {
+"id": "senic",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.senic.com/"
+},
+"gitbutler": {
+"id": "gitbutler",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://gitbutler.com"
+},
+"cellbyte": {
+"id": "cellbyte",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.cellbyte.com/"
+},
+"ivy": {
+"id": "ivy",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://ivy.de/2024/02/05/die-zigarette-danach.html"
+},
+"aily-labs": {
+"id": "aily-labs",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.ailylabs.com/",
+"career": "https://www.ailylabs.com/company/careers",
+"ats": "personio",
+"board": "https://ailylabs.jobs.personio.com/",
+"n": 17,
+"conf": "hoch"
+},
+"junto": {
+"id": "junto",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://junto.tech/terminal/strategy/"
+},
+"q-ant": {
+"id": "q-ant",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://qant.com/",
+"career": "https://qant.com/career/",
+"ats": "personio",
+"board": "https://q-ant-gmbh.jobs.personio.de/",
+"n": 18,
+"conf": "hoch"
+},
+"beyond-presence": {
+"id": "beyond-presence",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.beyondpresence.ai/",
+"career": "https://www.beyondpresence.ai/company",
+"ats": "personio",
+"board": "https://beyond-presence-1.jobs.personio.de/",
+"n": 1,
+"conf": "hoch"
+},
+"invertix": {
+"id": "invertix",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.invertix.ai/"
+},
+"netbird": {
+"id": "netbird",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://netbird.ai",
+"ats": "ashby",
+"board": "https://jobs.ashbyhq.com/netbird",
+"n": 14,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"unweave": {
+"id": "unweave",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://unweave.ai"
+},
+"foodforecast": {
+"id": "foodforecast",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.foodforecast.com/",
+"ats": "personio",
+"board": "https://foodforecast.jobs.personio.de/",
+"n": 3,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"theion": {
+"id": "theion",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://theion.de",
+"career": "https://theion.de/#career",
+"ats": "personio",
+"board": "https://theion-gmbh.jobs.personio.de/",
+"n": 2,
+"conf": "hoch"
+},
+"weflow": {
+"id": "weflow",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.weflow.com/"
+},
+"inhubber": {
+"id": "inhubber",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://inhubber.com/de/",
+"career": "https://inhubber.com/de/alle-branchen/finanzsektor-und-regulierte-unternehmen/",
+"conf": "mittel"
+},
+"entyre": {
+"id": "entyre",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://entyre.io/",
+"ats": "recruitee",
+"board": "https://entyre.recruitee.com/",
+"n": 0,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"machine26": {
+"id": "machine26",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://machine26.de",
+"career": "https://machine26.de/careers",
+"ats": "join",
+"board": "https://join.com/companies/machine26",
+"n": 0,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"joulee": {
+"id": "joulee",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.joulee.de/"
+},
+"acemate": {
+"id": "acemate",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://acemate.ai/de",
+"career": "https://acemate.ai/de/product#inhalte",
+"ats": "join",
+"board": "https://join.com/companies/acemate",
+"n": 6,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"ariadne-maps": {
+"id": "ariadne-maps",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"cortea-ai": {
+"id": "cortea-ai",
+"sm_err": "HTTP 403",
+"site_via": "",
+"site": null
+},
+"faircado": {
+"id": "faircado",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://faircado.de",
+"ats": "join",
+"board": "https://join.com/companies/faircado",
+"n": 0,
+"ats_via": "slug",
+"conf": "mittel"
+},
+"deepl": {
+"id": "deepl",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.deepl.com/de",
+"career": "https://www.deepl.com/de/products/translator",
+"ats": "ashby",
+"board": "https://jobs.ashbyhq.com/DeepL",
+"n": 7,
+"conf": "hoch"
+},
+"clearops": {
+"id": "clearops",
+"sm_err": "HTTP 403",
+"site_via": "geraten",
+"site": "https://www.clearops.com:443/",
+"career": "https://www.clearops.com:443/careers",
+"ats_fail": [
+"personio: HTTP 404"
+],
+"conf": "mittel"
+}
+}

@@ -11,6 +11,7 @@ D = os.environ.get('RADAR_DIR', '/tmp/radar')
 UA = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36'
 TYP = re.compile(r"\bintern(s|ship|ships)?\b|praktik|werkstud|working student|studentische|student assistant|\bhiwi\b|praxissemester|thesis|abschlussarbeit|masterarbeit|bachelorarbeit", re.I)
 TRACK = re.compile(r"founder|founding associate|founding generalist|gründer|chief of staff|entrepreneur|\beir\b|ceo office|office of the ceo|ceo's office|cfo office|coo office|assistant to the ceo|ceo assistant|assistenz der geschäftsführung|venture develop|venture build|venture architect|venture associate|venture analyst|venture capital|company build|business builder", re.I)
+SOCIAL = re.compile(r'(^|\.)(linkedin|twitter|x|facebook|instagram|youtube|xing|tiktok|github|medium)\.com$', re.I)
 def want(t): return bool(t) and bool(TYP.search(t) or TRACK.search(t))
 
 # ---------------------------------------------------------------- HTTP (pro Host höchstens 4 parallel)
@@ -157,6 +158,7 @@ def a_web(url):
     base, txt = get(url)
     jobs, seen = [], set()
     for u, t in links(base, txt):
+        if SOCIAL.search(urllib.parse.urlsplit(u).netloc): continue   # z. B. LinkedIn-Profile „Co-Founder & CEO“
         if 4 <= len(t) <= 160 and want(t) and (u, t) not in seen:
             seen.add((u, t)); jobs.append((t, '', u))
     return jobs, None
