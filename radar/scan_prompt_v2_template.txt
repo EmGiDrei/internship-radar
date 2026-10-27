@@ -9,18 +9,22 @@ Falls das Tool ArtifactData nicht geladen ist, lade es mit ToolSearch (query "se
 3) ArtifactData action "set", url wie oben, collection "runs", doc_id <Lauf-ID>, data {"run_id":…,"status":"running","started_at":…,"mode":…,"engine":"skript"}. Merke dir die version.
 4) ArtifactData action "list", collection "startups", query {"limit":1000}, out_dir "/tmp/radar/in".
 5) ArtifactData action "get", collection "scans", doc_id "latest", out_dir "/tmp/radar/in". Fehlt das Dokument, ist das ok; sonst merke dir die version.
+5b) ArtifactData action "list", collection "boards", out_dir "/tmp/radar/in" (externe Jobbörsen; ist die Collection leer, ist das ok).
+5c) ArtifactData action "get", collection "scans", doc_id "boards", out_dir "/tmp/radar/in". Fehlt das Dokument, ist das ok; sonst merke dir die version.
 6) Schreibe /tmp/radar/scan.py exakt mit dem Inhalt unten (ein Bash-Aufruf, Heredoc mit Begrenzer 'SCANEOF' in Anführungszeichen).
-7) Bash (Timeout 15 Minuten): cd /tmp/radar && python3 scan.py
+7) Bash (Timeout 20 Minuten): cd /tmp/radar && python3 scan.py
 8) ArtifactData action "set", collection "scans", doc_id "latest", file_path "/tmp/radar/latest.json", if_version = version aus Schritt 5 (weglassen, wenn es das Dokument nicht gab).
+8b) Nur wenn /tmp/radar/boards.json existiert: ArtifactData action "set", collection "scans", doc_id "boards", file_path "/tmp/radar/boards.json", if_version = version aus Schritt 5c (weglassen, wenn es das Dokument nicht gab). Nie in scans/latest schreiben.
 9) ArtifactData action "set", collection "runs", doc_id <Lauf-ID>, file_path "/tmp/radar/run.json", if_version = version aus Schritt 3. Bei Versionskonflikt: neu lesen und einmal wiederholen.
 Bricht Schritt 7 ab oder melden fast alle Quellen Fehler wie "ProxyError", "403" oder "Tunnel": setze runs/<Lauf-ID> mit data {"status":"failed","finished_at":…,"error":"Kein Netzwerkzugriff für das Skript – in der Cloud-Umgebung Network access auf Full stellen"} (bzw. der Fehlermeldung) und hör auf.
-10) Antworte auf Deutsch in höchstens 3 Zeilen: geprüfte Firmen, Treffer (davon neu), Fehler.
+10) Antworte auf Deutsch in höchstens 3 Zeilen: geprüfte Firmen, Treffer (davon neu), Fehler; dazu Jobbörsen-Treffer (davon neu) aus der Zeile „Jobbörsen:“.
 
 ----- Inhalt /tmp/radar/scan.py -----
 #!/usr/bin/env python3
 # Praktikums-Radar – Scan ohne KI: liest Stellenlisten direkt (ATS-APIs/HTML) und filtert per Wortliste.
 # Eingabe:  $RADAR_DIR/in/startups/*.json, $RADAR_DIR/in/scans/latest.json (optional), $RADAR_DIR/meta.json
-# Ausgabe:  $RADAR_DIR/latest.json, $RADAR_DIR/run.json, Zusammenfassung auf stdout
+#           optional $RADAR_DIR/in/boards/*.json (externe Jobbörsen) und $RADAR_DIR/in/scans/boards.json
+# Ausgabe:  $RADAR_DIR/latest.json, $RADAR_DIR/run.json, ggf. $RADAR_DIR/boards.json, Zusammenfassung auf stdout
 import json, os, re, glob, html, datetime, threading, time, urllib.request, urllib.error, urllib.parse
 import concurrent.futures as cf
 import xml.etree.ElementTree as ET
@@ -265,6 +269,148 @@ def main():
     json.dump(run, open(f'{D}/run.json', 'w'), ensure_ascii=False)
     print(json.dumps(run, ensure_ascii=False))
     print('Fehler bei:', ', '.join(str(st[k].get('name', k)) for k in errs[:10]))
+    if os.path.isdir(f'{D}/in/boards'):
+        try: boards_main(st, now)
+        except Exception as e: print('Jobbörsen: Fehler', type(e).__name__, str(e)[:120])   # Startup-Scan bleibt gültig
+
+# ================================================================ Externe Jobbörsen (Collection boards → $D/boards.json)
+# Liefern [(titel, ort, url, firma)]. Nur Praktikum/Werkstudent/Founders-Associate-artige Titel in DE bzw. Paris/Lille.
+STRICT = re.compile(r"\bintern(s|ship|ships)?\b|praktik|werkstud|working student|studentische|student assistant|\bhiwi\b|thesis|abschlussarbeit"
+                    r"|founder'?s'? associate|founding associate|stagiaire|\bstage\b|alternan", re.I)
+LOC_OK = re.compile(r'germany|deutschland|\bde\b|berlin|m[üu]nchen|munich|hamburg|k[öo]ln|cologne|frankfurt|d[üu]sseldorf|stuttgart|leipzig'
+                    r'|dresden|hannover|n[üu]rnberg|nuremberg|karlsruhe|mannheim|heidelberg|aachen|bonn|potsdam|freiburg|t[üu]bingen|darmstadt'
+                    r'|paris|lille|[iî]le-de-france|hauts-de-france', re.I)
+REMOTE_EU = re.compile(r'remote.{0,40}(europe|eu\b|emea|dach|germany|deutschland|france)|(europe|emea|dach).{0,10}remote', re.I)
+def board_want(t, loc):
+    return want(t) and bool(STRICT.search(t)) and bool(LOC_OK.search(loc or '') or REMOTE_EU.search(loc or ''))
+
+_last, _ll = {}, threading.Lock()
+def polite_get(url, delay, **kw):
+    # Crawl-delay je Host einhalten (robots.txt der Getro-Boards: 1–10 s)
+    host = urllib.parse.urlsplit(url).hostname
+    while True:
+        with _ll:
+            wait = _last.get(host, 0) + delay - time.time()
+            if wait <= 0: _last[host] = time.time(); break
+        time.sleep(wait)
+    return get(url, **kw)
+def crawl_delay(root):
+    try: m = re.search(r'(?im)^crawl-delay:\s*(\d+)', get(root.rstrip('/') + '/robots.txt', timeout=10)[1])
+    except Exception: m = None
+    return min(int(m.group(1)), 15) if m else 2
+
+YC_PAGES = ['location/berlin', 'location/munich', 'location/paris'] + [f'role/{r}/{c}' for r in ('operations', 'sales', 'marketing', 'product') for c in ('berlin', 'munich', 'paris')]
+def b_yc(url):
+    jobs, errs = [], 0
+    for p in YC_PAGES:
+        try:
+            _, txt = polite_get(f'https://www.ycombinator.com/jobs/{p}', 1)
+            d = json.loads(html.unescape(re.search(r'data-page="([^"]*)"', txt).group(1)))
+        except Exception: errs += 1; continue
+        for j in d['props'].get('jobPostings') or []:
+            jobs.append((j.get('title') or '', j.get('location') or '', 'https://www.ycombinator.com' + (j.get('url') or ''), j.get('companyName') or ''))
+    if errs == len(YC_PAGES): raise HttpErr('YC: keine Seite lesbar')
+    return jobs
+GETRO_Q = ['intern', 'internship', 'praktikum', 'praktikant', 'werkstudent', 'working student', 'founders associate', "founder's associate",
+           'founding associate', 'strategy intern', 'business development intern', 'operations intern', 'venture', 'stagiaire', 'stage', 'alternance']
+def b_getro(url):
+    root = '{0.scheme}://{0.netloc}'.format(urllib.parse.urlsplit(url))
+    delay, jobs, ok = crawl_delay(root), [], 0
+    for q in GETRO_Q:   # Seitensuche liefert serverseitig die ersten 20 Treffer je Begriff
+        try:
+            _, txt = polite_get(f'{root}/jobs?q={urllib.parse.quote(q)}', delay)
+            d = json.loads(re.search(r'<script id="__NEXT_DATA__"[^>]*>(.*?)</script>', txt, re.S).group(1))
+            found = d['props']['pageProps']['initialState']['jobs']['found']; ok += 1
+        except Exception: continue
+        for j in found:
+            jobs.append((j.get('title') or '', ' / '.join(j.get('locations') or []), j.get('url') or f"{root}/companies/{(j.get('organization') or {}).get('slug')}/jobs/{j.get('slug')}",
+                         (j.get('organization') or {}).get('name') or ''))
+    if not ok: raise HttpErr('Getro: keine Suche lesbar')
+    return jobs
+BSJ_PAGES = ['internships/', 'internships/page/2/', 'internships/page/3/', 'operations/', 'product-management/', 'sales/', 'marketing/', 'finance/', 'other/']
+def b_bsj(url):
+    jobs, ok = [], 0
+    for p in BSJ_PAGES:
+        try: base, txt = polite_get('https://berlinstartupjobs.com/' + p, 1)
+        except HttpErr as e:
+            if '404' in str(e): continue
+            raise
+        ok += 1
+        for m in re.finditer(r'<h4 class="bjs-jlid__h"><a href="([^"]+)">(.*?)</a>.*?class="bjs-jlid__b"[^>]*>(.*?)</a>', txt, re.S):
+            jobs.append((clean(m.group(2)), 'Berlin', m.group(1), clean(m.group(3))))
+    if not ok: raise HttpErr('BSJ: keine Seite lesbar')
+    return jobs
+def b_arbeitnow(url):
+    jobs = []
+    for page in range(1, 11):   # öffentliche API, 300 Stellen je Seite, neueste zuerst
+        d = json.loads(polite_get(f'https://www.arbeitnow.com/api/job-board-api?page={page}', 1, accept='application/json')[1])
+        for j in d.get('data') or []:
+            loc = (j.get('location') or '') + (' / Germany' if not j.get('remote') else ' / Remote Germany')
+            jobs.append((j.get('title') or '', loc, j.get('url') or '', j.get('company_name') or ''))
+        if not (d.get('links') or {}).get('next'): break
+    return jobs
+BOARD_ADAPTERS = {'yc': b_yc, 'getro': b_getro, 'bsj': b_bsj, 'arbeitnow': b_arbeitnow}
+
+def norm_co(s):
+    s = str(s or '').lower().replace('ä', 'ae').replace('ö', 'oe').replace('ü', 'ue').replace('ß', 'ss')
+    s = re.sub(r'\b(gmbh|ag|se|inc|ltd|co|kg|ug|bv|sas|group|holding|technologies|labs|ai|hq|the)\b', ' ', s)
+    return re.sub(r'[^a-z0-9]', '', s)
+def slug(s): return re.sub(r'[^a-z0-9]+', '-', str(s or '').lower()).strip('-')[:60] or 'unbekannt'
+
+def boards_main(st, now):
+    srcs = {}
+    for f in glob.glob(f'{D}/in/boards/*.json'):
+        x = json.load(open(f))
+        if isinstance(x, dict) and isinstance(x.get('data'), dict) and ('version' in x or 'id' in x): x = x['data']
+        if x.get('active') and x.get('adapter') in BOARD_ADAPTERS: srcs[os.path.basename(f)[:-5]] = x
+    if not srcs: return
+    pf = f'{D}/in/scans/boards.json'
+    prev = json.load(open(pf)) if os.path.exists(pf) else {}
+    if isinstance(prev.get('data'), dict): prev = prev['data']
+    fs_of = {(h.get('id'), str(h.get('t', '')).lower()): h.get('fs') for h in prev.get('hits') or []}
+    # Firmen, die schon über die Collection startups gescannt werden (aktive), nicht doppelt zeigen: Name oder Board-/Domain-Präfix
+    known_names = {norm_co(d.get('name')) for d in st.values() if d.get('active')} - {''}
+    known_urls = []
+    for d in st.values():
+        if not d.get('active'): continue
+        for u in (d.get('source_url'), d.get('career_url')):
+            if u and 'startupmap.one' not in u: known_urls.append(u.split('?')[0].rstrip('/').lower())
+    def known(co, u):
+        if norm_co(co) in known_names: return True
+        ul = (u or '').lower()
+        return any(ul.startswith(k + '/') or ul == k for k in known_urls)
+    def run(kv):
+        k, s = kv
+        try: return k, BOARD_ADAPTERS[s['adapter']](s.get('url')), ''
+        except Exception as e: return k, None, str(e)[:120] or type(e).__name__
+    with cf.ThreadPoolExecutor(max_workers=8) as ex:
+        res = list(ex.map(run, srcs.items()))
+    results, hits, seen = {}, [], set()
+    for k, jobs, err in res:
+        name = srcs[k].get('name') or k
+        if jobs is None:
+            old = [h for h in prev.get('hits') or [] if h.get('src') == name]
+            results[k] = {'s': 'err', 'n': None, 'e': err, 'h': len(old), 'dup': 0, 'at': now}; hits += old; continue
+        h, dup = [], 0
+        for t, l, u, co in jobs:
+            t, l, co = clean(t)[:160], clean(l)[:80], clean(co)[:80]
+            if not board_want(t, l): continue
+            key = (norm_co(co), t.lower())
+            if key in seen: continue
+            seen.add(key)
+            if known(co, u): dup += 1; continue
+            i = 'board:' + slug(co)
+            h.append({'id': i, 't': t, 'l': l, 'u': str(u or '')[:300], 'co': co, 'src': name, 'fs': fs_of.get((i, t.lower())) or now})
+        results[k] = {'s': 'ok', 'n': len(jobs), 'e': '', 'h': len(h), 'dup': dup, 'at': now}
+        hits += h
+    sz = lambda o: len(json.dumps(o, ensure_ascii=False, separators=(',', ':')).encode())
+    hits = hits[:1500]
+    while hits and sz({'r': results, 'h': hits}) > 235000: hits = hits[:int(len(hits) * 0.9)]
+    meta = json.load(open(f'{D}/meta.json'))
+    out = {'run_id': meta['run_id'], 'finished_at': datetime.datetime.now(datetime.timezone.utc).isoformat(timespec='seconds'),
+           'hits_total': len(hits), 'new_hits': sum(1 for x in hits if x['fs'] == now), 'results': results, 'hits': hits}
+    json.dump(out, open(f'{D}/boards.json', 'w'), ensure_ascii=False, separators=(',', ':'))
+    print('Jobbörsen:', json.dumps({k: (v['s'], v['h']) for k, v in results.items()}, ensure_ascii=False), '· Treffer', out['hits_total'], '· neu', out['new_hits'])
 
 if __name__ == '__main__':
     main()
