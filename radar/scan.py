@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 # Praktikums-Radar – Scan ohne KI: liest Stellenlisten direkt (ATS-APIs/HTML) und filtert per Wortliste.
 # Eingabe:  $RADAR_DIR/in/startups/*.json, $RADAR_DIR/in/scans/latest.json (optional), $RADAR_DIR/meta.json
-#           optional $RADAR_DIR/in/boards/*.json (externe Jobbörsen), $RADAR_DIR/in/scans/boards.json, …/scans/candidates.json
-# Ausgabe:  $RADAR_DIR/latest.json, $RADAR_DIR/run.json, ggf. $RADAR_DIR/boards.json + candidates.json, Zusammenfassung auf stdout
+#           optional $RADAR_DIR/in/boards/*.json (externe Jobbörsen), $RADAR_DIR/in/scans/boards.json, …/scans/candidates.json,
+#           $RADAR_DIR/in/applications/*.json (Bewerberliste, nur gelesen), $RADAR_DIR/in/scans/details.json
+# Ausgabe:  $RADAR_DIR/latest.json, $RADAR_DIR/run.json, ggf. boards.json + candidates.json + details.json, Zusammenfassung auf stdout
 import json, os, re, glob, html, datetime, threading, time, urllib.request, urllib.error, urllib.parse
 import concurrent.futures as cf
 import xml.etree.ElementTree as ET
@@ -36,6 +37,24 @@ def get(url, timeout=25, accept='*/*'):
             raise HttpErr(type(e).__name__ + (': ' + str(e)[:80] if str(e) else ''))
 def getjson(url, **kw): return json.loads(get(url, accept='application/json', **kw)[1])
 
+def pdate(x):
+    # Veröffentlichungsdatum vereinheitlichen → 'YYYY-MM-DD' (ISO, Unix-s/-ms, RFC-822, relativ wie „6 days“); sonst ''
+    try:
+        if x in (None, ''): return ''
+        if isinstance(x, (int, float)) or re.fullmatch(r'\d{9,13}', str(x)):
+            v = float(x); v = v / 1000 if v > 1e11 else v
+            return datetime.datetime.fromtimestamp(v, datetime.timezone.utc).strftime('%Y-%m-%d')
+        x = str(x).strip()
+        if m := re.match(r'(\d{4}-\d{2}-\d{2})', x): return m.group(1)
+        if m := re.fullmatch(r'(?:about |over |almost )?(\d+|an?) (minute|hour|day|week|month|year)s?(?: ago)?', x, re.I):
+            n = 1 if m.group(1).lower() in ('a', 'an') else int(m.group(1))
+            d = {'minute': 1 / 1440, 'hour': 1 / 24, 'day': 1, 'week': 7, 'month': 30, 'year': 365}[m.group(2).lower()] * n
+            return (datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=d)).strftime('%Y-%m-%d')
+        import email.utils
+        return email.utils.parsedate_to_datetime(x).strftime('%Y-%m-%d')
+    except Exception:
+        return ''
+
 def clean(s): return re.sub(r'\s+', ' ', html.unescape(re.sub(r'<[^>]+>', ' ', str(s or '')))).strip()
 
 # ---------------------------------------------------------------- HTML: Links mit Text einsammeln
@@ -67,12 +86,12 @@ def a_personio(org, tld):
         try: _, txt = get(f'https://{org}.jobs.personio.{t}/xml')
         except HttpErr as e: last = e; continue
         root = ET.fromstring(txt.encode('utf-8'))
-        jobs = [(p.findtext('name') or '', p.findtext('office') or '', f'https://{org}.jobs.personio.{t}/job/{p.findtext("id")}') for p in root.iter('position')]
+        jobs = [(p.findtext('name') or '', p.findtext('office') or '', f'https://{org}.jobs.personio.{t}/job/{p.findtext("id")}', pdate(p.findtext('createdAt'))) for p in root.iter('position')]
         return jobs, len(jobs)
     raise last or HttpErr('Personio nicht gefunden')
 def a_ashby(org):
     d = getjson(f'https://api.ashbyhq.com/posting-api/job-board/{org}')
-    jobs = [(j.get('title'), j.get('location') or '', j.get('jobUrl') or f'https://jobs.ashbyhq.com/{org}') for j in d.get('jobs', []) if j.get('isListed', True)]
+    jobs = [(j.get('title'), j.get('location') or '', j.get('jobUrl') or f'https://jobs.ashbyhq.com/{org}', pdate(j.get('publishedAt'))) for j in d.get('jobs', []) if j.get('isListed', True)]
     return jobs, len(jobs)
 def a_greenhouse(org, eu):
     # Die US-API liefert auch EU-Boards; boards-api.eu.greenhouse.io ist nicht überall erreichbar → nur Ersatz
@@ -82,7 +101,7 @@ def a_greenhouse(org, eu):
         except HttpErr as e:
             if last is None or not str(last).startswith('HTTP'): last = e   # aussagekräftigsten Fehler (HTTP-Status) behalten
             continue
-        jobs = [(j.get('title'), (j.get('location') or {}).get('name', ''), j.get('absolute_url')) for j in d.get('jobs', [])]
+        jobs = [(j.get('title'), (j.get('location') or {}).get('name', ''), j.get('absolute_url'), pdate(j.get('first_published') or j.get('updated_at'))) for j in d.get('jobs', [])]
         return jobs, len(jobs)
     raise last
 def a_lever(org, eu):
@@ -94,16 +113,16 @@ def a_lever(org, eu):
             if last is None: last = e   # Fehler des Haupt-Hosts melden, nicht den 404 des Ersatz-Hosts
             continue
         if isinstance(d, dict) and not d.get('ok', True): last = HttpErr('Lever: ' + str(d.get('error', ''))[:60]); continue
-        jobs = [(j.get('text'), (j.get('categories') or {}).get('location', ''), j.get('hostedUrl')) for j in d]
+        jobs = [(j.get('text'), (j.get('categories') or {}).get('location', ''), j.get('hostedUrl'), pdate(j.get('createdAt'))) for j in d]
         return jobs, len(jobs)
     raise last
 def a_workable(org):
     d = getjson(f'https://apply.workable.com/api/v1/widget/accounts/{org}')
-    jobs = [(j.get('title'), ', '.join(x for x in (j.get('city'), j.get('country')) if x), j.get('url') or f'https://apply.workable.com/{org}/j/{j.get("shortcode")}') for j in d.get('jobs', [])]
+    jobs = [(j.get('title'), ', '.join(x for x in (j.get('city'), j.get('country')) if x), j.get('url') or f'https://apply.workable.com/{org}/j/{j.get("shortcode")}', pdate(j.get('published_on') or j.get('created_at'))) for j in d.get('jobs', [])]
     return jobs, len(jobs)
 def a_recruitee(org):
     d = getjson(f'https://{org}.recruitee.com/api/offers/')
-    jobs = [(j.get('title'), j.get('location') or j.get('city') or '', j.get('careers_url') or f'https://{org}.recruitee.com/o/{j.get("slug")}') for j in d.get('offers', [])]
+    jobs = [(j.get('title'), j.get('location') or j.get('city') or '', j.get('careers_url') or f'https://{org}.recruitee.com/o/{j.get("slug")}', pdate(j.get('published_at') or j.get('created_at'))) for j in d.get('offers', [])]
     return jobs, len(jobs)
 def a_smartrecruiters(org):
     jobs, off, total = [], 0, None
@@ -112,7 +131,7 @@ def a_smartrecruiters(org):
         total = d.get('totalFound', 0)
         for j in d.get('content', []):
             loc = j.get('location') or {}
-            jobs.append((j.get('name'), loc.get('city') or loc.get('country') or '', f'https://jobs.smartrecruiters.com/{org}/{j.get("id")}'))
+            jobs.append((j.get('name'), loc.get('city') or loc.get('country') or '', f'https://jobs.smartrecruiters.com/{org}/{j.get("id")}', pdate(j.get('releasedDate'))))
         off += 100
         if off >= total or not d.get('content'): break
     return jobs, total
@@ -133,7 +152,7 @@ def a_join(org):
         for x in items:
             c = x.get('city') or {}
             city = (c.get('cityName') or '') if isinstance(c, dict) else str(c)
-            jobs.append((x.get('title') or '', city, f'https://join.com/companies/{org}/{x.get("idParam") or x.get("id")}'))
+            jobs.append((x.get('title') or '', city, f'https://join.com/companies/{org}/{x.get("idParam") or x.get("id")}', pdate(x.get('createdAt'))))
         total = (st.get('pagination') or {}).get('total')
         if not jobs and total:   # z. B. nur Initiativbewerbung, die nicht in items steht
             jobs = [(t, '', u) for u, t in links(base, txt) if f'/companies/{org}/' in u and t]
@@ -152,7 +171,7 @@ def a_teamtailor(host):
     jobs = []
     for it in root.iter('item'):
         locs = [clean(e.text) for e in it.iter() if e.tag.endswith('}city') and e.text]
-        jobs.append((it.findtext('title') or '', ', '.join(dict.fromkeys(locs)), it.findtext('link') or f'https://{host}/jobs'))
+        jobs.append((it.findtext('title') or '', ', '.join(dict.fromkeys(locs)), it.findtext('link') or f'https://{host}/jobs', pdate(it.findtext('pubDate'))))
     return jobs, len(jobs)
 def a_web(url):
     # Generisch: alle Links, deren Text nach Stelle aussieht (Titel-Filter kommt später)
@@ -176,7 +195,7 @@ def a_ycco(slug):
     # YC-Firmenseite (ycombinator.com/companies/<slug>/jobs): Stellen als JSON im data-page-Attribut
     _, txt = get(f'https://www.ycombinator.com/companies/{slug}/jobs')
     p = json.loads(html.unescape(re.search(r'data-page="([^"]*)"', txt).group(1)))['props']
-    jobs = [(j.get('title') or '', j.get('location') or '', 'https://www.ycombinator.com' + (j.get('url') or '')) for j in p.get('jobPostings') or []]
+    jobs = [(j.get('title') or '', j.get('location') or '', 'https://www.ycombinator.com' + (j.get('url') or ''), pdate(j.get('createdAt'))) for j in p.get('jobPostings') or []]
     return jobs, len(jobs)
 def a_bsjco(slug):
     # Firmenseite bei Berlin Startup Jobs: dieselben Stellenkarten wie die Listen
@@ -236,11 +255,12 @@ def main():
     results, hits = {}, []
     for r in res_list:
         i = r['id']; h, seen = [], set()
-        for t, l, u in r['jobs']:
+        for t, l, u, *x in r['jobs']:
             t = clean(t)[:160]
             if not want(t) or t.lower() in seen: continue
             seen.add(t.lower())
             h.append({'id': i, 't': t, 'l': clean(l)[:80], 'u': str(u or '')[:300], 'fs': fs_of.get((i, t.lower())) or now})
+            if x and x[0]: h[-1]['pd'] = x[0]
         e = r['e']
         if r['s'] == 'ok' and r.get('via'): e = 'Hauptquelle fehlgeschlagen – über Ersatzquelle gelesen'
         if r['s'] != 'ok': h = old_by.get(i, [])            # letzte bekannte Treffer behalten
@@ -264,6 +284,9 @@ def main():
     if os.path.isdir(f'{D}/in/boards'):
         try: boards_main(st, now)
         except Exception as e: print('Jobbörsen: Fehler', type(e).__name__, str(e)[:120])   # Startup-Scan bleibt gültig
+    if os.path.isdir(f'{D}/in/applications'):
+        try: details_main(now)
+        except Exception as e: print('Bewerberliste: Fehler', type(e).__name__, str(e)[:120])
 
 # ================================================================ Externe Jobbörsen (Collection boards → $D/boards.json)
 # Liefern [(titel, ort, url, firma)]. Nur Praktikum/Werkstudent/Founders-Associate-artige Titel in DE bzw. Paris/Lille.
@@ -300,7 +323,7 @@ def b_yc(url):
             d = json.loads(html.unescape(re.search(r'data-page="([^"]*)"', txt).group(1)))
         except Exception: errs += 1; continue
         for j in d['props'].get('jobPostings') or []:
-            jobs.append((j.get('title') or '', j.get('location') or '', 'https://www.ycombinator.com' + (j.get('url') or ''), j.get('companyName') or ''))
+            jobs.append((j.get('title') or '', j.get('location') or '', 'https://www.ycombinator.com' + (j.get('url') or ''), j.get('companyName') or '', '', pdate(j.get('createdAt'))))
     if errs == len(YC_PAGES): raise HttpErr('YC: keine Seite lesbar')
     return jobs
 GETRO_Q = ['intern', 'internship', 'praktikum', 'praktikant', 'werkstudent', 'working student', 'founders associate', "founder's associate",
@@ -316,7 +339,7 @@ def b_getro(url):
         except Exception: continue
         for j in found:
             jobs.append((j.get('title') or '', ' / '.join(j.get('locations') or []), j.get('url') or f"{root}/companies/{(j.get('organization') or {}).get('slug')}/jobs/{j.get('slug')}",
-                         (j.get('organization') or {}).get('name') or ''))
+                         (j.get('organization') or {}).get('name') or '', '', pdate(j.get('createdAt'))))
     if not ok: raise HttpErr('Getro: keine Suche lesbar')
     return jobs
 BSJ_PAGES = ['internships/', 'internships/page/2/', 'internships/page/3/', 'operations/', 'product-management/', 'sales/', 'marketing/', 'finance/', 'other/']
@@ -340,7 +363,7 @@ def b_arbeitnow(url):
         d = json.loads(polite_get(f'https://www.arbeitnow.com/api/job-board-api?page={page}', 1, accept='application/json')[1])
         for j in d.get('data') or []:
             loc = (j.get('location') or '') + (' / Germany' if not j.get('remote') else ' / Remote Germany')
-            jobs.append((j.get('title') or '', loc, j.get('url') or '', j.get('company_name') or ''))
+            jobs.append((j.get('title') or '', loc, j.get('url') or '', j.get('company_name') or '', '', pdate(j.get('created_at'))))
         if not (d.get('links') or {}).get('next'): break
     return jobs
 BOARD_ADAPTERS = {'yc': b_yc, 'getro': b_getro, 'bsj': b_bsj, 'arbeitnow': b_arbeitnow}
@@ -401,7 +424,8 @@ def boards_main(st, now):
             old = [h for h in prev.get('hits') or [] if h.get('src') == name]
             results[k] = {'s': 'err', 'n': None, 'e': err, 'h': len(old), 'dup': 0, 'at': now}; hits += old; continue
         h, dup = [], 0
-        for t, l, u, co, *hint in jobs:
+        for t, l, u, co, *rest in jobs:
+            hint, pd = (rest + ['', ''])[:2]
             t, l, co = clean(t)[:160], clean(l)[:80], clean(co)[:80]
             if not board_want(t, l): continue
             key = (norm_co(co), t.lower())
@@ -410,8 +434,9 @@ def boards_main(st, now):
             if known(co, u): dup += 1; continue
             i = 'board:' + slug(co)
             h.append({'id': i, 't': t, 'l': l, 'u': str(u or '')[:300], 'co': co, 'src': name, 'fs': fs_of.get((i, t.lower())) or now})
+            if pd: h[-1]['pd'] = pd
             if srcs[k].get('adapter') != 'arbeitnow':   # Arbeitnow: viele Nicht-Startups → keine Kandidaten
-                b, kind = board_of(hint[0] if hint and hint[0] else u)
+                b, kind = board_of(hint or u)
                 if b:
                     c = cand.setdefault(slug(co), {'name': co, 'board': b, 'ats': kind, 'src': [], 'titles': [], 'n': 0})
                     c['n'] += 1
@@ -448,6 +473,74 @@ def write_candidates(cand, by_name, now):
     doc = {'updated_at': now, 'count': len(out), 'candidates': out}
     json.dump(doc, open(f'{D}/candidates.json', 'w'), ensure_ascii=False, separators=(',', ':'))
     print('Kandidaten:', len(out), '· neu in diesem Lauf', sum(1 for c in out.values() if c.get('fs') == now))
+
+# ================================================================ Startdatum / Online seit für die Bewerberliste (Collection applications → $D/details.json)
+# Nur lesend: lädt die Seite jeder Bewerbung, sucht per Wortmuster (DE/EN/FR) nach dem Startdatum; unklar → leer.
+_MON = (r'jan(?:uar|uary|vier)?|feb(?:ruar|ruary|rier)?|f[ée]v(?:rier)?|m[äa]rz|mar(?:ch|s)?|apr(?:il)?|avr(?:il)?|mai|may|juin|jui?n[ie]?|june?|juil(?:let)?|july?|aug(?:ust)?|ao[ûu]t'
+        r'|sep(?:t(?:ember|embre)?)?|o[ck]t(?:ober|obre)?|nov(?:ember|embre)?|de[zc](?:ember)?|d[ée]c(?:embre)?')
+_SEAS = r'(?:spring|summer|fall|autumn|winter|frühjahr|frühling|sommer|herbst|printemps|été|automne|hiver)'
+_DATE = (rf'(?:\d{{1,2}}\.\s?\d{{1,2}}\.(?:\s?(?:20)?\d{{2}})?'                                  # 01.03.2027 / 01.03.
+         rf'|\d{{1,2}}(?:\.|st|nd|rd|th|er)?\s+(?:of\s+)?(?:{_MON})\.?(?:\s*,?\s*20\d{{2}})?'          # 1. März 2027
+         rf'|(?:(?:early|mid|late|beginning of|end of|anfang|mitte|ende|début|fin|mi)[\s-]+)?(?:{_MON})\.?(?:\s+(?:or|oder|ou|/|-|–)\s+(?:{_MON}))?(?:\s*,?\s*20\d{{2}})?'
+         rf'|(?:0?[1-9]|1[0-2])/20\d{{2}}|q[1-4]\s*/?\s*20\d{{2}}|20\d{{2}}-\d{{2}}-\d{{2}}'
+         rf'|{_SEAS}\s+20\d{{2}}|(?:wintersemester|sommersemester|ws|ss)\s*20?\d{{2}}(?:/\d{{2}})?)')
+_ASAP = r'(?:ab\s+sofort|sofort|(?:zum\s+)?n[äa]chstm[öo]glich(?:en\s+zeitpunkt)?|asap|as\s+soon\s+as\s+possible|immediately|d[èe]s\s+que\s+possible|imm[ée]diat(?:ement)?|flexib(?:el|le))'
+_LEAD = (r'(?:start(?:ing)?(?:\s*date|\s*datum|termin|zeitpunkt)?|date\s+de\s+d[ée]but|eintritt(?:stermin|sdatum)?|beginn|einstieg|'
+         r'verf[üu]gbare\s+slots?|(?:next\s+)?available\s+slots?|slots?|verf[üu]gbar(?:keit)?|availability|available|d[ée]but|[àa]\s+partir\s+d[eu]|d[èe]s|ab|from|as\s+of|commencing)')
+SD_RE = re.compile(rf'(?<![\w-]){_LEAD}\b[\s:–\-,(]{{0,4}}(?:(?:the|on|in|im|am|le|en|du|from|ab|zum|des|de|earliest|\(earliest\)|frühestens|of|à|is|are|always|ist)[\s:]+){{0,3}}({_ASAP}|{_DATE})(?![\w])', re.I)
+
+def page_text(b):
+    t = b if isinstance(b, str) else b.decode('utf-8', 'replace')
+    t = re.sub(r'(?is)<style.*?</style>', ' ', t)
+    t = re.sub(r'\\u([0-9a-fA-F]{4})', lambda m: chr(int(m.group(1), 16)), t).replace('\\n', ' ').replace('\\/', '/')
+    t = html.unescape(re.sub(r'<[^>]+>', ' ', html.unescape(t)))
+    return re.sub(r'\s+', ' ', t)
+
+def start_of(text):
+    for m in SD_RE.finditer(text):
+        v = m.group(1).strip(' ,')
+        if re.fullmatch(_ASAP, v, re.I): return 'ab sofort' if not re.match(r'flex', v, re.I) else 'flexibel'
+        if v.lower() == 'may' and not re.search(r'(?i)\bmay\s+20\d\d', m.group(0)): continue   # englisches „may“ (Modalverb)
+        return v[:40]
+    return ''
+
+def norm_url(u): return re.sub(r'/+$', '', re.sub(r'[?#].*$', '', str(u or '').lower()))
+
+def details_main(now):
+    apps = []
+    for f in glob.glob(f'{D}/in/applications/*.json'):
+        x = json.load(open(f))
+        if isinstance(x, dict) and isinstance(x.get('data'), dict): x = x['data']
+        if isinstance(x, dict) and str(x.get('url') or '').startswith('http'): apps.append(x)
+    pf = f'{D}/in/scans/details.json'
+    prev = json.load(open(pf)) if os.path.exists(pf) else {}
+    if isinstance(prev.get('data'), dict): prev = prev['data']
+    old = prev.get('by_url') or {}
+    pd_of = {}
+    for fn in ('latest.json', 'boards.json'):   # Online-seit aus den Treffern dieses Laufs
+        if os.path.exists(f'{D}/{fn}'):
+            for h in json.load(open(f'{D}/{fn}')).get('hits') or []:
+                if h.get('pd'): pd_of[norm_url(h.get('u'))] = h['pd']
+    fresh = (datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=14)).isoformat()
+    def one(a):
+        k = norm_url(a['url']); o = dict(old.get(k) or {})
+        if not (o.get('sd') and o.get('at', '') >= fresh):   # gefundenes Startdatum 14 Tage lang nicht neu laden
+            try:
+                b = get(a['url'])[1]
+                raw = b if isinstance(b, str) else b.decode('utf-8', 'replace')
+                o['sd'] = start_of(str(a.get('title') or '') + ' . ' + page_text(raw))
+                if m := re.search(r'"datePosted"\s*:\s*"([^"]+)"', raw): o['pd'] = pdate(m.group(1))
+                o['at'] = now
+            except Exception:
+                pass   # Seite nicht lesbar → letzten Stand behalten
+        if pd_of.get(k): o['pd'] = pd_of[k]
+        return k, {x: o[x] for x in ('sd', 'pd', 'at') if o.get(x)}
+    with cf.ThreadPoolExecutor(max_workers=8) as ex:
+        by = {k: v for k, v in ex.map(one, apps) if v}
+    doc = {'updated_at': now, 'count': len(by), 'by_url': by}
+    json.dump(doc, open(f'{D}/details.json', 'w'), ensure_ascii=False, separators=(',', ':'))
+    print('Bewerberliste:', len(apps), 'Links · Startdatum gefunden', sum(1 for v in by.values() if v.get('sd')),
+          '· Online seit', sum(1 for v in by.values() if v.get('pd')))
 
 if __name__ == '__main__':
     main()

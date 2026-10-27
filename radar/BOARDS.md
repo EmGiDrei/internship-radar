@@ -31,7 +31,7 @@ Firmen, die als **aktive** Startups gescannt werden (gleicher normalisierter Nam
 Deaktivierte Startups (z. B. startupmap-Sperre) dürfen über Jobbörsen wieder auftauchen.
 
 ## Felder
-Hit in `scans/boards.hits[]`: `id` ("board:<firmen-slug>"), `t` (Titel), `l` (Ort), `u` (Link zur Stelle), `co` (Firmenname), `src` (Name der Quelle), `fs` (zuerst gesehen, ISO-UTC).
+Hit in `scans/boards.hits[]`: `id` ("board:<firmen-slug>"), `t` (Titel), `l` (Ort), `u` (Link zur Stelle), `co` (Firmenname), `src` (Name der Quelle), `fs` (zuerst gesehen, ISO-UTC), optional `pd` (online seit, `YYYY-MM-DD`).
 Dokument: `run_id`, `finished_at`, `hits_total`, `new_hits`, `results` (je Quellen-ID: `s` ok/err, `n` gelesene Stellen, `e` Fehler, `h` Treffer, `dup` weggelassene Duplikate, `at`), `hits`.
 
 ## Kandidaten für die Startup-Liste (`scans/candidates`)
@@ -44,3 +44,14 @@ Kandidat: `name`, `board` (Board-URL, als `source_url`/`career_url` übernehmbar
 `src` (Liste der Quellen), `titles` (bis 3 passende Titel), `n` (passende Stellen im Lauf), `fs`/`ls` (zuerst/zuletzt gesehen),
 `status` (`neu` | `übernehmen` | `abgelehnt` | `übernommen`; bleibt über Läufe erhalten), optional `in_startups` (ID eines **deaktivierten** Startups gleichen Namens → Reaktivierung mit neuer Quelle).
 Nicht mehr gesehene Kandidaten bleiben 30 Tage bzw. dauerhaft, wenn schon entschieden.
+
+## Online seit und Startdatum (`pd`, `scans/details`)
+`pd` (Veröffentlichungsdatum der Anzeige, `YYYY-MM-DD`) steht optional an jedem Treffer in `scans/latest` und `scans/boards`.
+Quelle: Greenhouse `first_published`, Lever `createdAt`, Ashby `publishedAt`, Personio `createdAt`, SmartRecruiters `releasedDate`, Teamtailor `pubDate`,
+Recruitee `published_at`, Join `createdAt`, Getro `createdAt`, Arbeitnow `created_at`, YC `createdAt` (relativ, z. B. „6 days“). Berlin Startup Jobs liefert keins.
+
+Für die Bewerberliste liest `scan.py` die Collection `applications` (nur lesend) und lädt jede Stellenseite.
+Gesucht wird per Wortmuster (DE/EN/FR, keine KI) nach Startangaben wie „Start: ab sofort“, „Starting in January 2027“, „Beginn: Sommersemester 2027“, „à partir de janvier 2027“, „Q4 2026“; unklar → leer.
+Ergebnis in `scans/details`: `updated_at`, `count`, `by_url` = `{<normalisierter Link>: {sd, pd, at}}` (Link klein geschrieben, ohne `?…`/`#…` und End-Schrägstrich).
+`sd` = Startdatum als Text (≤ 40 Zeichen), `pd` = online seit (aus den Treffern oder `datePosted` der Seite), `at` = zuletzt geladen. Gefundene Startdaten werden 14 Tage lang nicht neu geladen.
+Das Artefakt zeigt beides in der Bewerberliste als Spalten „Online seit“ und „Start“; die Praktika-Liste zeigt „online <Datum>“, wenn bekannt.

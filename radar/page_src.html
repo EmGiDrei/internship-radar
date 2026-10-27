@@ -204,6 +204,9 @@ details.filters textarea { resize: vertical; min-height: 84px; }
 .cand .titles { color: var(--ink-2); font-size: 13px; margin-top: 2px; overflow-wrap: anywhere; }
 .cand .acts { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
 .badge.react { background: var(--accent-soft); color: var(--accent); }
+#appList table { min-width: 940px; }
+#appList th { white-space: nowrap; }
+td.sd { font-size: 13px; min-width: 110px; max-width: 180px; overflow-wrap: anywhere; }
 </style>
 
 <div class="wrap">
@@ -386,7 +389,7 @@ details.filters textarea { resize: vertical; min-height: 84px; }
 
   const S = {
     db: null, mcp: null, user: null, canWrite: true,
-    startups: new Map(), apps: new Map(), scan: null, boards: null, cands: null, runs: [], config: null,
+    startups: new Map(), apps: new Map(), scan: null, boards: null, cands: null, details: null, runs: [], config: null,
     loaded: { startups: false, scan: false },
     tab: "praktika", kind: "Alle", limit: 150, editing: null, sched: null, schedMsg: "", busy: false,
   };
@@ -600,7 +603,7 @@ details.filters textarea { resize: vertical; min-height: 84px; }
           <div class="title"><a href="${esc(lk.href)}" target="_blank" rel="noopener">${esc(h.t)}</a></div>
           <div class="meta"><span class="co">${esc(h.company)}</span>${h.l ? `<span>${esc(h.l)}</span>` : ""}${h.topics.length ? `<span class="topics">${esc(h.topics.slice(0, 3).join(" · "))}</span>` : ""}${h.board ? `<span class="srcb" title="Gefunden über externe Jobbörse">${esc(h.src || "Jobbörse")}</span>` : ""}${lk.via ? `<span class="via">Link: ${esc(lk.via)}</span>` : ""}${isMine(h.st) ? `<span class="badge mine">meine Liste</span>` : ""}</div>
         </div>
-        <div class="side"><div class="badges">${h.isNew ? '<span class="badge new">neu</span>' : ""}${kb}</div><span class="when">seit ${esc(fmtDate(h.fs))}</span><button class="btn small addapp${onl ? " onlist" : ""}" type="button" data-addapp="${i}"${onl || !S.canWrite ? " disabled" : ""}>${onl ? "✓ auf der Liste" : "+ Bewerberliste"}</button></div>
+        <div class="side"><div class="badges">${h.isNew ? '<span class="badge new">neu</span>' : ""}${kb}</div><span class="when" title="Zuerst gesehen: ${esc(fmtDate(h.fs))}${h.pd ? " · online seit " + esc(fmtDate(h.pd)) : ""}">${h.pd ? "online " + esc(fmtDate(h.pd)) : "seit " + esc(fmtDate(h.fs))}</span><button class="btn small addapp${onl ? " onlist" : ""}" type="button" data-addapp="${i}"${onl || !S.canWrite ? " disabled" : ""}>${onl ? "✓ auf der Liste" : "+ Bewerberliste"}</button></div>
       </div>`;
     }).join("")}</div>`;
   }
@@ -747,18 +750,23 @@ details.filters textarea { resize: vertical; min-height: 84px; }
       : cmpNr);
     const byUrl = new Map(); for (const [id, a] of all) { const u = normUrl(a.url); if (u) byUrl.set(u, [...(byUrl.get(u) || []), a.nr]); }
     const dupOf = (a) => { const l = (byUrl.get(normUrl(a.url)) || []).filter((n) => n !== a.nr); return l.length ? l : null; };
+    // Online seit (pd) und Start (sd): aus den Scan-Treffern bzw. scans/details, über den Link zugeordnet
+    const det = S.details?.by_url || {}, pdOf = new Map();
+    for (const h of S.hm || []) if (h.pd && h.u) pdOf.set(normUrl(h.u), h.pd);
+    const infoOf = (a) => { const u = normUrl(a.url), d = det[u] || {}; return { pd: pdOf.get(u) || d.pd || "", sd: d.sd || "" }; };
     if (!rows.length && all.length) { box.innerHTML = `<div class="list"><div class="empty"><strong>Nichts passt zu den Filtern</strong>Suche oder Filter zurücksetzen.</div></div>`; return; }
     if (!all.length) { box.innerHTML = `<div class="list"><div class="empty"><strong>Noch nichts auf der Liste</strong>Im Tab „Praktika“ bei einer Stelle auf „+ Bewerberliste“ klicken.</div></div>`; return; }
     const active = document.activeElement; if (active && box.contains(active) && /INPUT|SELECT/.test(active.tagName)) return;
     const done = all.filter(([, a]) => ["Beworben", "Gespräch", "Zusage"].includes(a.status)).length;
     const dups = all.filter(([, a]) => dupOf(a)).length;
     box.innerHTML = `<div class="sub" style="margin:0 0 8px">${rows.length === all.length ? all.length + " Stellen" : rows.length + " von " + all.length + " Stellen"} · ${done} beworben oder weiter${dups ? ` · <span class="badge dup">${dups} mit gleichem Link</span>` : ""}</div><div class="tablewrap"><table>
-      <thead><tr><th>Nr.</th><th>Status</th><th>Unternehmen</th><th>Job-Titel</th><th>Kommentar</th><th>Link</th><th></th></tr></thead>
+      <thead><tr><th>Nr.</th><th>Status</th><th>Unternehmen</th><th>Job-Titel</th><th title="Wann die Anzeige veröffentlicht wurde">Online seit</th><th title="Startdatum laut Anzeige">Start</th><th>Kommentar</th><th>Link</th><th></th></tr></thead>
       <tbody>${rows.map(([id, a]) => `<tr>
         <td class="num">${esc(a.nr || "")}</td>
         <td><select class="appstat" data-appstatus="${esc(id)}" aria-label="Status"${S.canWrite ? "" : " disabled"}>${APP_STATI.concat(APP_STATI.includes(a.status) ? [] : [a.status]).map((x) => `<option${x === a.status ? " selected" : ""}>${esc(x)}</option>`).join("")}</select></td>
         <td class="name"><input class="appcom" data-appcompany="${esc(id)}" value="${esc(a.company || "")}" aria-label="Unternehmen"${S.canWrite ? "" : " disabled"}></td>
         <td><input class="appcom" data-apptitle="${esc(id)}" value="${esc(a.title || "")}" aria-label="Job-Titel"${S.canWrite ? "" : " disabled"}></td>
+        ${((i) => `<td class="when">${i.pd ? esc(fmtDate(i.pd)) : "–"}</td><td class="sd">${i.sd ? esc(i.sd) : '<span class="when">–</span>'}</td>`)(infoOf(a))}
         <td><input class="appcom" data-appcomment="${esc(id)}" value="${esc(a.comment || "")}" placeholder="Notiz …" aria-label="Kommentar"${S.canWrite ? "" : " disabled"}></td>
         <td>${a.url ? `<a href="${esc(a.url)}" target="_blank" rel="noopener">öffnen</a>` : "–"}${dupOf(a) ? `<span class="badge dup" title="Gleicher Link wie Nr. ${esc(dupOf(a).join(", "))}">gleicher Link wie Nr. ${esc(dupOf(a).join(", "))}</span>` : ""}</td>
         <td><button class="btn small${delAppArmed === id ? " danger" : ""}" type="button" data-delapp="${esc(id)}"${S.canWrite ? "" : " disabled"}>${delAppArmed === id ? "Wirklich?" : "Entfernen"}</button></td>
@@ -1049,6 +1057,7 @@ details.filters textarea { resize: vertical; min-height: 84px; }
     db.doc("scans/latest").onSnapshot((snap) => { S.scan = snap.exists ? snap.data() : null; S.loaded.scan = true; schedule(); }, onErr);
     db.doc("scans/boards").onSnapshot((snap) => { S.boards = snap.exists ? snap.data() : null; schedule(); }, onErr);
     db.doc("scans/candidates").onSnapshot((snap) => { S.cands = snap.exists ? snap.data() : null; schedule(); }, onErr);
+    db.doc("scans/details").onSnapshot((snap) => { S.details = snap.exists ? snap.data() : null; schedule(); }, onErr);
     db.collection("runs").orderBy("started_at", "desc").limit(20).onSnapshot((snap) => { S.runs = snap.docs.map((d) => d.data()); schedule(); }, onErr);
     db.doc("config/main").onSnapshot((snap) => { S.config = snap.exists ? snap.data() : null; schedule(); }, onErr);
     schedule();
