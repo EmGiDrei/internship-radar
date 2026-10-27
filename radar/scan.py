@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # Praktikums-Radar – Scan ohne KI: liest Stellenlisten direkt (ATS-APIs/HTML) und filtert per Wortliste.
 # Eingabe:  $RADAR_DIR/in/startups/*.json, $RADAR_DIR/in/scans/latest.json (optional), $RADAR_DIR/meta.json
-#           optional $RADAR_DIR/in/boards/*.json (externe Jobbörsen) und $RADAR_DIR/in/scans/boards.json
-# Ausgabe:  $RADAR_DIR/latest.json, $RADAR_DIR/run.json, ggf. $RADAR_DIR/boards.json, Zusammenfassung auf stdout
+#           optional $RADAR_DIR/in/boards/*.json (externe Jobbörsen), $RADAR_DIR/in/scans/boards.json, …/scans/candidates.json
+# Ausgabe:  $RADAR_DIR/latest.json, $RADAR_DIR/run.json, ggf. $RADAR_DIR/boards.json + candidates.json, Zusammenfassung auf stdout
 import json, os, re, glob, html, datetime, threading, time, urllib.request, urllib.error, urllib.parse
 import concurrent.futures as cf
 import xml.etree.ElementTree as ET
@@ -172,6 +172,18 @@ def a_startupmap(url):
     n = len(set(t.lower() for u, t in links(base, txt) if 'apply=' in u)) or None
     return jobs, n
 
+def a_ycco(slug):
+    # YC-Firmenseite (ycombinator.com/companies/<slug>/jobs): Stellen als JSON im data-page-Attribut
+    _, txt = get(f'https://www.ycombinator.com/companies/{slug}/jobs')
+    p = json.loads(html.unescape(re.search(r'data-page="([^"]*)"', txt).group(1)))['props']
+    jobs = [(j.get('title') or '', j.get('location') or '', 'https://www.ycombinator.com' + (j.get('url') or '')) for j in p.get('jobPostings') or []]
+    return jobs, len(jobs)
+def a_bsjco(slug):
+    # Firmenseite bei Berlin Startup Jobs: dieselben Stellenkarten wie die Listen
+    _, txt = get(f'https://berlinstartupjobs.com/companies/{slug}/')
+    jobs = [(clean(m.group(2)), 'Berlin', m.group(1)) for m in re.finditer(r'<h4 class="bjs-jlid__h"><a href="([^"]+)">(.*?)</a>', txt, re.S)]
+    return jobs, len(jobs)
+
 def route(u):
     u = (u or '').strip()
     if m := re.match(r'https?://([^./]+)\.jobs\.personio\.(de|com)', u): return a_personio, (m.group(1), m.group(2))
@@ -183,6 +195,8 @@ def route(u):
     if m := re.search(r'(?:api|careers|jobs)\.smartrecruiters\.com/(?:v1/companies/)?([^/?#]+)', u): return a_smartrecruiters, (m.group(1),)
     if m := re.search(r'join\.com/companies/([^/?#]+)', u): return a_join, (m.group(1),)
     if m := re.match(r'https?://([^/]+\.teamtailor\.com)', u): return a_teamtailor, (m.group(1),)
+    if m := re.search(r'ycombinator\.com/companies/([^/?#]+)', u): return a_ycco, (m.group(1),)
+    if m := re.search(r'berlinstartupjobs\.com/companies/([^/?#]+)', u): return a_bsjco, (m.group(1),)
     if 'startupmap.one/startup/' in u: return a_startupmap, (u,)
     return a_web, (u,)
 
@@ -315,7 +329,9 @@ def b_bsj(url):
             raise
         ok += 1
         for m in re.finditer(r'<h4 class="bjs-jlid__h"><a href="([^"]+)">(.*?)</a>.*?class="bjs-jlid__b"[^>]*>(.*?)</a>', txt, re.S):
-            jobs.append((clean(m.group(2)), 'Berlin', m.group(1), clean(m.group(3))))
+            tag = re.search(r'<a[^>]*bjs-jlid__b[^>]*>', m.group(0))
+            co_url = re.search(r'href="([^"]+)"', tag.group(0)) if tag else None
+            jobs.append((clean(m.group(2)), 'Berlin', m.group(1), clean(m.group(3)), co_url.group(1) if co_url else ''))
     if not ok: raise HttpErr('BSJ: keine Seite lesbar')
     return jobs
 def b_arbeitnow(url):
@@ -328,6 +344,19 @@ def b_arbeitnow(url):
         if not (d.get('links') or {}).get('next'): break
     return jobs
 BOARD_ADAPTERS = {'yc': b_yc, 'getro': b_getro, 'bsj': b_bsj, 'arbeitnow': b_arbeitnow}
+
+BAD_ORG = {'embed', 'job_app', 'jobs', 'v1', 'api', 'companies', 'o', 'j'}
+def board_of(u):
+    # Aus einem Stellen-Link die Board-URL ableiten, die route() vollständig lesen kann; sonst None
+    fn, a = route(u)
+    if fn is a_web or fn is a_startupmap or not a or str(a[0]).lower() in BAD_ORG: return None, None
+    mk = {a_personio: lambda o, t: f'https://{o}.jobs.personio.{t}/', a_ashby: lambda o: f'https://jobs.ashbyhq.com/{o}',
+          a_greenhouse: lambda o, eu: f'https://job-boards.greenhouse.io/{o}', a_lever: lambda o, eu: f'https://jobs{".eu" if eu else ""}.lever.co/{o}',
+          a_workable: lambda o: f'https://apply.workable.com/{o}/', a_recruitee: lambda o: f'https://{o}.recruitee.com/',
+          a_smartrecruiters: lambda o: f'https://careers.smartrecruiters.com/{o}', a_join: lambda o: f'https://join.com/companies/{o}',
+          a_teamtailor: lambda h: f'https://{h}/jobs', a_ycco: lambda o: f'https://www.ycombinator.com/companies/{o}/jobs',
+          a_bsjco: lambda o: f'https://berlinstartupjobs.com/companies/{o}/'}
+    return mk[fn](*a), fn.__name__[2:]
 
 def norm_co(s):
     s = str(s or '').lower().replace('ä', 'ae').replace('ö', 'oe').replace('ü', 'ue').replace('ß', 'ss')
@@ -357,6 +386,8 @@ def boards_main(st, now):
         if norm_co(co) in known_names: return True
         ul = (u or '').lower()
         return any(ul.startswith(k + '/') or ul == k for k in known_urls)
+    by_name = {norm_co(d.get('name')): i for i, d in st.items() if not d.get('active')}   # deaktivierte → Reaktivierungs-Kandidat
+    cand = {}
     def run(kv):
         k, s = kv
         try: return k, BOARD_ADAPTERS[s['adapter']](s.get('url')), ''
@@ -370,7 +401,7 @@ def boards_main(st, now):
             old = [h for h in prev.get('hits') or [] if h.get('src') == name]
             results[k] = {'s': 'err', 'n': None, 'e': err, 'h': len(old), 'dup': 0, 'at': now}; hits += old; continue
         h, dup = [], 0
-        for t, l, u, co in jobs:
+        for t, l, u, co, *hint in jobs:
             t, l, co = clean(t)[:160], clean(l)[:80], clean(co)[:80]
             if not board_want(t, l): continue
             key = (norm_co(co), t.lower())
@@ -379,6 +410,13 @@ def boards_main(st, now):
             if known(co, u): dup += 1; continue
             i = 'board:' + slug(co)
             h.append({'id': i, 't': t, 'l': l, 'u': str(u or '')[:300], 'co': co, 'src': name, 'fs': fs_of.get((i, t.lower())) or now})
+            if srcs[k].get('adapter') != 'arbeitnow':   # Arbeitnow: viele Nicht-Startups → keine Kandidaten
+                b, kind = board_of(hint[0] if hint and hint[0] else u)
+                if b:
+                    c = cand.setdefault(slug(co), {'name': co, 'board': b, 'ats': kind, 'src': [], 'titles': [], 'n': 0})
+                    c['n'] += 1
+                    if name not in c['src']: c['src'].append(name)
+                    if len(c['titles']) < 3: c['titles'].append(t)
         results[k] = {'s': 'ok', 'n': len(jobs), 'e': '', 'h': len(h), 'dup': dup, 'at': now}
         hits += h
     sz = lambda o: len(json.dumps(o, ensure_ascii=False, separators=(',', ':')).encode())
@@ -389,6 +427,27 @@ def boards_main(st, now):
            'hits_total': len(hits), 'new_hits': sum(1 for x in hits if x['fs'] == now), 'results': results, 'hits': hits}
     json.dump(out, open(f'{D}/boards.json', 'w'), ensure_ascii=False, separators=(',', ':'))
     print('Jobbörsen:', json.dumps({k: (v['s'], v['h']) for k, v in results.items()}, ensure_ascii=False), '· Treffer', out['hits_total'], '· neu', out['new_hits'])
+    write_candidates(cand, by_name, now)
+
+def write_candidates(cand, by_name, now):
+    # Firmen aus Jobbörsen mit lesbarem Board als Vorschlag für die Collection startups ($D/candidates.json → scans/candidates).
+    # Entscheidung (status) setzt der Nutzer im Artefakt; sie bleibt über Läufe erhalten: neu | übernehmen | abgelehnt | übernommen
+    pf = f'{D}/in/scans/candidates.json'
+    prev = json.load(open(pf)) if os.path.exists(pf) else {}
+    if isinstance(prev.get('data'), dict): prev = prev['data']
+    old = prev.get('candidates') or {}
+    out = {}
+    for k, c in cand.items():
+        o = old.get(k) or {}
+        c.update(fs=o.get('fs') or now, ls=now, status=o.get('status') or 'neu')
+        if by_name.get(norm_co(c['name'])): c['in_startups'] = by_name[norm_co(c['name'])]
+        out[k] = c
+    for k, o in old.items():   # nicht mehr gesehene behalten, wenn schon entschieden oder jünger als 30 Tage
+        if k not in out and (o.get('status') not in (None, 'neu') or o.get('ls', '') >= (datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=30)).isoformat()):
+            out[k] = o
+    doc = {'updated_at': now, 'count': len(out), 'candidates': out}
+    json.dump(doc, open(f'{D}/candidates.json', 'w'), ensure_ascii=False, separators=(',', ':'))
+    print('Kandidaten:', len(out), '· neu in diesem Lauf', sum(1 for c in out.values() if c.get('fs') == now))
 
 if __name__ == '__main__':
     main()

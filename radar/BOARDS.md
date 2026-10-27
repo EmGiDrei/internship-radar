@@ -33,3 +33,14 @@ Deaktivierte Startups (z. B. startupmap-Sperre) dürfen über Jobbörsen wieder 
 ## Felder
 Hit in `scans/boards.hits[]`: `id` ("board:<firmen-slug>"), `t` (Titel), `l` (Ort), `u` (Link zur Stelle), `co` (Firmenname), `src` (Name der Quelle), `fs` (zuerst gesehen, ISO-UTC).
 Dokument: `run_id`, `finished_at`, `hits_total`, `new_hits`, `results` (je Quellen-ID: `s` ok/err, `n` gelesene Stellen, `e` Fehler, `h` Treffer, `dup` weggelassene Duplikate, `at`), `hits`.
+
+## Kandidaten für die Startup-Liste (`scans/candidates`)
+Firmen aus YC, den VC-Portfolios und Berlin Startup Jobs (nicht Arbeitnow), deren Stellen-Link ein vom Scanner vollständig lesbares Board ergibt
+(Ashby, Greenhouse, Lever, Personio, Join, Workable, Recruitee, SmartRecruiters, Teamtailor, YC-Firmenseite, BSJ-Firmenseite).
+Nichts wird automatisch in `startups` übernommen; die Entscheidung trifft der Nutzer.
+
+Dokument: `updated_at`, `count`, `candidates` = Objekt `{<firmen-slug>: Kandidat}`.
+Kandidat: `name`, `board` (Board-URL, als `source_url`/`career_url` übernehmbar), `ats` (personio, ashby, greenhouse, …, ycco, bsjco),
+`src` (Liste der Quellen), `titles` (bis 3 passende Titel), `n` (passende Stellen im Lauf), `fs`/`ls` (zuerst/zuletzt gesehen),
+`status` (`neu` | `übernehmen` | `abgelehnt` | `übernommen`; bleibt über Läufe erhalten), optional `in_startups` (ID eines **deaktivierten** Startups gleichen Namens → Reaktivierung mit neuer Quelle).
+Nicht mehr gesehene Kandidaten bleiben 30 Tage bzw. dauerhaft, wenn schon entschieden.
