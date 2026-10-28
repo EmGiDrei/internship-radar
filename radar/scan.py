@@ -3,7 +3,8 @@
 # Eingabe:  $RADAR_DIR/in/startups/*.json, $RADAR_DIR/in/scans/latest.json (optional), $RADAR_DIR/meta.json
 #           optional $RADAR_DIR/in/boards/*.json (externe Jobbörsen), $RADAR_DIR/in/scans/boards.json, …/scans/candidates.json,
 #           $RADAR_DIR/in/applications/*.json (Bewerberliste, nur gelesen), $RADAR_DIR/in/scans/details.json
-# Ausgabe:  $RADAR_DIR/latest.json, $RADAR_DIR/run.json, ggf. boards.json + candidates.json + details.json, Zusammenfassung auf stdout
+# Ausgabe:  $RADAR_DIR/latest.json, $RADAR_DIR/run.json, ggf. boards.json + candidates.json + details.json, progress.json, Zusammenfassung auf stdout
+# Aufruf:   python3 scan.py [init|daten|startups|boards|details|fertig]  – ohne Argument alle Phasen nacheinander
 import json, os, re, glob, html, datetime, threading, time, urllib.request, urllib.error, urllib.parse
 import concurrent.futures as cf
 import xml.etree.ElementTree as ET
@@ -233,15 +234,95 @@ def fetch_one(sid, d):
             if len(tried) == 1: first = err
     return {'id': sid, 's': 'err', 'e': first, 'jobs': [], 'n': None}
 
-def main():
-    t0 = time.time()
-    now = datetime.datetime.now(datetime.timezone.utc).isoformat(timespec='seconds')
-    meta = json.load(open(f'{D}/meta.json'))
-    st = {}
-    for f in glob.glob(f'{D}/in/startups/*.json'):
+# ---------------------------------------------------------------- Fortschritt ($D/progress.json → runs/<Lauf-ID>, Live-Anzeige im Artefakt)
+# Phasen mit Anteil am Ladebalken (Start-%); log = [[ISO-Zeit, ok|run|err|info, Text], …]
+PHASES = [('start', 0), ('daten', 3), ('startups', 8), ('boards', 30), ('details', 88), ('fertig', 100)]
+def utcnow(): return datetime.datetime.now(datetime.timezone.utc).isoformat(timespec='seconds')
+def progress(phase, *lines):
+    pf = f'{D}/progress.json'
+    p = json.load(open(pf)) if os.path.exists(pf) else {}
+    t = utcnow()
+    if not p:
+        meta = json.load(open(f'{D}/meta.json'))
+        p = {'run_id': meta['run_id'], 'status': 'running', 'started_at': meta['started_at'], 'mode': meta.get('mode', 'geplant'),
+             'engine': 'skript', 'log': [], 'dur': {}}
+    if p.get('phase') and p.get('phase_at') and p['phase'] != phase:   # Dauer der beendeten Phase (Schätzung fürs nächste Mal)
+        p['dur'][p['phase']] = round((datetime.datetime.fromisoformat(t) - datetime.datetime.fromisoformat(p['phase_at'])).total_seconds())
+    p.update(phase=phase, pct=dict(PHASES)[phase], phase_at=t)
+    p['log'] = (p['log'] + [[t, k, str(m)[:160]] for k, m in lines])[-40:]
+    json.dump(p, open(pf, 'w'), ensure_ascii=False)
+    for _, k, m in p['log'][-len(lines):] if lines else []: print(f'[{k}] {m}')
+    return p
+
+def _docs(sub):
+    out = {}
+    for f in glob.glob(f'{D}/in/{sub}/*.json'):
         x = json.load(open(f))
         if isinstance(x, dict) and isinstance(x.get('data'), dict) and ('version' in x or 'id' in x): x = x['data']
-        st[os.path.basename(f)[:-5]] = x
+        out[os.path.basename(f)[:-5]] = x
+    return out
+def load_startups(): return _docs('startups')
+
+def cmd_init():
+    meta = json.load(open(f'{D}/meta.json'))
+    progress('daten', ('ok', f"Lauf {meta['run_id']} gestartet ({meta.get('mode', 'geplant')})"), ('run', 'Lese Startups, Jobbörsen und Bewerberliste aus der Datenbank …'))
+
+def cmd_daten():
+    st = load_startups()
+    act = sum(1 for d in st.values() if d.get('active') and d.get('source_url'))
+    nb = sum(1 for d in _docs('boards').values() if isinstance(d, dict) and d.get('active'))
+    na = len(_docs('applications'))
+    progress('startups', ('ok', f'Datenbank gelesen: {len(st)} Startups ({act} aktiv), {nb} Jobbörsen, {na} Bewerbungen'),
+             ('run', f'Scanne {act} Karriereseiten (24 parallel, max. 4 je Host) …'))
+
+def cmd_startups():
+    r = scan_startups()
+    progress('boards', ('ok' if r['errors'] < r['checked'] / 2 else 'err', f"Startups: {r['ok']} ok, {r['errors']} Fehler · {r['hits_total']} Treffer, davon {r['new_hits']} neu"),
+             ('run', 'Lese externe Jobbörsen (YC, VC-Portfolios, Berlin Startup Jobs, Arbeitnow) …'))
+
+def cmd_boards():
+    now = json.load(open(f'{D}/latest.json'))['finished_at'] if os.path.exists(f'{D}/latest.json') else utcnow()
+    if not os.path.isdir(f'{D}/in/boards'):
+        return progress('details', ('info', 'Jobbörsen: keine Quellen geladen – übersprungen'), ('run', 'Prüfe Bewerberliste auf Startdatum und Online-Datum …'))
+    try:
+        b = boards_main(load_startups(), now) or {}
+        c = json.load(open(f'{D}/candidates.json')) if os.path.exists(f'{D}/candidates.json') else {}
+        errs = [k for k, v in (b.get('results') or {}).items() if v['s'] == 'err']
+        line = ('ok', f"Jobbörsen: {b.get('hits_total', 0)} Treffer ({b.get('new_hits', 0)} neu) aus {len(b.get('results') or {})} Quellen"
+                + (f", Fehler bei {', '.join(errs)}" if errs else '') + f" · {c.get('count', 0)} Kandidaten")
+    except Exception as e:
+        line = ('err', f'Jobbörsen: Fehler {type(e).__name__} {str(e)[:100]}')
+    progress('details', line, ('run', 'Prüfe Bewerberliste auf Startdatum und Online-Datum …'))
+
+def cmd_details():
+    now = utcnow()
+    if not os.path.isdir(f'{D}/in/applications'):
+        return progress('fertig', ('info', 'Bewerberliste: nicht geladen – übersprungen'), ('run', 'Speichere Ergebnisse …'))
+    try:
+        d = details_main(now) or {}
+        line = ('ok', f"Bewerberliste: {d.get('n', 0)} Links · Startdatum bei {d.get('sd', 0)} · Online-Datum bei {d.get('pd', 0)}")
+    except Exception as e:
+        line = ('err', f'Bewerberliste: Fehler {type(e).__name__} {str(e)[:100]}')
+    progress('fertig', line, ('run', 'Speichere Ergebnisse …'))
+
+def cmd_fertig():
+    p = json.load(open(f'{D}/progress.json'))
+    run = json.load(open(f'{D}/run.json'))
+    secs = round((datetime.datetime.now(datetime.timezone.utc) - datetime.datetime.fromisoformat(p['started_at'].replace('Z', '+00:00'))).total_seconds())
+    p = progress('fertig', ('ok', f'Fertig nach {secs // 60}:{secs % 60:02d} min'))
+    run.update(status='done', finished_at=utcnow(), seconds=secs, phase='fertig', pct=100, log=p['log'], dur=p['dur'])
+    json.dump(run, open(f'{D}/run.json', 'w'), ensure_ascii=False)
+    print(json.dumps({k: run[k] for k in ('checked', 'ok', 'errors', 'hits_total', 'new_hits', 'seconds')}, ensure_ascii=False))
+
+def main():
+    # Alles in einem Aufruf (lokal); der geplante Lauf ruft die Phasen einzeln auf und meldet dazwischen den Fortschritt
+    for f in (cmd_init, cmd_daten, cmd_startups, cmd_boards, cmd_details, cmd_fertig): f()
+
+def scan_startups():
+    t0 = time.time()
+    now = utcnow()
+    meta = json.load(open(f'{D}/meta.json'))
+    st = load_startups()
     pf = f'{D}/in/scans/latest.json'
     prev = json.load(open(pf)) if os.path.exists(pf) else {}
     if isinstance(prev.get('data'), dict): prev = prev['data']
@@ -281,12 +362,7 @@ def main():
     json.dump(run, open(f'{D}/run.json', 'w'), ensure_ascii=False)
     print(json.dumps(run, ensure_ascii=False))
     print('Fehler bei:', ', '.join(str(st[k].get('name', k)) for k in errs[:10]))
-    if os.path.isdir(f'{D}/in/boards'):
-        try: boards_main(st, now)
-        except Exception as e: print('Jobbörsen: Fehler', type(e).__name__, str(e)[:120])   # Startup-Scan bleibt gültig
-    if os.path.isdir(f'{D}/in/applications'):
-        try: details_main(now)
-        except Exception as e: print('Bewerberliste: Fehler', type(e).__name__, str(e)[:120])
+    return run
 
 # ================================================================ Externe Jobbörsen (Collection boards → $D/boards.json)
 # Liefern [(titel, ort, url, firma)]. Nur Praktikum/Werkstudent/Founders-Associate-artige Titel in DE bzw. Paris/Lille.
@@ -393,7 +469,7 @@ def boards_main(st, now):
         x = json.load(open(f))
         if isinstance(x, dict) and isinstance(x.get('data'), dict) and ('version' in x or 'id' in x): x = x['data']
         if x.get('active') and x.get('adapter') in BOARD_ADAPTERS: srcs[os.path.basename(f)[:-5]] = x
-    if not srcs: return
+    if not srcs: return {}
     pf = f'{D}/in/scans/boards.json'
     prev = json.load(open(pf)) if os.path.exists(pf) else {}
     if isinstance(prev.get('data'), dict): prev = prev['data']
@@ -453,6 +529,7 @@ def boards_main(st, now):
     json.dump(out, open(f'{D}/boards.json', 'w'), ensure_ascii=False, separators=(',', ':'))
     print('Jobbörsen:', json.dumps({k: (v['s'], v['h']) for k, v in results.items()}, ensure_ascii=False), '· Treffer', out['hits_total'], '· neu', out['new_hits'])
     write_candidates(cand, by_name, now)
+    return out
 
 def write_candidates(cand, by_name, now):
     # Firmen aus Jobbörsen mit lesbarem Board als Vorschlag für die Collection startups ($D/candidates.json → scans/candidates).
@@ -539,8 +616,11 @@ def details_main(now):
         by = {k: v for k, v in ex.map(one, apps) if v}
     doc = {'updated_at': now, 'count': len(by), 'by_url': by}
     json.dump(doc, open(f'{D}/details.json', 'w'), ensure_ascii=False, separators=(',', ':'))
-    print('Bewerberliste:', len(apps), 'Links · Startdatum gefunden', sum(1 for v in by.values() if v.get('sd')),
-          '· Online seit', sum(1 for v in by.values() if v.get('pd')))
+    r = {'n': len(apps), 'sd': sum(1 for v in by.values() if v.get('sd')), 'pd': sum(1 for v in by.values() if v.get('pd'))}
+    print('Bewerberliste:', r['n'], 'Links · Startdatum gefunden', r['sd'], '· Online seit', r['pd'])
+    return r
 
 if __name__ == '__main__':
-    main()
+    import sys
+    cmds = {'init': cmd_init, 'daten': cmd_daten, 'startups': cmd_startups, 'boards': cmd_boards, 'details': cmd_details, 'fertig': cmd_fertig, 'alles': main}
+    cmds[sys.argv[1] if len(sys.argv) > 1 else 'alles']()

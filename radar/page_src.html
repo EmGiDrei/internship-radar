@@ -26,6 +26,8 @@
   --f-display: "Schibsted Grotesk", "Helvetica Neue", Arial, sans-serif;
   --f-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
   --f-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --term-bg: #0b1a1f; --term-ink: #cfe3e6; --term-dim: #6f8a90; --term-ok: #63d39a; --term-run: #5cd0da; --term-err: #ff8b80; --term-info: #e8c36a;
+  --term-line: #1d3239; --bar-bg: #dde5ea;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
@@ -35,6 +37,7 @@
     --new: #f2b24c; --new-bg: #3a2a0c; --ok: #5ccb91; --ok-bg: #12301f;
     --err: #f2837a; --err-bg: #3a1614; --muted-bg: #1a232b;
     --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+    --term-bg: #071114; --term-line: #1a2c33; --bar-bg: #22303b;
     color-scheme: dark;
   }
 }
@@ -45,6 +48,7 @@
   --new: #f2b24c; --new-bg: #3a2a0c; --ok: #5ccb91; --ok-bg: #12301f;
   --err: #f2837a; --err-bg: #3a1614; --muted-bg: #1a232b;
   --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+  --term-bg: #071114; --term-line: #1a2c33; --bar-bg: #22303b;
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
@@ -205,6 +209,55 @@ details.filters textarea { resize: vertical; min-height: 84px; }
 .cand .acts { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
 .badge.react { background: var(--accent-soft); color: var(--accent); }
 #appList table { min-width: 940px; }
+
+/* Live-Fortschritt eines Laufs: Ladebalken nach Phasen + Konsole */
+.live { margin-top: 18px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px 16px; display: grid; gap: 12px; box-shadow: var(--shadow); }
+.live .lhead { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; }
+.live .lstate { font-family: var(--f-display); font-weight: 700; font-size: 16px; display: inline-flex; align-items: center; gap: 8px; }
+.live .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 60%, transparent); animation: ping 1.6s ease-out infinite; }
+.live.done .dot { background: var(--ok); animation: none; }
+.live.failed .dot { background: var(--err); animation: none; }
+@keyframes ping { 70% { box-shadow: 0 0 0 8px transparent; } 100% { box-shadow: 0 0 0 0 transparent; } }
+.live .lmeta { color: var(--ink-2); font-size: 13px; }
+.live .lclock { margin-left: auto; font-family: var(--f-mono); font-size: 13px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.bar { position: relative; height: 12px; border-radius: 999px; background: var(--bar-bg); overflow: hidden; }
+.bar .fill { position: absolute; inset: 0 auto 0 0; border-radius: inherit; background: var(--accent); transition: width .9s ease;
+  background-image: repeating-linear-gradient(-45deg, transparent 0 8px, color-mix(in srgb, var(--accent-ink) 22%, transparent) 8px 16px); background-size: 22.6px 100%; animation: stripes 1s linear infinite; }
+.live.done .bar .fill { background-color: var(--ok); background-image: none; animation: none; }
+.live.failed .bar .fill { background-color: var(--err); background-image: none; animation: none; }
+.bar.indet .fill { width: 30% !important; animation: indet 1.6s ease-in-out infinite, stripes 1s linear infinite; }
+.bar .tick { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--surface); opacity: .9; }
+@keyframes stripes { to { background-position: 22.6px 0; } }
+@keyframes indet { 0% { left: -30%; } 100% { left: 100%; } }
+.lpct { font-family: var(--f-mono); font-size: 13px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.lbarrow { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: center; }
+.steps { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 0; padding: 0; list-style: none; font-size: 13px; color: var(--ink-3); }
+.steps li { display: inline-flex; align-items: center; gap: 6px; }
+.steps .ic { width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid currentColor; display: inline-grid; place-items: center; font-size: 10px; line-height: 1; flex: none; }
+.steps .s-done { color: var(--ok); }
+.steps .s-done .ic { background: var(--ok); color: var(--surface); border-color: var(--ok); }
+.steps .s-act { color: var(--ink); font-weight: 600; }
+.steps .s-act .ic { border-color: var(--accent); border-top-color: transparent; animation: spin .8s linear infinite; }
+.steps .s-err { color: var(--err); font-weight: 600; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.term { background: var(--term-bg); color: var(--term-ink); border: 1px solid var(--term-line); border-radius: 10px; font-family: var(--f-mono); font-size: 12.5px; line-height: 1.65;
+  padding: 10px 14px; max-height: 240px; overflow: auto; min-width: 0; }
+.term .tl { display: grid; grid-template-columns: auto auto minmax(0, 1fr); gap: 0 10px; }
+.term .tt { color: var(--term-dim); font-variant-numeric: tabular-nums; }
+.term .tm { overflow-wrap: anywhere; }
+.term .k-ok .tk { color: var(--term-ok); } .term .k-run .tk, .term .k-run .tm { color: var(--term-run); }
+.term .k-err .tk, .term .k-err .tm { color: var(--term-err); } .term .k-info .tk { color: var(--term-info); }
+.term .k-cmd { color: var(--term-dim); }
+.term .k-cmd .tm::before { content: "$ "; color: var(--term-ok); }
+.term .cur { display: inline-block; width: .6em; height: 1.1em; vertical-align: -0.2em; background: var(--term-run); margin-left: 4px; animation: blink 1s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+.live details > summary { cursor: pointer; font-size: 13px; color: var(--ink-2); }
+.live details[open] > summary { margin-bottom: 8px; }
+tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: normal; }
+@media (prefers-reduced-motion: reduce) {
+  .live .dot, .bar .fill, .bar.indet .fill, .steps .s-act .ic, .term .cur { animation: none; }
+  .bar.indet .fill { left: 0; width: 100% !important; opacity: .5; }
+}
 #appList th { white-space: nowrap; }
 td.sd { font-size: 13px; min-width: 110px; max-width: 180px; overflow-wrap: anywhere; }
 </style>
@@ -224,6 +277,7 @@ td.sd { font-size: 13px; min-width: 110px; max-width: 180px; overflow-wrap: anyw
     </div>
   </header>
 
+  <section class="live" id="live" hidden aria-live="polite" aria-label="Fortschritt des Scans"></section>
   <div class="stats" id="stats"></div>
   <div id="bannerSlot"></div>
 
@@ -489,10 +543,89 @@ td.sd { font-size: 13px; min-width: 110px; max-width: 180px; overflow-wrap: anyw
     return started ? null : req;
   }
 
+  /* ---------- Live-Fortschritt (runs/<Lauf-ID>: phase, pct, phase_at, log, dur – geschrieben vom Lauf nach jeder Phase) ---------- */
+  const PH = [["start", 0, "Start"], ["daten", 3, "Datenbank"], ["startups", 8, "Startups"], ["boards", 30, "Jobbörsen"], ["details", 88, "Bewerberliste"], ["fertig", 100, "Fertig"]];
+  const PH_DEF = { start: 30, daten: 60, startups: 70, boards: 200, details: 40, fertig: 25 };   // Sekunden, falls noch kein Lauf mit Messwerten
+  const KSYM = { ok: "✓", run: "▸", err: "✗", info: "!" };
+  const hms = (iso) => { const d = new Date(iso); return isNaN(d) ? "--:--:--" : d.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit", second: "2-digit" }); };
+  const mmss = (sec) => { sec = Math.max(0, Math.round(sec)); return `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, "0")}`; };
+  function expectedDur(phase) {
+    const prev = S.runs.find((r) => r.status === "done" && r.dur && r.dur[phase] != null);
+    return Math.max(10, prev ? prev.dur[phase] : PH_DEF[phase] || 60);
+  }
+  // Fortschritt in % – innerhalb einer Phase anhand der Dauer früherer Läufe geschätzt (bleibt unter dem Phasenende)
+  function runPct(r) {
+    if (r.status === "done") return { pct: 100, est: false };
+    const i = PH.findIndex((p) => p[0] === r.phase);
+    if (i < 0) return { pct: null, est: false };
+    const lo = r.pct ?? PH[i][1], hi = PH[Math.min(i + 1, PH.length - 1)][1];
+    if (r.status === "failed" || hi <= lo) return { pct: lo, est: false };
+    const x = (Date.now() - new Date(r.phase_at || r.started_at)) / 1000 / expectedDur(r.phase);
+    const frac = x < 1 ? 0.9 * x : 0.9 + 0.08 * (1 - Math.exp(-(x - 1)));
+    return { pct: lo + (hi - lo) * frac, est: true };
+  }
+  function termHtml(r, live) {
+    const log = (r.log || []).map(([t, k, m]) => `<div class="tl k-${esc(k)}"><span class="tt">${esc(hms(t))}</span><span class="tk">${esc(KSYM[k] || "·")}</span><span class="tm">${esc(m)}</span></div>`);
+    const head = `<div class="tl k-cmd"><span class="tt">${esc(hms(r.started_at))}</span><span class="tk"></span><span class="tm">radar scan --lauf ${esc(r.run_id || "")} --modus ${esc(r.mode || "")}</span></div>`;
+    if (r.status === "failed") log.push(`<div class="tl k-err"><span class="tt">${esc(hms(r.finished_at || Date.now()))}</span><span class="tk">✗</span><span class="tm">Abgebrochen: ${esc(r.error || "unbekannter Grund")}</span></div>`);
+    if (live && log.length) log[log.length - 1] = log[log.length - 1].replace(/<\/span><\/div>$/, '<span class="cur" aria-hidden="true"></span></span></div>');
+    return head + log.join("");
+  }
+  function liveRun() {
+    const run = runningRun(); if (run) return { r: run, kind: "run" };
+    const pend = requestedPending(); if (pend) return { r: { run_id: "", mode: "manuell", started_at: pend, log: [[pend, "run", "Lauf angefordert – Cloud-Sitzung startet, Skript wird geschrieben …"]] }, kind: "pend" };
+    const last = S.runs[0];   // abgeschlossenen Lauf noch 20 Minuten zeigen
+    if (last && last.status !== "running" && Date.now() - new Date(last.finished_at || last.started_at) < 20 * 60e3) return { r: last, kind: last.status === "failed" ? "failed" : "done" };
+    return null;
+  }
+  let liveSig = "";
+  function renderLive() {
+    const box = $("#live"), L = S.db && liveRun();
+    if (!L) { box.hidden = true; liveSig = ""; return; }
+    const { r, kind } = L, i = PH.findIndex((p) => p[0] === r.phase);
+    const sig = JSON.stringify([kind, r.run_id, r.phase, (r.log || []).length, r.status]);
+    box.hidden = false;
+    box.className = "live" + (kind === "done" ? " done" : kind === "failed" ? " failed" : "");
+    if (sig !== liveSig) {
+      liveSig = sig;
+      const title = { run: "Scan läuft", pend: "Scan angefordert", done: "Scan fertig", failed: "Scan abgebrochen" }[kind];
+      const steps = PH.map(([k, , label], j) => {
+        const cls = kind === "done" || (i >= 0 && j < i) ? "s-done" : kind === "failed" && j === i ? "s-err" : kind === "run" && j === i ? "s-act" : "";
+        return `<li class="${cls}"><span class="ic" aria-hidden="true">${cls === "s-done" ? "✓" : cls === "s-err" ? "!" : ""}</span>${esc(label)}</li>`;
+      }).join("");
+      const ticks = PH.slice(1, -1).map(([, p]) => `<span class="tick" style="left:${p}%"></span>`).join("");
+      const term = `<div class="term" id="liveTerm" role="log">${termHtml(r, kind === "run" || kind === "pend")}</div>`;
+      box.innerHTML = `<div class="lhead"><span class="lstate"><span class="dot" aria-hidden="true"></span>${title}</span>
+          <span class="lmeta">${esc({ geplant: "geplanter Lauf", manuell: "per Knopf" }[r.mode] || r.mode || "")}${r.run_id ? " · Lauf " + esc(r.run_id) : ""}${kind === "done" ? ` · ${esc(r.hits_total ?? "–")} Treffer, ${esc(r.new_hits ?? 0)} neu` : ""}</span>
+          <span class="lclock" id="liveClock"></span></div>
+        <div class="lbarrow"><div class="bar${kind === "pend" || (kind === "run" && i < 0) ? " indet" : ""}" role="progressbar" aria-valuemin="0" aria-valuemax="100" id="liveBar"><span class="fill" id="liveFill"></span>${ticks}</div><span class="lpct" id="livePct"></span></div>
+        <ul class="steps">${steps}</ul>
+        ${kind === "done" ? `<details><summary>Protokoll anzeigen</summary>${term}</details>` : term}`;
+      const t = $("#liveTerm"); if (t) t.scrollTop = t.scrollHeight;
+    }
+    tickLive(L);
+  }
+  function tickLive(L) {
+    L = L || liveRun(); if (!L || $("#live").hidden) return;
+    const { r, kind } = L, { pct, est } = kind === "pend" ? { pct: null } : runPct(r);
+    const fill = $("#liveFill"), bar = $("#liveBar");
+    if (pct != null) { fill.style.width = pct.toFixed(1) + "%"; bar.setAttribute("aria-valuenow", Math.round(pct)); }
+    $("#livePct").textContent = pct == null ? "…" : (est ? "~" : "") + Math.floor(pct) + " %";
+    const end = kind === "done" || kind === "failed" ? new Date(r.finished_at || Date.now()) : Date.now();
+    const el = (end - new Date(r.started_at)) / 1000;
+    let rest = "";
+    if (kind === "run" && pct != null && pct > 3) {
+      const i = PH.findIndex((p) => p[0] === r.phase);
+      const left = PH.slice(Math.max(i, 0), -1).reduce((a, [k]) => a + expectedDur(k), 0) - (Date.now() - new Date(r.phase_at || r.started_at)) / 1000;
+      rest = ` · noch ca. ${Math.max(1, Math.round(left / 60))} Min.`;
+    }
+    $("#liveClock").textContent = (kind === "done" ? "Dauer " : "") + mmss(el) + rest;
+  }
+
   /* ---------- Rendering ---------- */
   function render() {
     S.hm = hitsWithMeta();
-    renderHeader(); renderStats(); renderTabs();
+    renderHeader(); renderLive(); renderStats(); renderTabs();
     if (S.tab === "praktika") renderHits();
     if (S.tab === "bewerbungen") renderApps();
     if (S.tab === "startups") renderStartups();
@@ -512,7 +645,7 @@ td.sd { font-size: 13px; min-width: 110px; max-width: 180px; overflow-wrap: anyw
     const run = runningRun(), pend = requestedPending();
     $("#scope").classList.toggle("live", !!(run || pend));
     const st = $("#scanstate"), btn = $("#scanBtn");
-    if (run) { st.textContent = `Scan läuft seit ${fmtDate(run.started_at, true)}${run.progress ? ` – ${run.progress} geprüft` : ""}. Ergebnisse erscheinen hier automatisch.`; btn.disabled = true; }
+    if (run) { st.textContent = `Scan läuft seit ${fmtDate(run.started_at, true)} – Fortschritt unten. Ergebnisse erscheinen automatisch.`; btn.disabled = true; }
     else if (pend) { st.textContent = `Scan angefordert ${ago(pend)} – startet gleich.`; btn.disabled = true; }
     else { st.textContent = S.scanMsg || ""; btn.disabled = S.busy || !S.db; }
   }
@@ -804,13 +937,16 @@ td.sd { font-size: 13px; min-width: 110px; max-width: 180px; overflow-wrap: anyw
     if (!S.runs.length) { box.innerHTML = `<div class="list"><div class="empty"><strong>Noch keine Läufe</strong>Jeder Scan wird hier mit Dauer, Treffern und Fehlern protokolliert.</div></div>`; return; }
     const modeL = { geplant: "geplant", manuell: "per Knopf", test: "Test" };
     box.innerHTML = `<div class="tablewrap"><table class="runs" style="min-width:640px">
-      <thead><tr><th>Start</th><th>Art</th><th>Status</th><th>Geprüft</th><th>Fehler</th><th>Treffer</th><th>Neu</th><th>Dauer</th></tr></thead>
+      <thead><tr><th>Start</th><th>Art</th><th>Status</th><th>Geprüft</th><th>Fehler</th><th>Treffer</th><th>Neu</th><th>Dauer</th><th></th></tr></thead>
       <tbody>${S.runs.map((r) => {
         const dur = r.finished_at ? Math.max(1, Math.round((new Date(r.finished_at) - new Date(r.started_at)) / 60000)) + " Min." : "–";
         const status = r.status === "running" ? (runningRun() === r ? `<span class="pill idle">läuft</span>` : `<span class="pill err">abgebrochen</span>`)
           : r.status === "failed" ? `<span class="pill err" title="${esc(r.error || "")}">abgebrochen</span>` : `<span class="pill ok">fertig</span>`;
+        const open = S.openLog === r.run_id;
         return `<tr><td class="num">${esc(fmtDate(r.started_at, true))}</td><td>${esc(modeL[r.mode] || r.mode || "–")}</td><td>${status}</td>
-          <td class="num">${esc(r.checked ?? r.progress ?? "–")}</td><td class="num">${esc(r.errors ?? "–")}</td><td class="num">${esc(r.hits_total ?? "–")}</td><td class="num">${esc(r.new_hits ?? "–")}</td><td class="num">${dur}</td></tr>`;
+          <td class="num">${esc(r.checked ?? r.progress ?? "–")}</td><td class="num">${esc(r.errors ?? "–")}</td><td class="num">${esc(r.hits_total ?? "–")}</td><td class="num">${esc(r.new_hits ?? "–")}</td><td class="num">${dur}</td>
+          <td>${r.log?.length ? `<button class="btn small" type="button" data-runlog="${esc(r.run_id)}" aria-expanded="${open}">${open ? "Protokoll schließen" : "Protokoll"}</button>` : ""}</td></tr>
+          ${open ? `<tr class="logrow"><td colspan="9"><div class="term" role="log">${termHtml(r, false)}</div></td></tr>` : ""}`;
       }).join("")}</tbody></table></div>`;
   }
 
@@ -982,6 +1118,7 @@ td.sd { font-size: 13px; min-width: 110px; max-width: 180px; overflow-wrap: anyw
     const t = ev.target.closest("button"); if (!t) return;
     if (t.dataset.tab) { S.tab = t.dataset.tab; try { localStorage.setItem("radar.tab", S.tab); } catch (e) {} schedule(); }
     else if (t.dataset.go) { S.tab = t.dataset.go; schedule(); }
+    else if (t.dataset.runlog) { S.openLog = S.openLog === t.dataset.runlog ? null : t.dataset.runlog; schedule(); }
     else if (t.dataset.kind) { S.kind = t.dataset.kind; schedule(); }
     else if (t.dataset.ftopic) { const d = draft(), k = t.dataset.ftopic; d.off_topics = d.off_topics.includes(k) ? d.off_topics.filter((x) => x !== k) : [...d.off_topics, k]; schedule(); }
     else if (t.id === "fSave") saveFilter();
@@ -1032,6 +1169,7 @@ td.sd { font-size: 13px; min-width: 110px; max-width: 180px; overflow-wrap: anyw
   $("#fExcl").addEventListener("input", () => { draft().exclude_extra = lines($("#fExcl").value); schedule(); });
   for (const id of ["#sq", "#sfilter"]) $(id).addEventListener("input", () => { S.limit = 150; schedule(); });
   setInterval(() => { if (runningRun() || requestedPending()) schedule(); }, 60000);
+  setInterval(() => { if (S.db && !$("#live").hidden) { if (liveRun()) tickLive(); else renderLive(); } }, 1000);
 
   render();
 

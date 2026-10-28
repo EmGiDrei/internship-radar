@@ -55,3 +55,9 @@ Gesucht wird per Wortmuster (DE/EN/FR, keine KI) nach Startangaben wie „Start:
 Ergebnis in `scans/details`: `updated_at`, `count`, `by_url` = `{<normalisierter Link>: {sd, pd, at}}` (Link klein geschrieben, ohne `?…`/`#…` und End-Schrägstrich).
 `sd` = Startdatum als Text (≤ 40 Zeichen), `pd` = online seit (aus den Treffern oder `datePosted` der Seite), `at` = zuletzt geladen. Gefundene Startdaten werden 14 Tage lang nicht neu geladen.
 Das Artefakt zeigt beides in der Bewerberliste als Spalten „Online seit“ und „Start“; die Praktika-Liste zeigt „online <Datum>“, wenn bekannt.
+
+## Live-Fortschritt (`runs/<Lauf-ID>`)
+Der Lauf ruft `scan.py` in Phasen auf (`init`, `daten`, `startups`, `boards`, `details`, `fertig`). Nach jeder Phase schreibt er `/tmp/radar/progress.json` per `update` nach `runs/<Lauf-ID>`.
+Felder: `phase` (aktive Phase), `pct` (Start-% dieser Phase: 0/3/8/30/88/100), `phase_at` (Beginn der Phase), `log` (bis 40 Einträge `[ISO-Zeit, ok|run|err|info, Text]`), `dur` (Sekunden je beendeter Phase).
+Das Artefakt zeigt daraus oben einen Ladebalken mit Phasen-Abschnitten, die Schritte und die Konsole. Innerhalb einer Phase wird der Balken anhand von `dur` des letzten fertigen Laufs geschätzt (Anzeige „~“). Fertige Läufe bleiben 20 Minuten sichtbar; das Protokoll jedes Laufs steht im Reiter „Läufe“.
+Nach jeder Phase sind deren Ergebnisse schon gespeichert (z. B. `scans/latest` nach `startups`).
