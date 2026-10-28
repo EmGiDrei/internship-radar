@@ -61,3 +61,12 @@ Der Lauf ruft `scan.py` in Phasen auf (`init`, `daten`, `startups`, `boards`, `d
 Felder: `phase` (aktive Phase), `pct` (Start-% dieser Phase: 0/3/8/30/88/100), `phase_at` (Beginn der Phase), `log` (bis 40 Einträge `[ISO-Zeit, ok|run|err|info, Text]`), `dur` (Sekunden je beendeter Phase).
 Das Artefakt zeigt daraus oben einen Ladebalken mit Phasen-Abschnitten, die Schritte und die Konsole. Innerhalb einer Phase wird der Balken anhand von `dur` des letzten fertigen Laufs geschätzt (Anzeige „~“). Fertige Läufe bleiben 20 Minuten sichtbar; das Protokoll jedes Laufs steht im Reiter „Läufe“.
 Nach jeder Phase sind deren Ergebnisse schon gespeichert (z. B. `scans/latest` nach `startups`).
+
+## Abbrechen
+„■ Abbrechen“ im Live-Panel (mit Rückfrage) sucht über `list_triggers` die Cloud-Sitzung des laufenden Laufs (`last_run.session_id`) und unterbricht sie (`interrupt_session`).
+Dann wird `runs/<Lauf-ID>` auf `status: "cancelled"` gesetzt. Klappt das Unterbrechen nicht, setzt das Artefakt nur `cancel_requested`.
+Der Lauf merkt das beim nächsten Schreiben am Versionskonflikt und hört nach der aktuellen Phase auf. Ein nur angeforderter, noch nicht gestarteter Lauf wird über `config/main.last_manual_cancel` verworfen.
+
+## Quellen-Labels
+Jede Stelle zeigt, woher sie kommt: „Startup-Liste · Personio“ bzw. „Meine Liste · Ashby“ (Bewerbungssystem aus dem Link, sonst die Website), „Jobbörse · Earlybird-Portfolio“ für Treffer aus `scans/boards`.
+In der Bewerberliste steht das System bzw. die Plattform unter dem Link.

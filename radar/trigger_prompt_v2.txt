@@ -28,7 +28,8 @@ Falls das Tool ArtifactData nicht geladen ist, lade es mit ToolSearch (query "se
 8) Bash (Timeout 20 Minuten): cd /tmp/radar && python3 scan.py details
    Nur wenn /tmp/radar/details.json existiert: ArtifactData action "set", collection "scans", doc_id "details", file_path "/tmp/radar/details.json", if_version = version aus 5g (weglassen, wenn es das Dokument nicht gab). Dann Fortschritt melden.
 9) Bash: cd /tmp/radar && python3 scan.py fertig
-   Dann ArtifactData action "set", collection "runs", doc_id <Lauf-ID>, file_path "/tmp/radar/run.json", if_version = zuletzt gemerkte version. Bei Versionskonflikt: neu lesen und einmal wiederholen.
+   Dann ArtifactData action "set", collection "runs", doc_id <Lauf-ID>, file_path "/tmp/radar/run.json", if_version = zuletzt gemerkte version (Versionskonflikt: siehe Abbruch unten).
+Abbruch per Knopf im Artefakt: Scheitert ein Schreibversuch auf runs/<Lauf-ID> mit Versionskonflikt, lies runs/<Lauf-ID> neu (action "get"). Steht dort "cancel_requested" oder status "cancelled": falls der status noch nicht "cancelled" ist, ArtifactData action "update" mit data {"status":"cancelled","finished_at":"<ISO-UTC>","error":"Vom Nutzer abgebrochen"} (if_version = gerade gelesene version), dann sofort aufhören – keine weiteren Schritte, Antwort „Lauf vom Nutzer abgebrochen“. Sonst den Schreibversuch mit der neuen version wiederholen.
 Bricht ein Bash-Schritt ab oder melden fast alle Quellen Fehler wie "ProxyError", "403" oder "Tunnel": ArtifactData action "update" auf runs/<Lauf-ID> (if_version wie oben) mit data {"status":"failed","finished_at":…,"error":"Kein Netzwerkzugriff für das Skript – in der Cloud-Umgebung Network access auf Full stellen"} (bzw. der Fehlermeldung) und hör auf.
 10) Antworte auf Deutsch in höchstens 3 Zeilen: geprüfte Firmen, Treffer (davon neu), Fehler; dazu die Zeilen [ok]/[err] aus den Ausgaben von „boards“ und „details“ (Jobbörsen-Treffer, Kandidaten, Startdaten).
 
