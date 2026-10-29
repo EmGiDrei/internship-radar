@@ -147,6 +147,11 @@ select.field { width: auto; }
 .list { display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; box-shadow: var(--shadow); }
 .row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 16px; padding: 12px 16px; border-top: 1px solid var(--line); align-items: center; }
 .row:first-child { border-top: 0; }
+.grp { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 9px 16px; background: var(--surface-2); border-top: 1px solid var(--line); font-size: 12.5px; color: var(--ink-3); }
+.grp:first-child { border-top: 0; }
+.grp b { color: var(--ink); font-weight: 600; }
+.grp + .row { border-top: 0; }
+.grp-n { font-variant-numeric: tabular-nums; white-space: nowrap; }
 .row:hover { background: color-mix(in srgb, var(--surface-2) 60%, var(--surface)); }
 .row .title { font-weight: 600; font-size: 14px; line-height: 1.4; overflow-wrap: anywhere; }
 .row .title a { color: var(--ink); }
@@ -407,6 +412,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
       <div class="grow"><input class="field" id="q" type="search" placeholder="Suche nach Rolle, Firma oder Ort" aria-label="Suche"></div>
       <div class="chips" id="kinds"></div>
       <label class="check"><input type="checkbox" id="onlyFit" checked> nur passende</label>
+      <label class="check"><input type="checkbox" id="onlyNew"> nur neue</label>
     </div>
     <details class="filters" id="fmore">
       <summary>Weitere Filter <span class="fcount" id="fcount"></span></summary>
@@ -418,7 +424,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
           <label class="f">Prio<select class="field" id="prioSel"><option value="">Alle Prios</option><option value="A">nur Prio A</option><option value="AB">Prio A + B</option><option value="ABC">Prio A – C</option></select></label>
           <label class="f">Sortierung<select class="field" id="sortSel"><option value="prio">Nach Prio</option><option value="neu">Neueste zuerst</option></select></label>
         </div>
-        <div class="factions"><label class="check"><input type="checkbox" id="onlyNew"> nur neue</label><label class="check"><input type="checkbox" id="onlyMine"> nur meine Liste</label><button class="btn small" type="button" id="fClear">Zurücksetzen</button></div>
+        <div class="factions"><label class="check"><input type="checkbox" id="onlyMine"> nur meine Liste</label><button class="btn small" type="button" id="fClear">Zurücksetzen</button></div>
       </div>
     </details>
     <details class="filters" id="fbox">
@@ -912,7 +918,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
       $("#kindSel").innerHTML = KINDS.map((k) => `<option>${esc(k)}</option>`).join("");
     }
     $("#kindSel").value = S.kind;
-    const extra = [S.kind !== "Alle" && S.kind !== "Praktikum", $("#city").value, $("#srcSel").value, $("#prioSel").value, $("#sortSel").value !== "prio", $("#onlyNew").checked, $("#onlyMine").checked].filter(Boolean).length;
+    const extra = [S.kind !== "Alle" && S.kind !== "Praktikum", $("#city").value, $("#srcSel").value, $("#prioSel").value, $("#sortSel").value !== "prio", $("#onlyMine").checked].filter(Boolean).length;
     $("#fcount").textContent = extra ? extra + " aktiv" : "";
     chips.querySelectorAll(".chip").forEach((c) => c.setAttribute("aria-pressed", String(c.dataset.kind === S.kind)));
     renderFilterBox();
@@ -931,17 +937,28 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
       (!onlyNew || h.isNew) && (!onlyMine || isMine(h.st)) && (!city || h.city === city) &&
       (!q || (h.t + " " + h.company + " " + h.l).toLowerCase().includes(q)));
     const byNew = (a, b) => (b.isNew - a.isNew) || (new Date(b.fs) - new Date(a.fs)) || a.company.localeCompare(b.company, "de");
-    list.sort(sortBy === "prio" ? (a, b) => ((b.rt?.s ?? -1) - (a.rt?.s ?? -1)) || byNew(a, b) : byNew);
+    const cmp = sortBy === "prio" ? (a, b) => ((b.rt?.s ?? -1) - (a.rt?.s ?? -1)) || byNew(a, b) : byNew;
+    // Läufe trennen: Stellen nach „zuerst gesehen“ gruppieren (Zeitpunkte, die weniger als 30 Min. auseinanderliegen, gehören zu einem Lauf)
+    const times = [...new Set(list.map((h) => +new Date(h.fs)))].sort((a, b) => b - a), grpOf = new Map(), grps = [];
+    for (const t of times) { if (!grps.length || grps[grps.length - 1].start - t > 30 * 60e3) grps.push({ start: t, n: 0 }); grpOf.set(t, grps.length - 1); }
+    for (const h of list) { h.g = grpOf.get(+new Date(h.fs)); grps[h.g].n++; }
+    list.sort((a, b) => (a.g - b.g) || cmp(a, b));
     const box = $("#hitList");
     if (!S.db) { box.innerHTML = `<div class="list"><div class="empty"><strong>Noch keine Daten</strong>Die Trefferliste erscheint, sobald die Datenbank geladen ist.</div></div>`; return; }
     if (!all.length) { box.innerHTML = `<div class="list"><div class="empty"><strong>Noch keine Treffer</strong>${S.scan ? "Der letzte Lauf hat keine passenden Stellen gefunden." : "Nach dem ersten Scan stehen hier alle Praktika, Werkstudenten- und Founders-Associate-Stellen."}</div></div>`; return; }
     if (!list.length) { box.innerHTML = `<div class="list"><div class="empty"><strong>Nichts passt zu den Filtern</strong>${onlyFit ? "Unter „Filter anpassen“ mehr Themen zulassen oder „nur passende“ ausschalten." : "Setze Suche oder Filter zurück."}</div></div>`; return; }
     S.shownHits = list.slice(0, 400);
+    const grpHead = (h, i) => {
+      if (grps.length < 2 || (i > 0 && S.shownHits[i - 1].g === h.g)) return "";
+      const g = grps[h.g], when = fmtDate(new Date(g.start).toISOString(), true);
+      const label = h.isNew ? "Neu im letzten Lauf" : h.g === grps.length - 1 ? "Erster Scan" : "Lauf";
+      return `<div class="grp"><span><b>${esc(label)}</b> · ${esc(when)}</span><span class="grp-n">${g.n} ${g.n === 1 ? "Stelle" : "Stellen"}</span></div>`;
+    };
     box.innerHTML = `<div class="list">${S.shownHits.map((h, i) => {
       const lk = jobLink(h);
       const onl = appOnList(h);
       const kb = h.kinds.filter((k) => k !== "Sonstiges").map((k) => `<span class="badge ${k === "Praktikum" ? "k-Praktikum" : k === "Founder & CEO-Office" ? "k-Founders" : ""}">${esc(k)}</span>`).join("") + (h.generic ? `<span class="badge">Allgemein</span>` : "");
-      return `<div class="row">
+      return `${grpHead(h, i)}<div class="row">
         <div style="min-width:0">
           <div class="title"><a href="${esc(lk.href)}" target="_blank" rel="noopener">${esc(h.t)}</a></div>
           <div class="meta"><span class="co">${esc(h.company)}</span>${h.l ? `<span>${esc(h.l)}</span>` : ""}${h.topics.length ? `<span class="topics">${esc(h.topics.slice(0, 3).join(" · "))}</span>` : ""}${((q) => `<span class="srcb${h.board ? " ext" : ""}" title="${esc(q.title)}"><b>${esc(q.kind)}</b> · ${esc(q.name)}</span>`)(srcOf(h))}${lk.via ? `<span class="via">Link: ${esc(lk.via)}</span>` : ""}</div>${rateLine(h.rt)}
@@ -1413,7 +1430,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     else if (t.id === "cancelNo") { S.cancelArm = false; renderLive(); }
     else if (t.id === "cancelYes") cancelScan();
     else if (t.dataset.appview) { S.appView = t.dataset.appview; try { localStorage.setItem("radar.appView", S.appView); } catch (e) {} schedule(); }
-    else if (t.id === "fClear") { S.kind = "Alle"; for (const id of ["#city", "#srcSel", "#prioSel"]) $(id).value = ""; $("#sortSel").value = "prio"; $("#onlyNew").checked = $("#onlyMine").checked = false; try { localStorage.setItem("radar.sort", "prio"); } catch (e) {} schedule(); }
+    else if (t.id === "fClear") { S.kind = "Alle"; for (const id of ["#city", "#srcSel", "#prioSel"]) $(id).value = ""; $("#sortSel").value = "prio"; $("#onlyMine").checked = false; try { localStorage.setItem("radar.sort", "prio"); } catch (e) {} schedule(); }
     else if (t.dataset.runlog) { S.openLog = S.openLog === t.dataset.runlog ? null : t.dataset.runlog; schedule(); }
     else if (t.dataset.kind) { S.kind = t.dataset.kind; schedule(); }
     else if (t.dataset.ftopic) { const d = draft(), k = t.dataset.ftopic; d.off_topics = d.off_topics.includes(k) ? d.off_topics.filter((x) => x !== k) : [...d.off_topics, k]; schedule(); }
