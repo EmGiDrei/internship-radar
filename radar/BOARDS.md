@@ -77,9 +77,9 @@ Jeder Lauf prüft alle Links der Bewerberliste. Offline ist eine Stelle, wenn ih
 
 ## KI-Bewertung (`config/profile` → `scans/ratings`)
 Profil im Artefakt (Reiter „Profil“): `config/profile` = `{cv, wishes, updated_at}`.
-Der Lauf (`scan.py bewerten`) gibt Claude bis zu 100 noch nicht bewertete Stellen, zuerst die Bewerberliste, dann die neuesten Treffer. Grobe Vorauswahl über die Titel; Engineering, Design, HR u. Ä. fallen raus. Jede Stelle kommt mit Anzeigentext, bevorzugt aus der JSON-LD-JobPosting-Beschreibung.
+Der Lauf (`scan.py bewerten`) gibt Claude nur Neues: Stellen der Bewerberliste, die noch keine Bewertung zum aktuellen Profil haben, und Treffer, die in diesem Lauf neu dazugekommen sind (`fs` ≥ `started_at` des Laufs). Ältere Treffer werden nicht nachträglich bewertet; `RATE_MAX` (150) ist nur eine Sicherheitsgrenze, falls eine neue Quelle sehr viele Treffer auf einmal bringt. Grobe Vorauswahl über die Titel; Engineering, Design, HR u. Ä. fallen raus. Jede Stelle kommt mit Anzeigentext, bevorzugt aus der JSON-LD-JobPosting-Beschreibung.
 Claude vergibt `fit`, `imp` (Impact), `su` (Startup-Stärke), je 0–100, plus `why`. Das Skript berechnet `s = 0,45·fit + 0,35·imp + 0,2·su` und daraus die Prio: A ≥ 75, B ≥ 62, C ≥ 48, sonst D (D auch bei fit < 35).
-`scans/ratings.by_url[<normalisierter Link>] = {fit, imp, su, s, p, why, at, pa}`. `pa` ist der Profilstand; nach einer Profiländerung wird schrittweise neu bewertet. Einträge älter als 60 Tage fallen weg.
+`scans/ratings.by_url[<normalisierter Link>] = {fit, imp, su, s, p, why, at, pa}`. `pa` ist der Profilstand; nach einer Profiländerung wird die Bewerberliste neu bewertet (ältere Treffer nicht). Einträge älter als 60 Tage fallen weg.
 
 ## Pipeline
 Statuswechsel im Artefakt schreiben `status_at` und `hist[<Status>]` in `applications/<id>`. Die Pipeline zählt je Stufe, wie viele Bewerbungen sie erreicht haben (aktueller Status oder Verlauf). Board-Ansicht mit Drag & Drop.

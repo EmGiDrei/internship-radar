@@ -308,8 +308,8 @@ def cmd_details():
 def cmd_bewerten():
     r = rate_prepare()
     if not r.get('n'):
-        return progress('fertig', ('info', r.get('msg') or 'KI-Bewertung: nichts Neues zu bewerten'), ('run', 'Speichere Ergebnisse …'))
-    progress('bewerten', ('ok', f"KI-Bewertung: {r['n']} Stellen vorbereitet (danach noch {r['rest']} offen)"),
+        return progress('fertig', ('info', r.get('msg') or 'KI-Bewertung: keine neuen Stellen zu bewerten'), ('run', 'Speichere Ergebnisse …'))
+    progress('bewerten', ('ok', f"KI-Bewertung: {r['n']} neue Stellen vorbereitet" + (f" ({r['rest']} über der Grenze ausgelassen)" if r['rest'] else '')),
              ('run', f"Claude bewertet {r['n']} Stellen nach deinem Profil (Fit, Impact, Startup) …"))
 
 def cmd_bewerten_speichern():
@@ -665,9 +665,10 @@ def details_main(now):
     return r
 
 # ================================================================ KI-Bewertung (config/profile + scans/ratings)
-# Das Skript bereitet vor ($D/rate_in.json: Profil + bis zu RATE_MAX Stellen mit Anzeigentext), Claude im Lauf bewertet
+# Das Skript bereitet vor ($D/rate_in.json: Profil + noch nicht bewertete Stellen der Bewerberliste + die in diesem Lauf neu gefundenen
+# Treffer, je mit Anzeigentext; höchstens RATE_MAX), Claude im Lauf bewertet
 # ($D/rate_out.json: [{k, fit, imp, su, why}]), das Skript berechnet daraus Score und Prio ($D/ratings.json → scans/ratings).
-RATE_MAX = 100
+RATE_MAX = 150   # nur Sicherheitsgrenze, falls z. B. eine neue Quelle auf einen Schlag sehr viele neue Treffer bringt
 RATE_EX = re.compile(r"engineer|developer|entwickler|software|frontend|backend|full.?stack|devops|firmware|embedded|hardware|mechani|elektro|electrical|chemi"
                      r"|laborator|physi|scientist|researcher|\bqa\b|security|cyber|design|\bux\b|\bui\b|grafik|graphic|video|social media|content|community"
                      r"|copywrit|redakt|recruit|talent|\bhr\b|human resources|people (?:&|and|operations|ops)|legal|jurist|\btax\b|steuer|accounting|buchhalt"
@@ -712,10 +713,17 @@ def rate_prepare():
     st = load_startups(); hits = []
     for fn in ('latest.json', 'boards.json'):
         if os.path.exists(f'{D}/{fn}'): hits += json.load(open(f'{D}/{fn}')).get('hits') or []
+    meta = json.load(open(f'{D}/meta.json')) if os.path.exists(f'{D}/meta.json') else {}
+    def ts(x):
+        try: t = datetime.datetime.fromisoformat(str(x).replace('Z', '+00:00'))
+        except Exception: return None
+        return t if t.tzinfo else t.replace(tzinfo=datetime.timezone.utc)
+    t0 = ts(meta.get('started_at'))
+    new = lambda h: bool(t0 and ts(h.get('fs')) and ts(h.get('fs')) >= t0)   # nur Treffer, die in diesem Lauf neu dazugekommen sind
     cand = []
     for h in hits:
         k = norm_url(h.get('u'))
-        if not h.get('u') or done(k) or k in seen or not rate_candidate(h.get('t')): continue
+        if not h.get('u') or not new(h) or done(k) or k in seen or not rate_candidate(h.get('t')): continue
         seen.add(k)
         cand.append({'u': h['u'], 'co': h.get('co') or (st.get(h.get('id')) or {}).get('name') or h.get('id'), 't': h.get('t'), 'l': h.get('l') or '',
                      'src': h.get('src') or 'Startup-Liste', 'fs': h.get('fs') or ''})
@@ -733,7 +741,7 @@ def rate_prepare():
         f.write('{"profil": ' + json.dumps({'cv': str(prof.get('cv'))[:12000], 'wuensche': str(prof.get('wishes') or '')[:4000]}, ensure_ascii=False)
                 + ',\n"jobs": [\n' + ',\n'.join(json.dumps(j, ensure_ascii=False) for j in jobs) + '\n]}\n')
     json.dump({'profile_at': pa, 'by_url': rated}, open(f'{D}/rate_state.json', 'w'), ensure_ascii=False)
-    print('KI-Bewertung:', len(jobs), 'Stellen in /tmp/radar/rate_in.json · danach noch offen', rest)
+    print('KI-Bewertung:', len(jobs), 'neue Stellen in /tmp/radar/rate_in.json · über der Grenze ausgelassen', rest)
     return {'n': len(jobs), 'rest': rest}
 
 def rate_save():
