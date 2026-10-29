@@ -122,7 +122,9 @@ h1 { font-family: var(--f-display); font-weight: 700; font-size: 18px; letter-sp
 .alertdot { width: 20px; height: 20px; border-radius: 50%; border: 0; background: var(--err); color: #ffffff; font-size: 12px; font-weight: 700; line-height: 1; cursor: pointer; display: inline-grid; place-items: center; padding: 0; }
 .alertdot:hover { filter: brightness(1.08); }
 .pop { position: absolute; left: 0; top: calc(100% + 8px); z-index: 30; width: min(340px, calc(100vw - 32px)); background: var(--surface); border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow-pop); padding: 12px; display: grid; gap: 10px; font-size: 13px; color: var(--ink-2); }
-.pop .msg { line-height: 1.45; }
+.pop .msg { line-height: 1.45; position: relative; padding-right: 22px; }
+.msg-x { position: absolute; top: -2px; right: -4px; border: 0; background: none; color: var(--ink-3); font-size: 13px; cursor: pointer; padding: 2px 4px; border-radius: 4px; }
+.msg-x:hover { color: var(--ink); background: var(--surface-2); }
 .pop .msg > div { margin-top: 8px; }
 .pop .msg b { color: var(--ink); font-weight: 600; }
 .pop .msg + .msg { border-top: 1px solid var(--line); padding-top: 10px; }
@@ -209,7 +211,9 @@ td.num { font-variant-numeric: tabular-nums; }
 .empty { padding: 40px 20px; text-align: center; color: var(--ink-3); font-size: 13px; }
 .empty strong { display: block; font-size: 15px; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
 
-details.how { margin-top: 32px; color: var(--ink-2); font-size: 13px; }
+.how.card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px 20px; box-shadow: var(--shadow); max-width: 820px; color: var(--ink-2); font-size: 13.5px; line-height: 1.6; }
+.how h2 { margin: 0 0 8px; font-size: 16px; font-weight: 700; color: var(--ink); }
+.how ol { padding-left: 20px; margin: 0; display: grid; gap: 6px; }
 details.how summary { cursor: pointer; color: var(--ink-2); font-weight: 500; }
 details.how ol { padding-left: 20px; max-width: 72ch; }
 
@@ -388,7 +392,6 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
         <div class="titlerow"><h1>Praktikums-Radar</h1>
           <span class="alertwrap"><button class="alertdot" id="alertBtn" type="button" aria-haspopup="dialog" aria-expanded="false" aria-label="Hinweise anzeigen" hidden>!</button>
           <div class="pop" id="alertPop" role="dialog" aria-label="Hinweise" hidden></div></span></div>
-        <div class="sub" id="sub">Lade …</div>
       </div>
     </div>
     <div class="actions">
@@ -402,6 +405,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
           <button class="mi" role="menuitem" id="tab-fehler" data-tab="fehler">Fehler<span class="c" id="c-fehler"></span></button>
           <button class="mi" role="menuitem" id="tab-laeufe" data-tab="laeufe">Läufe<span class="c" id="c-laeufe"></span></button>
           <button class="mi" role="menuitem" id="tab-profil" data-tab="profil">Profil (für KI-Bewertung)<span class="c" id="c-profil"></span></button>
+          <button class="mi" role="menuitem" id="tab-info" data-tab="info">So funktioniert der Radar</button>
         </div>
       </div>
     </div>
@@ -512,6 +516,20 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     <div id="errList"></div>
   </section>
 
+  <section class="panel" id="p-info" hidden>
+    <div class="how card">
+      <h2>So funktioniert der Radar</h2>
+      <ol>
+        <li>Die Datenbank enthält alle Startups mit Scan-Quelle. Bei Firmen mit Bewerbungssystem (Personio, Greenhouse, Ashby, Join …) wird direkt dessen Stellenliste gelesen, sonst die Karriereseite.</li>
+        <li>Jeden Morgen um 06:55 läuft der Scan automatisch, „Jetzt scannen“ startet ihn sofort. Ein Lauf dauert etwa 5–10 Minuten; Fortschritt und Protokoll siehst du live, „Abbrechen“ stoppt ihn sofort.</li>
+        <li>Zusätzlich liest jeder Lauf externe Jobbörsen (YC, VC-Portfolios von Earlybird, Cherry, Speedinvest, Point Nine, Creandum, Atomico, HV Capital, Berlin Startup Jobs, Arbeitnow). Jede Stelle zeigt, woher sie kommt.</li>
+        <li>„nur passende“ filtert per Wortliste nach deinen Themen (unter ⋯ → Themen &amp; Suchwörter anpassbar). Die Prio A–D vergibt Claude anhand deines Profils (Mehr → Profil): Fit, Impact und Stärke des Startups.</li>
+        <li>Für die Bewerberliste prüft jeder Lauf Startdatum, Online-Datum und ob die Anzeige noch online ist.</li>
+        <li>Firmen, die auf Jobbörsen auftauchen, aber noch nicht gescannt werden, stehen unter Mehr → Kandidaten und lassen sich mit einem Klick übernehmen. Nicht lesbare Quellen stehen unter Mehr → Fehler.</li>
+      </ol>
+    </div>
+  </section>
+
   <section class="panel" id="p-profil" hidden>
     <form class="prof" id="profForm" autocomplete="off">
       <div class="card">
@@ -529,17 +547,6 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     <div id="runList"></div>
   </section>
 
-  <details class="how">
-    <summary>So funktioniert der Radar</summary>
-    <ol>
-      <li>Die Datenbank enthält alle Startups mit Karriereseite und Scan-Quelle. Bei Firmen mit Bewerbungssystem (Personio, Greenhouse, Ashby, Join …) wird direkt dessen Stellenliste gelesen; Firmen ohne bekannte Karriereseite laufen über ihr startupmap-Profil.</li>
-      <li>Eine geplante Aufgabe in Claude prüft alle zwei Tage jede aktive Quelle auf Praktika, Werkstudentenstellen, Abschlussarbeiten und Founders-Associate-Rollen. „Jetzt scannen“ startet denselben Lauf sofort; ein Lauf dauert je nach Umfang 20 bis 40 Minuten.</li>
-      <li>Lädt eine Quelle nicht, erscheint die Firma unter „Fehler“. Dort kannst du die URL korrigieren; über „Ersatzquelle“ werden Treffer trotzdem gesucht.</li>
-      <li>„nur passende“ zeigt Stellen, deren Titel zu deinen Themen passt (AI, Automation, Strategy, BizDev, Founder &amp; CEO-Office …). Die Auswahl läuft über eine Wortliste, nicht über KI – unter „Filter anpassen“ kannst du Themen abwählen und eigene Wörter ergänzen.</li>
-      <li>Startups ausschalten spart Zeit und Nutzung pro Lauf.</li>
-      <li>Zusätzlich liest jeder Lauf externe Jobbörsen (YC, Portfolios von Earlybird, Cherry, Speedinvest, Point Nine, Creandum, Atomico, HV Capital, Berlin Startup Jobs, Arbeitnow). Deren Stellen stehen mit Quelle in derselben Liste; Firmen daraus erscheinen unter „Kandidaten“ und können in die Startup-Liste übernommen werden.</li>
-    </ol>
-  </details>
 </div>
 
 <dialog id="dlg">
@@ -849,12 +856,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
   }
 
   function renderHeader() {
-    const sub = $("#sub");
-    if (!S.db) { sub.textContent = S.dbMissing ? "Datenbank nur in Claude verfügbar – öffne das Artefakt in claude.ai." : "Lade Datenbank …"; }
-    else {
-      const last = S.runs.find((r) => r.status === "done")?.finished_at || S.scan?.finished_at;
-      sub.textContent = last ? `Letzter Scan: ${fmtDate(last, true)} (${ago(last)})` : "Noch kein Scan";
-    }
+    if (!S.db && S.dbMissing) S.scanMsg = "Datenbank nur in Claude verfügbar – öffne das Artefakt in claude.ai.";
     const run = runningRun(), pend = requestedPending();
     $("#scope").classList.toggle("on", !!(run || pend));
     const st = $("#scanstate"), btn = $("#scanBtn");
@@ -883,21 +885,29 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
 
 
   // Hinweise (Fehler, abgebrochener Lauf, fehlendes Profil) nur als kleines rotes „!“ neben dem Titel
+  function dismissedAlerts() { try { return JSON.parse(localStorage.getItem("radar.alertsOff") || "[]"); } catch (e) { return S.alertsOff || []; } }
+  function dismissAlert(k) {
+    const l = [...dismissedAlerts().filter((x) => x !== k), k].slice(-30); S.alertsOff = l;
+    try { localStorage.setItem("radar.alertsOff", JSON.stringify(l)); } catch (e) {}
+    renderAlerts(); if (!$("#alertBtn").hidden) { $("#alertPop").hidden = false; $("#alertBtn").setAttribute("aria-expanded", "true"); }
+  }
   function renderAlerts() {
-    const msgs = [];
+    const all = [];
     const errs = Object.entries(S.scan?.results || {}).filter(([id, r]) => r.s === "err" && S.startups.get(id)?.active).length;
     const lastRun = S.runs[0];
-    if (S.loaded.scan && !S.scan) msgs.push(`<b>Noch kein Scan gelaufen.</b> Starte den ersten mit „Jetzt scannen“.`);
-    if (lastRun && lastRun.status === "failed") msgs.push(`<b>Letzter Scan abgebrochen</b> (${esc(fmtDate(lastRun.started_at, true))}): ${esc(lastRun.error || "unbekannter Grund")}<div><button class="btn small" type="button" data-go="laeufe">Läufe ansehen</button></div>`);
-    if (errs) msgs.push(`<b>${errs} Karriereseiten</b> konnten beim letzten Lauf nicht gelesen werden.<div><button class="btn small" type="button" data-go="fehler">Fehler ansehen</button></div>`);
-    if (S.loaded.scan && S.profileLoaded && !S.profile?.cv) msgs.push(`<b>Kein Profil hinterlegt</b> – ohne Lebenslauf gibt es keine KI-Bewertung.<div><button class="btn small" type="button" data-go="profil">Profil öffnen</button></div>`);
+    if (S.loaded.scan && !S.scan) all.push(["noscan", `<b>Noch kein Scan gelaufen.</b> Starte den ersten mit „Jetzt scannen“.`]);
+    if (lastRun && lastRun.status === "failed") all.push(["fail:" + lastRun.run_id, `<b>Letzter Scan abgebrochen</b> (${esc(fmtDate(lastRun.started_at, true))}): ${esc(lastRun.error || "unbekannter Grund")}<div><button class="btn small" type="button" data-go="laeufe">Läufe ansehen</button></div>`]);
+    if (errs) all.push(["errs:" + errs + ":" + (S.scan?.run_id || ""), `<b>${errs} Karriereseiten</b> konnten beim letzten Lauf nicht gelesen werden.<div><button class="btn small" type="button" data-go="fehler">Fehler ansehen</button></div>`]);
+    if (S.loaded.scan && S.profileLoaded && !S.profile?.cv) all.push(["noprofile", `<b>Kein Profil hinterlegt</b> – ohne Lebenslauf gibt es keine KI-Bewertung.<div><button class="btn small" type="button" data-go="profil">Profil öffnen</button></div>`]);
+    const gone = dismissedAlerts();
+    const msgs = all.filter(([k]) => !gone.includes(k)).map(([k, m]) => `<button class="msg-x" type="button" data-alertx="${esc(k)}" aria-label="Meldung ausblenden" title="Ausblenden">✕</button>${m}`);
     const btn = $("#alertBtn"), pop = $("#alertPop");
     btn.hidden = !msgs.length; btn.title = msgs.length + (msgs.length === 1 ? " Hinweis" : " Hinweise");
     if (!msgs.length) { pop.hidden = true; btn.setAttribute("aria-expanded", "false"); }
     pop.innerHTML = msgs.map((m) => `<div class="msg">${m}</div>`).join("");
   }
   function renderTabs() {
-    for (const t of ["praktika", "bewerbungen", "startups", "kandidaten", "fehler", "laeufe", "profil"]) {
+    for (const t of ["praktika", "bewerbungen", "startups", "kandidaten", "fehler", "laeufe", "profil", "info"]) {
       $("#tab-" + t).setAttribute("aria-selected", String(S.tab === t));
       $("#p-" + t).hidden = S.tab !== t;
     }
@@ -906,9 +916,9 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     $("#c-startups").textContent = S.startups.size || "";
     $("#c-fehler").textContent = errs || ""; $("#c-laeufe").textContent = S.runs.length || "";
     $("#c-profil").textContent = S.db && S.profileLoaded && !S.profile?.cv ? "!" : "";
-    const sec = ["startups", "kandidaten", "fehler", "laeufe", "profil"].includes(S.tab);
+    const sec = ["startups", "kandidaten", "fehler", "laeufe", "profil", "info"].includes(S.tab);
     $("#moreBtn").setAttribute("aria-selected", String(sec));
-    $("#moreLbl").textContent = sec ? { startups: "Startups", kandidaten: "Kandidaten", fehler: "Fehler", laeufe: "Läufe", profil: "Profil" }[S.tab] : "Mehr";
+    $("#moreLbl").textContent = sec ? { startups: "Startups", kandidaten: "Kandidaten", fehler: "Fehler", laeufe: "Läufe", profil: "Profil", info: "So funktioniert’s" }[S.tab] : "Mehr";
     $("#c-kandidaten").textContent = Object.values(S.cands?.candidates || {}).filter((c) => (c.status || "neu") === "neu").length || "";
   }
 
@@ -951,13 +961,14 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     if (!list.length && onlyNew && !q) { box.innerHTML = `<div class="list"><div class="empty"><strong>Keine neuen Stellen im letzten Lauf</strong>Schalte „nur neue“ aus, um alle Stellen zu sehen.</div></div>`; return; }
     if (!list.length) { box.innerHTML = `<div class="list"><div class="empty"><strong>Nichts passt zu den Filtern</strong>${onlyFit ? "Unter „Filter anpassen“ mehr Themen zulassen oder „nur passende“ ausschalten." : "Setze Suche oder Filter zurück."}</div></div>`; return; }
     S.shownHits = list.slice(0, 400);
-    const runAt = S.scan?.finished_at || S.boards?.finished_at;
-    const lead = onlyNew ? `<div class="lead">${list.length ? `<b>${list.length}</b> ${list.length === 1 ? "neue Stelle" : "neue Stellen"}` : "Keine neuen Stellen"} im letzten Lauf${runAt ? ` (${esc(fmtDate(runAt, true))})` : ""}</div>` : "";
+    const lead = "";
     const grpHead = (h, i) => {
-      if (grps.length < 2 || (i > 0 && S.shownHits[i - 1].g === h.g)) return "";
+      if (i > 0 && S.shownHits[i - 1].g === h.g) return "";
       const g = grps[h.g], when = fmtDate(new Date(g.start).toISOString(), true);
-      const label = h.isNew ? "Neu im letzten Lauf" : h.g === grps.length - 1 ? "Erster Scan" : "Lauf";
-      return `<div class="grp"><span><b>${esc(label)}</b> · ${esc(when)}</span><span class="grp-n">${g.n} ${g.n === 1 ? "Stelle" : "Stellen"}</span></div>`;
+      const label = h.isNew ? "Neu im letzten Lauf" : h.g === grps.length - 1 && grps.length > 1 ? "Erster Scan" : "Lauf";
+      const cnt = `${g.n} ${g.n === 1 ? "Stelle" : "Stellen"}`;
+      return onlyNew ? `<div class="grp"><span><b>${esc(label)}</b> · ${cnt} (${esc(when)})</span></div>`
+        : `<div class="grp"><span><b>${esc(label)}</b> · ${esc(when)}</span><span class="grp-n">${cnt}</span></div>`;
     };
     box.innerHTML = lead + `<div class="list">${S.shownHits.map((h, i) => {
       const lk = jobLink(h);
@@ -1428,6 +1439,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     if (!ev.target.closest(".moremenu, .alertwrap")) closePops();
     const t = ev.target.closest("button"); if (!t) return;
     if (t.id === "moreBtn") { const m = $("#moreMenu"); closePops("menu"); m.hidden = !m.hidden; t.setAttribute("aria-expanded", String(!m.hidden)); return; }
+    if (t.dataset.alertx) { dismissAlert(t.dataset.alertx); return; }
     if (t.id === "alertBtn") { const p = $("#alertPop"); closePops("alert"); p.hidden = !p.hidden; t.setAttribute("aria-expanded", String(!p.hidden)); return; }
     if (t.dataset.tab || t.dataset.go) closePops();
     if (t.dataset.tab) { S.tab = t.dataset.tab; try { localStorage.setItem("radar.tab", S.tab); } catch (e) {} schedule(); }
