@@ -63,7 +63,7 @@ Das Artefakt zeigt daraus oben einen Ladebalken mit Phasen-Abschnitten, die Schr
 Nach jeder Phase sind deren Ergebnisse schon gespeichert (z. B. `scans/latest` nach `startups`).
 
 ## Abbrechen
-„■ Abbrechen“ im Live-Panel (mit Rückfrage) sucht über `list_triggers` die Cloud-Sitzung des laufenden Laufs (`last_run.session_id`) und unterbricht sie (`interrupt_session`).
+„■ Abbrechen“ im Live-Panel (mit Rückfrage) unterbricht die Cloud-Sitzung sofort (`interrupt_session`, die `cse_…`-ID wird angenommen). Die Sitzungs-ID kommt bei „Jetzt scannen“ aus der Antwort von `fire_trigger` (gespeichert in `config/main.last_session`), bei geplanten Läufen aus `get_trigger` (`last_run.session_id`).
 Dann wird `runs/<Lauf-ID>` auf `status: "cancelled"` gesetzt. Klappt das Unterbrechen nicht, setzt das Artefakt nur `cancel_requested`.
 Der Lauf merkt das beim nächsten Schreiben am Versionskonflikt und hört nach der aktuellen Phase auf. Ein nur angeforderter, noch nicht gestarteter Lauf wird über `config/main.last_manual_cancel` verworfen.
 
@@ -83,3 +83,5 @@ Claude vergibt `fit`, `imp` (Impact), `su` (Startup-Stärke), je 0–100, plus `
 
 ## Pipeline
 Statuswechsel im Artefakt schreiben `status_at` und `hist[<Status>]` in `applications/<id>`. Die Pipeline zählt je Stufe, wie viele Bewerbungen sie erreicht haben (aktueller Status oder Verlauf). Board-Ansicht mit Drag & Drop.
+
+`config/main.trigger_id` muss auf die aktive Aufgabe „Praktikums-Radar Scan“ zeigen (`trig_012zMiJBTYKuXzEPAmn85Ko5`, täglich 06:55 Europe/Paris). Die alten, deaktivierten Aufgaben laufen in einer Umgebung ohne Netzwerkzugriff.

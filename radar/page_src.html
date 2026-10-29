@@ -149,6 +149,8 @@ select.field { width: auto; }
 .list { display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; box-shadow: var(--shadow); }
 .row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 16px; padding: 12px 16px; border-top: 1px solid var(--line); align-items: center; }
 .row:first-child { border-top: 0; }
+.lead { font-size: 13px; color: var(--ink-2); margin: 0 0 10px; }
+.lead b { color: var(--ink); font-weight: 700; }
 .grp { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 9px 16px; background: var(--surface-2); border-top: 1px solid var(--line); font-size: 12.5px; color: var(--ink-3); }
 .grp:first-child { border-top: 0; }
 .grp b { color: var(--ink); font-weight: 600; }
@@ -406,7 +408,6 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
   </header>
 
   <section class="live" id="live" hidden aria-live="polite" aria-label="Fortschritt des Scans"></section>
-  <div class="stats" id="stats"></div>
 
   <nav class="tabs" role="tablist">
     <button class="tab" role="tab" id="tab-praktika" data-tab="praktika" aria-selected="true">Praktika</button>
@@ -744,10 +745,11 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     const run = runningRun(); if (run) return { r: run, kind: "run" };
     const pend = requestedPending(); if (pend) return { r: { run_id: "", mode: "manuell", started_at: pend, log: [[pend, "run", "Lauf angefordert – Cloud-Sitzung startet, Skript wird geschrieben …"]] }, kind: "pend" };
     const last = S.runs[0];   // abgeschlossenen Lauf noch 20 Minuten zeigen
-    if (last && last.status !== "running" && Date.now() - new Date(last.finished_at || last.started_at) < 20 * 60e3) return { r: last, kind: last.status === "done" ? "done" : "failed" };
+    if (last && last.status !== "running" && !liveDismissed(last.run_id) && Date.now() - new Date(last.finished_at || last.started_at) < 20 * 60e3) return { r: last, kind: last.status === "done" ? "done" : "failed" };
     return null;
   }
   let liveSig = "";
+  const liveDismissed = (id) => { try { return localStorage.getItem("radar.liveClosed") === id; } catch (e) { return S.liveClosed === id; } };
   function renderLive() {
     const box = $("#live"), L = S.db && liveRun();
     if (!L) { box.hidden = true; liveSig = ""; return; }
@@ -759,6 +761,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
       liveSig = sig;
       const title = { run: r.cancel_requested ? "Scan wird abgebrochen" : "Scan läuft", pend: "Scan angefordert", done: "Scan fertig", failed: r.status === "cancelled" ? "Scan gestoppt" : "Scan abgebrochen" }[kind];
       const canCancel = (kind === "run" || kind === "pend") && !r.cancel_requested && S.canWrite;
+      const closeBtn = kind === "done" || kind === "failed" ? `<button class="btn small" type="button" id="liveClose" title="Fenster schließen">✕ Schließen</button>` : "";
       const cancelUi = S.cancelBusy ? `<span class="lmeta">Breche ab …</span>`
         : !canCancel ? (r.cancel_requested && kind === "run" ? `<span class="lmeta">Abbruch angefordert – stoppt nach der aktuellen Phase</span>` : "")
         : S.cancelArm ? `<span class="lcancel"><span class="lmeta">Lauf wirklich abbrechen?</span><button class="btn small danger" type="button" id="cancelYes">Ja, abbrechen</button><button class="btn small" type="button" id="cancelNo">Weiterlaufen</button></span>`
@@ -771,7 +774,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
       const term = `<div class="term" id="liveTerm" role="log">${termHtml(r, kind === "run" || kind === "pend")}</div>`;
       box.innerHTML = `<div class="lhead"><span class="lstate"><span class="dot" aria-hidden="true"></span>${title}</span>
           <span class="lmeta">${esc({ geplant: "geplanter Lauf", manuell: "per Knopf" }[r.mode] || r.mode || "")}${r.run_id ? " · Lauf " + esc(r.run_id) : ""}${kind === "done" ? ` · ${esc(r.hits_total ?? "–")} Treffer, ${esc(r.new_hits ?? 0)} neu` : ""}</span>
-          <span class="lclock" id="liveClock"></span>${cancelUi}</div>${S.cancelMsg ? `<div class="lmeta" role="alert">${esc(S.cancelMsg)}</div>` : ""}
+          <span class="lclock" id="liveClock"></span>${cancelUi}${closeBtn}</div>${S.cancelMsg ? `<div class="lmeta" role="alert">${esc(S.cancelMsg)}</div>` : ""}
         <div class="lbarrow"><div class="bar${kind === "pend" || (kind === "run" && i < 0) ? " indet" : ""}" role="progressbar" aria-valuemin="0" aria-valuemax="100" id="liveBar"><span class="fill" id="liveFill"></span>${ticks}</div><span class="lpct" id="livePct"></span></div>
         <ul class="steps">${steps}</ul>
         ${kind === "done" ? `<details><summary>Protokoll anzeigen</summary>${term}</details>` : term}`;
@@ -804,16 +807,18 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     const now = new Date().toISOString(), r = L.r;
     let hard = false;
     if (S.mcp && S.config?.trigger_id) {
+      const ids = [];
       try {
-        const res = await S.mcp.callTool(MCP, "list_triggers", { limit: 100 });
-        const p = res.payload, list = Array.isArray(p) ? p : (p?.data || p?.triggers || []);
-        const lr = (list.find((x) => x && (x.id || x.trigger_id) === S.config.trigger_id) || {}).last_run || {};
-        if (lr.session_id && new Date(lr.fired_at) >= new Date(r.started_at) - 15 * 60e3) {
-          for (const sid of [...new Set([lr.session_id, lr.session_id.replace(/^cse_/, "session_")])]) {
-            try { await S.mcp.callTool(MCP, "interrupt_session", { session_id: sid }); hard = true; break; } catch (e) {}
-          }
-        }
+        const res = await S.mcp.callTool(MCP, "get_trigger", { trigger_id: S.config.trigger_id });
+        const lr = (res.payload?.trigger || res.payload || {}).last_run || {};
+        if (lr.session_id && new Date(lr.fired_at) >= new Date(r.started_at) - 15 * 60e3) ids.push(lr.session_id);
       } catch (e) {}
+      const mine = S.lastSession || S.config?.last_session;
+      const manual = L.kind === "pend" || (S.config?.last_manual_request && new Date(S.config.last_manual_request) >= new Date(r.started_at) - 15 * 60e3);
+      if (mine && manual) ids.push(mine);
+      for (const id of [...new Set(ids.flatMap((x) => [x, x.replace(/^cse_/, "session_")]))]) {
+        try { await S.mcp.callTool(MCP, "interrupt_session", { session_id: id }); hard = true; break; } catch (e) {}
+      }
     }
     try {
       if (L.kind === "pend") {
@@ -833,7 +838,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
   /* ---------- Rendering ---------- */
   function render() {
     S.hm = hitsWithMeta();
-    renderHeader(); renderLive(); renderStats(); renderTabs();
+    renderHeader(); renderLive(); renderAlerts(); renderTabs();
     if (S.tab === "praktika") renderHits();
     if (S.tab === "bewerbungen") renderApps();
     if (S.tab === "startups") renderStartups();
@@ -875,20 +880,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     return own.concat(ext);
   }
 
-  function renderStats() {
-    const el = $("#stats");
-    el.hidden = S.tab === "bewerbungen";
-    if (!S.db) { el.innerHTML = ""; return; }
-    const fresh = (S.hm || []).filter((h) => h.fit && h.isNew).length;
-    const apps = [...S.apps.values()], st = (a) => a.status || "Offen";
-    const open = apps.filter((a) => st(a) === "Offen").length, waiting = apps.filter((a) => ["Beworben", "Gespräch"].includes(st(a))).length;
-    el.innerHTML = [
-      `<div class="stat new"><span class="n">${fresh}</span><span class="l">Neu im letzten Lauf</span></div>`,
-      `<div class="stat"><span class="n">${open}</span><span class="l">Offen</span></div>`,
-      `<div class="stat wait"><span class="n">${waiting}</span><span class="l">Ausstehend</span></div>`,
-    ].join("");
-    renderAlerts();
-  }
+
 
   // Hinweise (Fehler, abgebrochener Lauf, fehlendes Profil) nur als kleines rotes „!“ neben dem Titel
   function renderAlerts() {
@@ -956,15 +948,18 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     const box = $("#hitList");
     if (!S.db) { box.innerHTML = `<div class="list"><div class="empty"><strong>Noch keine Daten</strong>Die Trefferliste erscheint, sobald die Datenbank geladen ist.</div></div>`; return; }
     if (!all.length) { box.innerHTML = `<div class="list"><div class="empty"><strong>Noch keine Treffer</strong>${S.scan ? "Der letzte Lauf hat keine passenden Stellen gefunden." : "Nach dem ersten Scan stehen hier alle Praktika, Werkstudenten- und Founders-Associate-Stellen."}</div></div>`; return; }
+    if (!list.length && onlyNew && !q) { box.innerHTML = `<div class="list"><div class="empty"><strong>Keine neuen Stellen im letzten Lauf</strong>Schalte „nur neue“ aus, um alle Stellen zu sehen.</div></div>`; return; }
     if (!list.length) { box.innerHTML = `<div class="list"><div class="empty"><strong>Nichts passt zu den Filtern</strong>${onlyFit ? "Unter „Filter anpassen“ mehr Themen zulassen oder „nur passende“ ausschalten." : "Setze Suche oder Filter zurück."}</div></div>`; return; }
     S.shownHits = list.slice(0, 400);
+    const runAt = S.scan?.finished_at || S.boards?.finished_at;
+    const lead = onlyNew ? `<div class="lead">${list.length ? `<b>${list.length}</b> ${list.length === 1 ? "neue Stelle" : "neue Stellen"}` : "Keine neuen Stellen"} im letzten Lauf${runAt ? ` (${esc(fmtDate(runAt, true))})` : ""}</div>` : "";
     const grpHead = (h, i) => {
       if (grps.length < 2 || (i > 0 && S.shownHits[i - 1].g === h.g)) return "";
       const g = grps[h.g], when = fmtDate(new Date(g.start).toISOString(), true);
       const label = h.isNew ? "Neu im letzten Lauf" : h.g === grps.length - 1 ? "Erster Scan" : "Lauf";
       return `<div class="grp"><span><b>${esc(label)}</b> · ${esc(when)}</span><span class="grp-n">${g.n} ${g.n === 1 ? "Stelle" : "Stellen"}</span></div>`;
     };
-    box.innerHTML = `<div class="list">${S.shownHits.map((h, i) => {
+    box.innerHTML = lead + `<div class="list">${S.shownHits.map((h, i) => {
       const lk = jobLink(h);
       const onl = appOnList(h);
       const kb = h.kinds.filter((k) => k !== "Sonstiges").map((k) => `<span class="badge ${k === "Praktikum" ? "k-Praktikum" : k === "Founder & CEO-Office" ? "k-Founders" : ""}">${esc(k)}</span>`).join("") + (h.generic ? `<span class="badge">Allgemein</span>` : "");
@@ -1336,10 +1331,11 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
         await S.mcp.callTool(MCP, "update_trigger", { trigger_id: trig, prompt: buildPrompt(urls) });
         try { await S.db.doc("config/main").update({ approved: urls, approved_at: new Date().toISOString() }); } catch (e) {}
       }
-      await S.mcp.callTool(MCP, "fire_trigger", { trigger_id: trig });
+      const fr = await S.mcp.callTool(MCP, "fire_trigger", { trigger_id: trig });
+      S.lastSession = fr?.payload?.session_id || fr?.payload?.trigger?.last_run?.session_id || "";
       S.scanMsg = "Scan gestartet. Er dauert etwa 20–40 Minuten; die Ergebnisse erscheinen hier automatisch.";
       toast("Scan gestartet");
-      try { await S.db.doc("config/main").update({ last_manual_request: new Date().toISOString() }); } catch (e) {}
+      try { await S.db.doc("config/main").update({ last_manual_request: new Date().toISOString(), last_session: S.lastSession || "" }); } catch (e) {}
     } catch (e) {
       S.scanMsg = mcpMessage(e, "Der Scan");
     } finally { S.busy = false; schedule(); }
@@ -1439,6 +1435,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     else if (t.id === "cancelRun") { S.cancelArm = true; S.cancelMsg = ""; renderLive(); }
     else if (t.id === "cancelNo") { S.cancelArm = false; renderLive(); }
     else if (t.id === "cancelYes") cancelScan();
+    else if (t.id === "liveClose") { const id = S.runs[0]?.run_id || ""; S.liveClosed = id; try { localStorage.setItem("radar.liveClosed", id); } catch (e) {} renderLive(); }
     else if (t.dataset.appview) { S.appView = t.dataset.appview; try { localStorage.setItem("radar.appView", S.appView); } catch (e) {} schedule(); }
     else if (t.id === "fToggle") { const pn = $("#fpanel"); pn.hidden = !pn.hidden; t.setAttribute("aria-expanded", String(!pn.hidden)); }
     else if (t.id === "fClear") { S.kind = "Alle"; for (const id of ["#city", "#srcSel", "#prioSel"]) $(id).value = ""; $("#sortSel").value = "prio"; $("#onlyMine").checked = false; try { localStorage.setItem("radar.sort", "prio"); } catch (e) {} schedule(); }
