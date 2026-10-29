@@ -313,6 +313,9 @@ a.nrlink:hover { text-decoration: none; filter: brightness(.95); }
 .kcard.r-moved { background: var(--ok-bg); border-color: color-mix(in srgb, var(--ok) 45%, var(--line)); }
 .kcard.r-off { background: var(--err-bg); border-color: color-mix(in srgb, var(--err) 45%, var(--line)); }
 #appList th { white-space: nowrap; }
+#appList th.sortable { cursor: pointer; user-select: none; }
+#appList th.sortable:hover, #appList th.on { color: var(--ink); }
+#appList th .sarr { font-size: 9px; margin-left: 3px; color: var(--accent); }
 td.sd { font-size: 13px; }
 
 /* KI-Prio */
@@ -533,7 +536,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     <div class="toolbar">
       <div class="grow"><input class="field" id="aq" type="search" placeholder="Suche in der Liste" aria-label="Suche in der Bewerberliste"></div>
       <select id="ast" hidden aria-hidden="true"><option value="">Alle Status</option></select>
-      <select id="aso" hidden aria-hidden="true"><option value="nr">Nr.</option><option value="firma">Firma</option><option value="status">Status</option><option value="neu">Neueste zuerst</option><option value="prio">Prio</option></select>
+      <select id="aso" hidden aria-hidden="true"><option value="nr">Nr.</option><option value="firma">Firma</option><option value="status">Status</option><option value="neu">Neueste zuerst</option><option value="prio">Prio</option><option value="titel">Job-Titel</option><option value="online">Online</option><option value="start">Start</option><option value="kommentar">Kommentar</option></select>
       <div class="ibar">
         <div class="ipop"><button class="ibtn" type="button" id="aFiltBtn" aria-haspopup="menu" aria-expanded="false" title="Nach Status filtern" aria-label="Nach Status filtern"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M2 3h12l-4.5 5.2V13l-3 1.2V8.2z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="ddot" id="aFiltDot" hidden></span></button>
           <div class="menu" id="aFiltMenu" role="menu" hidden></div></div>
@@ -774,7 +777,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
   // KI-Bewertung aus scans/ratings (Schlüssel: normalisierter Link)
   const rateOf = (u) => (u && S.ratings?.by_url?.[normUrl(u)]) || null;
   const rateTip = (r) => `Prio ${r.p} · Score ${r.s} – Fit ${r.fit} · Impact ${r.imp} · Startup ${r.su}${r.why ? " – " + r.why : ""}`;
-  const prioBadge = (r) => r ? `<span class="prio p-${esc(r.p)}" title="${esc(rateTip(r))}">${esc(r.p)}</span>` : "";
+  const prioBadge = (r) => r ? `<span class="prio p-${esc(r.p)}" data-full="${esc(rateTip(r))}" tabindex="0">${esc(r.p)}</span>` : "";
   const rateLine = (r) => r ? `<div class="rate"><span class="sc">Fit <b>${esc(r.fit)}</b></span><span class="sc">Impact <b>${esc(r.imp)}</b></span><span class="sc">Startup <b>${esc(r.su)}</b></span>${r.why ? `<span class="why">${esc(r.why)}</span>` : ""}</div>` : "";
   function srcOf(h) {
     if (h.board) return { kind: "Jobbörse", name: h.src || "Jobbörse", title: "Gefunden über eine externe Jobbörse bzw. ein VC-Portfolio" };
@@ -1270,18 +1273,23 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     const q = $("#aq").value.trim().toLowerCase(), fst = $("#ast").value, so = $("#aso").value;
     const stRank = (x) => { const i = APP_STATI.indexOf(x); return i < 0 ? 99 : i; };
     let rows = all.filter(([, a]) => (!fst || a.status === fst) && (!q || ((a.company || "") + " " + (a.title || "") + " " + (a.comment || "")).toLowerCase().includes(q)));
-    const cmpNr = (x, y) => (x[1].nr || 9999) - (y[1].nr || 9999);
-    rows.sort(so === "firma" ? (x, y) => (x[1].company || "").localeCompare(y[1].company || "", "de") || cmpNr(x, y)
-      : so === "status" ? (x, y) => stRank(x[1].status) - stRank(y[1].status) || cmpNr(x, y)
-      : so === "neu" ? (x, y) => new Date(y[1].added || 0) - new Date(x[1].added || 0) || (y[1].nr || 0) - (x[1].nr || 0)
-      : so === "prio" ? (x, y) => ((rateOf(y[1].url)?.s ?? -1) - (rateOf(x[1].url)?.s ?? -1)) || cmpNr(x, y)
-      : cmpNr);
     const byUrl = new Map(); for (const [id, a] of all) { const u = normUrl(a.url); if (u) byUrl.set(u, [...(byUrl.get(u) || []), a.nr]); }
     const dupOf = (a) => { const l = (byUrl.get(normUrl(a.url)) || []).filter((n) => n !== a.nr); return l.length ? l : null; };
     // Online seit (pd) und Start (sd): aus den Scan-Treffern bzw. scans/details, über den Link zugeordnet
     const det = S.details?.by_url || {}, pdOf = new Map();
     for (const h of S.hm || []) if (h.pd && h.u) pdOf.set(normUrl(h.u), h.pd);
     const infoOf = (a) => { const u = normUrl(a.url), d = det[u] || {}; return { pd: pdOf.get(u) || d.pd || "", sd: d.sd || "", off: d.off || "", moved: d.moved || "" }; };
+    // Sortierung: Schlüssel je Spalte, leere Werte immer ans Ende, bei Gleichstand nach Nr.
+    const txt = (v) => String(v || "").trim().toLowerCase();
+    const KEY = { nr: (a) => a.nr || null, firma: (a) => txt(a.company), titel: (a) => txt(a.title), kommentar: (a) => txt(a.comment),
+      status: (a) => stRank(a.status), prio: (a) => rateOf(a.url)?.s ?? null, neu: (a) => a.added || null,
+      online: (a) => infoOf(a).pd || null, start: (a) => sdKey(infoOf(a).sd) };
+    const key = KEY[so] || KEY.nr, dir = aDesc(so) ? -1 : 1, cmpNr = (x, y) => (x[1].nr || 9999) - (y[1].nr || 9999);
+    rows = rows.map((r) => [r, key(r[1])]).sort(([x, kx], [y, ky]) => {
+      const ex = kx == null || kx === "", ey = ky == null || ky === "";
+      if (ex || ey) return ex - ey || cmpNr(x, y);
+      return dir * (typeof kx === "number" && typeof ky === "number" ? kx - ky : String(kx).localeCompare(String(ky), "de", { numeric: true })) || cmpNr(x, y);
+    }).map(([r]) => r);
     renderPipe(all, infoOf);
     document.querySelectorAll("[data-appview]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.appview === S.appView)));
     if (!rows.length && all.length) { box.innerHTML = `<div class="list"><div class="empty"><strong>Nichts passt zu den Filtern</strong>Suche oder Filter zurücksetzen.</div></div>`; return; }
@@ -1292,11 +1300,11 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     if (S.appView === "board") { box.innerHTML = boardHtml(rows, infoOf); return; }
     box.innerHTML = `<div class="tablewrap"><table>
       <colgroup>${((w) => { const sum = w.reduce((a, b) => a + b, 0); return w.map((x) => `<col style="width:${((100 * x) / sum).toFixed(2)}%">`).join(""); })(colW())}</colgroup>
-      <thead><tr>${COLS.map((c, i) => `<th${c.tip ? ` title="${esc(c.tip)}"` : ""}>${esc(c.label)}${i < COLS.length - 1 ? `<span class="col-rz" data-colrz="${i}" title="Breite ziehen · Doppelklick: Standard"></span>` : ""}</th>`).join("")}</tr></thead>
+      <thead><tr>${COLS.map((c, i) => `<th${c.tip ? ` title="${esc(c.tip)}"` : ""}${c.key ? ` class="sortable${c.key === so ? " on" : ""}" data-asort="${c.key}" aria-sort="${c.key === so ? (aDesc(so) ? "descending" : "ascending") : "none"}"` : ""}>${esc(c.label)}${c.key === so ? `<span class="sarr">${aDesc(so) ? "▼" : "▲"}</span>` : ""}${i < COLS.length - 1 ? `<span class="col-rz" data-colrz="${i}" title="Breite ziehen · Doppelklick: Standard"></span>` : ""}</th>`).join("")}</tr></thead>
       <tbody>${rows.map(([id, a]) => `<tr${rowMark(infoOf(a))}>
         <td class="num">${a.url ? `<a class="nrlink" href="${esc(infoOf(a).moved || a.url)}" target="_blank" rel="noopener" title="Anzeige öffnen">${esc(a.nr || "↗")}</a>` : esc(a.nr || "")}</td>
         <td><select class="appstat" data-appstatus="${esc(id)}" aria-label="Status"${S.canWrite ? "" : " disabled"}>${APP_STATI.concat(APP_STATI.includes(a.status) ? [] : [a.status]).map((x) => `<option${x === a.status ? " selected" : ""}>${esc(x)}</option>`).join("")}</select></td>
-        <td>${((r) => r ? `<span data-full="${esc(rateTip(r))}">${prioBadge(r).replace(/ title="[^"]*"/, "")}</span>` : '<span class="prio p-none">–</span>')(rateOf(a.url))}</td>
+        <td>${rateOf(a.url) ? prioBadge(rateOf(a.url)) : '<span class="prio p-none">–</span>'}</td>
         <td class="name"><input class="appcom" data-appcompany="${esc(id)}" value="${esc(a.company || "")}" aria-label="Unternehmen"${S.canWrite ? "" : " disabled"}></td>
         <td><input class="appcom" data-apptitle="${esc(id)}" value="${esc(a.title || "")}" aria-label="Job-Titel"${S.canWrite ? "" : " disabled"}>${dupOf(a) ? `<span class="badge dup" title="Gleicher Link wie Nr. ${esc(dupOf(a).join(", "))}">gleicher Link wie Nr. ${esc(dupOf(a).join(", "))}</span>` : ""}</td>
         ${((i) => `<td class="when">${i.pd ? esc(fmtDate(i.pd)) : "–"}</td><td class="sd"${i.sd ? ` data-fit="1"` : ""}>${i.sd ? esc(i.sd) : '<span class="when">–</span>'}</td>`)(infoOf(a))}
@@ -1306,11 +1314,24 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
   }
 
   // Spalten der Bewerberliste: Breite per Ziehen am rechten Rand, gemerkt im Browser
-  const COLS = [{ label: "Nr.", w: 48 }, { label: "Status", w: 128 }, { label: "Prio", w: 52, tip: "KI-Bewertung nach deinem Profil" }, { label: "Unternehmen", w: 150 },
-    { label: "Job-Titel", w: 250 }, { label: "Online", w: 74, tip: "Wann die Anzeige veröffentlicht wurde" }, { label: "Start", w: 104, tip: "Startdatum laut Anzeige" }, { label: "Kommentar", w: 200 }, { label: "", w: 40 }];
+  const COLS = [{ label: "Nr.", w: 60, key: "nr" }, { label: "Status", w: 128, key: "status" }, { label: "Prio", w: 52, key: "prio", tip: "KI-Bewertung nach deinem Profil" }, { label: "Unternehmen", w: 150, key: "firma" },
+    { label: "Job-Titel", w: 250, key: "titel" }, { label: "Online", w: 74, key: "online", tip: "Wann die Anzeige veröffentlicht wurde" }, { label: "Start", w: 104, key: "start", tip: "Startdatum laut Anzeige" }, { label: "Kommentar", w: 200, key: "kommentar" }, { label: "", w: 40 }];
+  // Sortierrichtung: Klick auf die aktive Spaltenüberschrift dreht sie um; Prio, Online und „Neueste“ starten absteigend
+  const A_DESC_DEFAULT = new Set(["prio", "online", "neu"]);
+  const aDesc = (k) => S.aDir?.[k] ?? A_DESC_DEFAULT.has(k);
+  // Startdatum aus Freitext („ab sofort“, „January 2027“, „01.03.2027“) → sortierbarer Schlüssel; Unbekanntes hinten
+  const MON = ["jan", "feb", "m[äa]r", "apr", "ma[iy]", "jun", "jul", "aug", "sep", "o[ck]t", "nov", "de[cz]"];
+  function sdKey(sd) {
+    const t = String(sd || "").trim().toLowerCase(); if (!t) return null;
+    if (/sofort|asap|flexib|immediat/.test(t)) return "0000";
+    let m = t.match(/(\d{1,2})\.\s?(\d{1,2})\.\s?(20)?(\d{2})/); if (m) return `20${m[4]}-${m[2].padStart(2, "0")}`;
+    const y = (t.match(/20\d\d/) || [])[0], mi = MON.findIndex((x) => new RegExp("\\b" + x).test(t));
+    if (mi >= 0) return `${y || "2027"}-${String(mi + 1).padStart(2, "0")}`;
+    return y ? y + "-99" : "zzzz " + t;
+  }
   function colW() {
     let w = null; try { w = JSON.parse(localStorage.getItem("radar.appCols2") || "null"); } catch (e) { w = S.appCols; }
-    return COLS.map((c, i) => Math.max(28, (Array.isArray(w) && w[i]) || c.w));
+    return COLS.map((c, i) => Math.max(i === 0 ? c.w : 28, (Array.isArray(w) && w[i]) || c.w));   // Nr. bleibt breit genug für den Sortierpfeil
   }
   function setColW(i, px) {
     const w = colW(); w[i] = Math.max(28, Math.round(px)); S.appCols = w;
@@ -1602,11 +1623,14 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
   document.addEventListener("keydown", (ev) => { if (ev.key === "Escape") closePops(); });
   document.addEventListener("click", (ev) => {
     if (!ev.target.closest(".moremenu, .alertwrap, .ipop")) closePops();
+    const th = ev.target.closest?.("th[data-asort]");   // Klick auf Spaltenüberschrift sortiert (nicht beim Breite-Ziehen)
+    if (th && !ev.target.closest("[data-colrz]") && Date.now() - (S.rzAt || 0) > 400) { const k = th.dataset.asort, so = $("#aso");
+      S.aDir = { [k]: so.value === k ? !aDesc(k) : A_DESC_DEFAULT.has(k) }; so.value = k; schedule(); return; }
     const t = ev.target.closest("button"); if (!t) return;
     if (t.id === "aFiltBtn") { toggleMenu(t, $("#aFiltMenu")); return; }
     if (t.id === "aSortBtn") { toggleMenu(t, $("#aSortMenu")); return; }
     if (t.dataset.ast !== undefined) { $("#ast").value = t.dataset.ast; closePops(); schedule(); return; }
-    if (t.dataset.aso !== undefined) { $("#aso").value = t.dataset.aso; closePops(); schedule(); return; }
+    if (t.dataset.aso !== undefined) { $("#aso").value = t.dataset.aso; S.aDir = {}; closePops(); schedule(); return; }
     if (t.id === "aAddBtn") { closePops(); $("#aMsg").textContent = ""; $("#addDlg").showModal(); $("#aCompany").focus(); return; }
     if (t.id === "aCancel") { $("#addDlg").close(); return; }
     if (t.id === "moreBtn") { const m = $("#moreMenu"); closePops("menu"); m.hidden = !m.hidden; t.setAttribute("aria-expanded", String(!m.hidden)); return; }
@@ -1703,7 +1727,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     const calc = (e) => { const d = Math.max(32 - a0, Math.min(b0 - 32, e.clientX - x0)); return [a0 + d, b0 - d]; };
     const move = (e) => { const [a, b] = calc(e); cols[i].style.width = (100 * a / tw) + "%"; cols[i + 1].style.width = (100 * b / tw) + "%"; };
     const up = (e) => {
-      h.classList.remove("on"); document.removeEventListener("pointermove", move); document.removeEventListener("pointerup", up);
+      S.rzAt = Date.now(); h.classList.remove("on"); document.removeEventListener("pointermove", move); document.removeEventListener("pointerup", up);
       const [a, b] = calc(e), w = colW(), sum = w.reduce((x, y) => x + y, 0), k = sum / tw;
       setColW(i, a * k); setColW(i + 1, b * k); schedule();
     };
