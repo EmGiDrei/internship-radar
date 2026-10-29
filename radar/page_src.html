@@ -265,10 +265,15 @@ td .srcb { margin-top: 4px; }
 .cand .titles { color: var(--ink-3); font-size: 12.5px; margin-top: 2px; overflow-wrap: anywhere; }
 .cand .acts { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
 .badge.react { background: var(--accent-soft); color: var(--accent); }
-#appList table { min-width: 980px; }
-.nrcell { display: inline-flex; align-items: center; gap: 6px; }
-.linkbtn { display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 6px; border: 1px solid var(--line-2); color: var(--accent); background: var(--surface); }
-.linkbtn:hover { background: var(--accent-soft); text-decoration: none; }
+#appList table { table-layout: fixed; width: max-content; min-width: 0; }
+#appList th { position: relative; overflow: hidden; text-overflow: ellipsis; }
+#appList td { overflow: hidden; }
+#appList .appcom { min-width: 0; text-overflow: ellipsis; }
+.col-rz { position: absolute; top: 0; right: 0; width: 8px; height: 100%; cursor: col-resize; touch-action: none; }
+.col-rz::after { content: ""; position: absolute; top: 25%; bottom: 25%; right: 3px; width: 2px; border-radius: 2px; background: var(--line-2); }
+.col-rz:hover::after, .col-rz.on::after { background: var(--accent); top: 0; bottom: 0; }
+a.nrlink { display: inline-block; min-width: 28px; padding: 3px 7px; border-radius: 6px; font-weight: 600; color: var(--accent); background: var(--accent-soft); text-align: center; }
+a.nrlink:hover { text-decoration: none; filter: brightness(.95); }
 .trash { display: inline-flex; align-items: center; gap: 6px; border: 0; background: none; color: var(--err); padding: 5px 6px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; }
 .trash:hover { background: var(--err-bg); }
 .btn.primary.del { background: var(--err); border-color: var(--err); color: #ffffff; }
@@ -1198,19 +1203,32 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     const dups = all.filter(([, a]) => dupOf(a)).length;
     if (S.appView === "board") { box.innerHTML = boardHtml(rows, infoOf); return; }
     box.innerHTML = `<div class="tablewrap"><table>
-      <thead><tr><th>Nr.</th><th>Status</th><th title="KI-Bewertung nach deinem Profil">Prio</th><th>Unternehmen</th><th>Job-Titel</th><th title="Wann die Anzeige veröffentlicht wurde">Online seit</th><th title="Startdatum laut Anzeige">Start</th><th>Kommentar</th><th></th></tr></thead>
+      <colgroup>${COLS.map((c, i) => `<col style="width:${colW()[i]}px">`).join("")}</colgroup>
+      <thead><tr>${COLS.map((c, i) => `<th${c.tip ? ` title="${esc(c.tip)}"` : ""}>${esc(c.label)}${i < COLS.length - 1 ? `<span class="col-rz" data-colrz="${i}" title="Breite ziehen · Doppelklick: Standard"></span>` : ""}</th>`).join("")}</tr></thead>
       <tbody>${rows.map(([id, a]) => `<tr>
-        <td class="num"><span class="nrcell">${esc(a.nr || "")}${a.url ? `<a class="linkbtn" href="${esc(a.url)}" target="_blank" rel="noopener" title="Anzeige öffnen" aria-label="Anzeige öffnen"><svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><path d="M6 3H3.5A1.5 1.5 0 0 0 2 4.5v8A1.5 1.5 0 0 0 3.5 14h8a1.5 1.5 0 0 0 1.5-1.5V10M9 2h5v5M14 2 7 9" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a>` : ""}</span></td>
+        <td class="num">${a.url ? `<a class="nrlink" href="${esc(a.url)}" target="_blank" rel="noopener" title="Anzeige öffnen">${esc(a.nr || "↗")}</a>` : esc(a.nr || "")}</td>
         <td><select class="appstat" data-appstatus="${esc(id)}" aria-label="Status"${S.canWrite ? "" : " disabled"}>${APP_STATI.concat(APP_STATI.includes(a.status) ? [] : [a.status]).map((x) => `<option${x === a.status ? " selected" : ""}>${esc(x)}</option>`).join("")}</select></td>
         <td>${((r) => r ? prioBadge(r) + `<span class="why">${esc(r.why || "")}</span>` : '<span class="prio p-none" title="Noch nicht bewertet">–</span>')(rateOf(a.url))}</td>
-        <td class="name"><input class="appcom" data-appcompany="${esc(id)}" value="${esc(a.company || "")}" aria-label="Unternehmen"${S.canWrite ? "" : " disabled"}></td>
-        <td><input class="appcom" data-apptitle="${esc(id)}" value="${esc(a.title || "")}" aria-label="Job-Titel"${S.canWrite ? "" : " disabled"}>${offBadge(infoOf(a)).replace("<br>", "")}${dupOf(a) ? `<span class="badge dup" title="Gleicher Link wie Nr. ${esc(dupOf(a).join(", "))}">gleicher Link wie Nr. ${esc(dupOf(a).join(", "))}</span>` : ""}</td>
+        <td class="name"><input class="appcom" data-appcompany="${esc(id)}" value="${esc(a.company || "")}" title="${esc(a.company || "")}" aria-label="Unternehmen"${S.canWrite ? "" : " disabled"}></td>
+        <td><input class="appcom" data-apptitle="${esc(id)}" value="${esc(a.title || "")}" title="${esc(a.title || "")}" aria-label="Job-Titel"${S.canWrite ? "" : " disabled"}>${offBadge(infoOf(a)).replace("<br>", "")}${dupOf(a) ? `<span class="badge dup" title="Gleicher Link wie Nr. ${esc(dupOf(a).join(", "))}">gleicher Link wie Nr. ${esc(dupOf(a).join(", "))}</span>` : ""}</td>
         ${((i) => `<td class="when">${i.pd ? esc(fmtDate(i.pd)) : "–"}</td><td class="sd">${i.sd ? esc(i.sd) : '<span class="when">–</span>'}</td>`)(infoOf(a))}
-        <td><input class="appcom" data-appcomment="${esc(id)}" value="${esc(a.comment || "")}" placeholder="Notiz …" aria-label="Kommentar"${S.canWrite ? "" : " disabled"}></td>
+        <td><input class="appcom" data-appcomment="${esc(id)}" value="${esc(a.comment || "")}" title="${esc(a.comment || "")}" placeholder="Notiz …" aria-label="Kommentar"${S.canWrite ? "" : " disabled"}></td>
         <td><button class="trash" type="button" data-delapp="${esc(id)}" title="In den Papierkorb" aria-label="In den Papierkorb"${S.canWrite ? "" : " disabled"}><svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><path d="M2.5 4h11M6.5 4V2.5h3V4M4 4l.7 9.2c.05.7.6 1.3 1.3 1.3h4c.7 0 1.25-.6 1.3-1.3L12 4M6.8 7v5M9.2 7v5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button></td>
       </tr>`).join("")}</tbody></table></div>`;
   }
 
+  // Spalten der Bewerberliste: Breite per Ziehen am rechten Rand, gemerkt im Browser
+  const COLS = [{ label: "Nr.", w: 52 }, { label: "Status", w: 140 }, { label: "Prio", w: 150, tip: "KI-Bewertung nach deinem Profil" }, { label: "Unternehmen", w: 170 },
+    { label: "Job-Titel", w: 280 }, { label: "Online seit", w: 92, tip: "Wann die Anzeige veröffentlicht wurde" }, { label: "Start", w: 120, tip: "Startdatum laut Anzeige" }, { label: "Kommentar", w: 240 }, { label: "", w: 48 }];
+  function colW() {
+    let w = null; try { w = JSON.parse(localStorage.getItem("radar.appCols") || "null"); } catch (e) { w = S.appCols; }
+    return COLS.map((c, i) => Math.max(40, (Array.isArray(w) && w[i]) || c.w));
+  }
+  function setColW(i, px) {
+    const w = colW(); w[i] = Math.max(40, Math.round(px)); S.appCols = w;
+    try { localStorage.setItem("radar.appCols", JSON.stringify(w)); } catch (e) {}
+    return w;
+  }
   const offBadge = (i) => i.moved ? `<br><a class="badge moved" href="${esc(i.moved)}" target="_blank" rel="noopener" title="Die alte Anzeige leitet auf eine neue weiter">neu ausgeschrieben ↗</a>`
     : i.off ? `<br><span class="badge off" title="Beim Lauf nicht mehr im Stellenportal gefunden">offline seit ${esc(fmtDate(i.off))}</span>` : "";
   const PIPE = ["Offen", "Beworben", "Gespräch", "Zusage"];
@@ -1548,6 +1566,20 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     } catch (e) { msg.textContent = e?.code === "invalid_argument" ? "Keine Schreibrechte." : "Konnte nicht gespeichert werden."; }
   });
   $("#scanBtn").addEventListener("click", startScan);
+  document.addEventListener("pointerdown", (ev) => {
+    const h = ev.target.closest?.("[data-colrz]"); if (!h) return;
+    ev.preventDefault();
+    const i = +h.dataset.colrz, table = h.closest("table"), col = table.querySelectorAll("col")[i], x0 = ev.clientX, w0 = col.getBoundingClientRect().width || colW()[i];
+    h.classList.add("on");
+    const move = (e) => { const w = Math.max(40, w0 + e.clientX - x0); col.style.width = w + "px"; table.style.width = colW().reduce((a, b, k) => a + (k === i ? w : b), 0) + "px"; };
+    const up = (e) => { h.classList.remove("on"); document.removeEventListener("pointermove", move); document.removeEventListener("pointerup", up); setColW(i, w0 + e.clientX - x0); schedule(); };
+    document.addEventListener("pointermove", move); document.addEventListener("pointerup", up);
+  });
+  document.addEventListener("dblclick", (ev) => { const h = ev.target.closest?.("[data-colrz]"); if (h) { setColW(+h.dataset.colrz, COLS[+h.dataset.colrz].w); schedule(); } });
+  document.addEventListener("keydown", (ev) => {
+    const t = ev.target;
+    if (t.classList?.contains("appcom") && (ev.key === "Enter" || ev.key === "Escape")) { ev.preventDefault(); if (ev.key === "Escape") t.value = t.title || ""; t.blur(); schedule(); }
+  });
   let dragId = null;
   document.addEventListener("dragstart", (ev) => { const c = ev.target.closest?.("[data-kcard]"); if (c) { dragId = c.dataset.kcard; ev.dataTransfer.effectAllowed = "move"; ev.dataTransfer.setData("text/plain", dragId); } });
   document.addEventListener("dragover", (ev) => { const col = ev.target.closest?.("[data-kcol]"); if (col && dragId) { ev.preventDefault(); document.querySelectorAll(".kcol.drop").forEach((x) => x !== col && x.classList.remove("drop")); col.classList.add("drop"); } });
