@@ -236,7 +236,7 @@ def fetch_one(sid, d):
 
 # ---------------------------------------------------------------- Fortschritt ($D/progress.json → runs/<Lauf-ID>, Live-Anzeige im Artefakt)
 # Phasen mit Anteil am Ladebalken (Start-%); log = [[ISO-Zeit, ok|run|err|info, Text], …]
-PHASES = [('start', 0), ('daten', 3), ('startups', 8), ('boards', 30), ('details', 88), ('fertig', 100)]
+PHASES = [('start', 0), ('daten', 3), ('startups', 8), ('boards', 28), ('details', 72), ('bewerten', 78), ('fertig', 100)]
 def utcnow(): return datetime.datetime.now(datetime.timezone.utc).isoformat(timespec='seconds')
 def progress(phase, *lines):
     pf = f'{D}/progress.json'
@@ -297,13 +297,24 @@ def cmd_boards():
 def cmd_details():
     now = utcnow()
     if not os.path.isdir(f'{D}/in/applications'):
-        return progress('fertig', ('info', 'Bewerberliste: nicht geladen – übersprungen'), ('run', 'Speichere Ergebnisse …'))
+        return progress('bewerten', ('info', 'Bewerberliste: nicht geladen – übersprungen'), ('run', 'Bereite KI-Bewertung vor …'))
     try:
         d = details_main(now) or {}
-        line = ('ok', f"Bewerberliste: {d.get('n', 0)} Links · Startdatum bei {d.get('sd', 0)} · Online-Datum bei {d.get('pd', 0)}")
+        line = ('ok', f"Bewerberliste: {d.get('n', 0)} Links · Startdatum bei {d.get('sd', 0)} · Online-Datum bei {d.get('pd', 0)} · {d.get('off', 0)} offline")
     except Exception as e:
         line = ('err', f'Bewerberliste: Fehler {type(e).__name__} {str(e)[:100]}')
-    progress('fertig', line, ('run', 'Speichere Ergebnisse …'))
+    progress('bewerten', line, ('run', 'Bereite KI-Bewertung vor …'))
+
+def cmd_bewerten():
+    r = rate_prepare()
+    if not r.get('n'):
+        return progress('fertig', ('info', r.get('msg') or 'KI-Bewertung: nichts Neues zu bewerten'), ('run', 'Speichere Ergebnisse …'))
+    progress('bewerten', ('ok', f"KI-Bewertung: {r['n']} Stellen vorbereitet (danach noch {r['rest']} offen)"),
+             ('run', f"Claude bewertet {r['n']} Stellen nach deinem Profil (Fit, Impact, Startup) …"))
+
+def cmd_bewerten_speichern():
+    r = rate_save()
+    progress('fertig', ('ok', f"KI-Bewertung: {r['n']} Stellen bewertet · Prio A {r['A']} · B {r['B']} · C {r['C']} · D {r['D']}"), ('run', 'Speichere Ergebnisse …'))
 
 def cmd_fertig():
     p = json.load(open(f'{D}/progress.json'))
@@ -316,7 +327,7 @@ def cmd_fertig():
 
 def main():
     # Alles in einem Aufruf (lokal); der geplante Lauf ruft die Phasen einzeln auf und meldet dazwischen den Fortschritt
-    for f in (cmd_init, cmd_daten, cmd_startups, cmd_boards, cmd_details, cmd_fertig): f()
+    for f in (cmd_init, cmd_daten, cmd_startups, cmd_boards, cmd_details, cmd_bewerten, cmd_fertig): f()   # ohne Claude: keine Bewertung
 
 def scan_startups():
     t0 = time.time()
@@ -333,8 +344,11 @@ def scan_startups():
     todo = {i: d for i, d in st.items() if d.get('active') and d.get('source_url')}
     with cf.ThreadPoolExecutor(max_workers=24) as ex:
         res_list = list(ex.map(lambda kv: fetch_one(*kv), todo.items()))
-    results, hits = {}, []
+    results, hits, alljobs = {}, [], {'boards': [], 'urls': []}
     for r in res_list:
+        if r['s'] == 'ok' and not r.get('via'):
+            k = board_key(st[r['id']].get('source_url'))
+            if k: alljobs['boards'].append(k); alljobs['urls'] += [norm_job(j[2]) for j in r['jobs'] if len(j) > 2 and j[2]]
         i = r['id']; h, seen = [], set()
         for t, l, u, *x in r['jobs']:
             t = clean(t)[:160]
@@ -357,6 +371,7 @@ def scan_startups():
            'engine': 'skript', 'checked': len(results), 'ok': len(results) - len(errs), 'errors': len(errs),
            'hits_total': len(hits), 'new_hits': new, 'results': results, 'hits': hits}
     json.dump(out, open(f'{D}/latest.json', 'w'), ensure_ascii=False, separators=(',', ':'))
+    json.dump(alljobs, open(f'{D}/alljobs.json', 'w'))
     run = {k: out[k] for k in ('run_id', 'started_at', 'finished_at', 'mode', 'engine', 'checked', 'ok', 'errors', 'hits_total', 'new_hits')}
     run.update(status='done', error_ids=errs[:60], seconds=round(time.time() - t0))
     json.dump(run, open(f'{D}/run.json', 'w'), ensure_ascii=False)
@@ -582,6 +597,22 @@ def start_of(text):
     return ''
 
 def norm_url(u): return re.sub(r'/+$', '', re.sub(r'[?#].*$', '', str(u or '').lower()))
+def norm_job(u): return norm_url(u).replace('.jobs.personio.com/', '.jobs.personio.de/')   # Vergleich über Personio-Domains hinweg
+def board_key(u):
+    # Board, zu dem ein Link gehört (nur Bewerbungssysteme, deren Liste der Scanner vollständig liest)
+    fn, a = route(u or '')
+    if fn in (a_web, a_startupmap) or not a: return ''
+    return fn.__name__ + ':' + str(a[0]).lower()
+
+def is_offline(u, final_url, alljobs):
+    # Stelle offline, wenn ihr Board in diesem Lauf vollständig gelesen wurde und sie fehlt, oder die Seite auf die Übersicht umleitet
+    k = board_key(u)
+    if k and norm_job(u) == norm_job(board_of(u)[0]): return None   # Link auf die ganze Stellenliste, keine einzelne Stelle
+    if k and k in alljobs['boards']: return norm_job(u) not in alljobs['urls']
+    if final_url and norm_url(final_url) != norm_url(u):
+        f = urllib.parse.urlsplit(final_url.lower()).path.rstrip('/')
+        if f.count('/') < urllib.parse.urlsplit(u.lower()).path.rstrip('/').count('/') or f.endswith(('/jobs', '/careers', '/karriere')): return True
+    return False
 
 def details_main(now):
     apps = []
@@ -599,28 +630,133 @@ def details_main(now):
             for h in json.load(open(f'{D}/{fn}')).get('hits') or []:
                 if h.get('pd'): pd_of[norm_url(h.get('u'))] = h['pd']
     fresh = (datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=14)).isoformat()
+    alljobs = json.load(open(f'{D}/alljobs.json')) if os.path.exists(f'{D}/alljobs.json') else {'boards': [], 'urls': []}
+    alljobs['urls'] = set(alljobs['urls'])
     def one(a):
         k = norm_url(a['url']); o = dict(old.get(k) or {})
-        if not (o.get('sd') and o.get('at', '') >= fresh):   # gefundenes Startdatum 14 Tage lang nicht neu laden
-            try:
-                b = get(a['url'])[1]
-                raw = b if isinstance(b, str) else b.decode('utf-8', 'replace')
+        off = None   # None = unbekannt (Seite nicht erreichbar), sonst True/False
+        try:
+            fin, b = get(a['url'])
+            raw = b if isinstance(b, str) else b.decode('utf-8', 'replace')
+            off = is_offline(a['url'], fin, alljobs)
+            if norm_job(fin) != norm_job(a['url']) and norm_job(fin) in alljobs['urls']: off, o['moved'] = False, fin   # neu ausgeschrieben (neue ID)
+            elif 'moved' in o and off is False: o.pop('moved')
+            if not (o.get('sd') and o.get('at', '') >= fresh):   # gefundenes Startdatum 14 Tage lang behalten
                 o['sd'] = start_of(str(a.get('title') or '') + ' . ' + page_text(raw))
                 if m := re.search(r'"datePosted"\s*:\s*"([^"]+)"', raw): o['pd'] = pdate(m.group(1))
                 o['at'] = now
-            except Exception:
-                pass   # Seite nicht lesbar → letzten Stand behalten
+        except HttpErr as e:
+            if re.search(r'HTTP (404|410)\b', str(e)): off = True
+            elif board_key(a['url']) in alljobs['boards'] and norm_job(a['url']) != norm_job(board_of(a['url'])[0]): off = norm_job(a['url']) not in alljobs['urls']
+        except Exception:
+            pass
+        if off is True: o['off'] = o.get('off') or now   # seit wann offline
+        elif off is False: o.pop('off', None)
+        o['chk'] = now
         if pd_of.get(k): o['pd'] = pd_of[k]
-        return k, {x: o[x] for x in ('sd', 'pd', 'at') if o.get(x)}
+        return k, {x: o[x] for x in ('sd', 'pd', 'at', 'off', 'moved', 'chk') if o.get(x)}
     with cf.ThreadPoolExecutor(max_workers=8) as ex:
         by = {k: v for k, v in ex.map(one, apps) if v}
     doc = {'updated_at': now, 'count': len(by), 'by_url': by}
     json.dump(doc, open(f'{D}/details.json', 'w'), ensure_ascii=False, separators=(',', ':'))
-    r = {'n': len(apps), 'sd': sum(1 for v in by.values() if v.get('sd')), 'pd': sum(1 for v in by.values() if v.get('pd'))}
-    print('Bewerberliste:', r['n'], 'Links · Startdatum gefunden', r['sd'], '· Online seit', r['pd'])
+    r = {'n': len(apps), 'sd': sum(1 for v in by.values() if v.get('sd')), 'pd': sum(1 for v in by.values() if v.get('pd')),
+         'off': sum(1 for v in by.values() if v.get('off'))}
+    print('Bewerberliste:', r['n'], 'Links · Startdatum gefunden', r['sd'], '· Online seit', r['pd'], '· offline', r['off'])
     return r
+
+# ================================================================ KI-Bewertung (config/profile + scans/ratings)
+# Das Skript bereitet vor ($D/rate_in.json: Profil + bis zu RATE_MAX Stellen mit Anzeigentext), Claude im Lauf bewertet
+# ($D/rate_out.json: [{k, fit, imp, su, why}]), das Skript berechnet daraus Score und Prio ($D/ratings.json → scans/ratings).
+RATE_MAX = 100
+RATE_EX = re.compile(r"engineer|developer|entwickler|software|frontend|backend|full.?stack|devops|firmware|embedded|hardware|mechani|elektro|electrical|chemi"
+                     r"|laborator|physi|scientist|researcher|\bqa\b|security|cyber|design|\bux\b|\bui\b|grafik|graphic|video|social media|content|community"
+                     r"|copywrit|redakt|recruit|talent|\bhr\b|human resources|people (?:&|and|operations|ops)|legal|jurist|\btax\b|steuer|accounting|buchhalt"
+                     r"|account exec|\bsdr\b|sales development|telesales|inside sales|customer (?:support|service|care)|kundenservice|logistik|warehouse|lager|driver|fahrer", re.I)
+def rate_candidate(t):
+    t = str(t or '')
+    return (bool(TRACK.search(t)) and not re.search(r'engineer|co-founder|technical founder', t, re.I)) or (bool(TYP.search(t)) and not RATE_EX.search(t))
+def prio_of(fit, imp, su):
+    s = round(0.45 * fit + 0.35 * imp + 0.2 * su)
+    p = 'D' if fit < 35 else 'A' if s >= 75 else 'B' if s >= 62 else 'C' if s >= 48 else 'D'
+    return s, p
+
+def job_text(u):
+    # Anzeigentext: bevorzugt die JobPosting-Beschreibung (JSON-LD), sonst der Seitentext
+    _, b = get(u)
+    for m in re.finditer(r'<script[^>]*application/ld\+json[^>]*>(.*?)</script>', b, re.S | re.I):
+        try: d = json.loads(m.group(1).strip())
+        except Exception: continue
+        for x in (d if isinstance(d, list) else d.get('@graph', [d]) if isinstance(d, dict) else []):
+            if isinstance(x, dict) and 'JobPosting' in str(x.get('@type')) and x.get('description'):
+                return clean(html.unescape(str(x['description'])))[:1200]
+    return page_text(b)[:1200]
+
+def rate_prepare():
+    for f in ('rate_in.json', 'rate_out.json'):
+        if os.path.exists(f'{D}/{f}'): os.remove(f'{D}/{f}')
+    pf = f'{D}/in/config/profile.json'
+    prof = json.load(open(pf)) if os.path.exists(pf) else {}
+    if isinstance(prof.get('data'), dict): prof = prof['data']
+    if len(str(prof.get('cv') or '')) < 80: return {'n': 0, 'msg': 'KI-Bewertung übersprungen: im Artefakt unter „Profil“ ist noch kein Lebenslauf hinterlegt'}
+    rf = f'{D}/in/scans/ratings.json'
+    old = json.load(open(rf)) if os.path.exists(rf) else {}
+    if isinstance(old.get('data'), dict): old = old['data']
+    rated = old.get('by_url') or {}
+    pa = prof.get('updated_at')
+    done = lambda k: k in rated and rated[k].get('pa') == pa   # nach Profiländerung wird schrittweise neu bewertet
+    todo, seen = [], set()
+    for a in _docs('applications').values():   # zuerst die Bewerberliste
+        u = str((a or {}).get('url') or '')
+        if u.startswith('http') and not done(norm_url(u)) and norm_url(u) not in seen:
+            seen.add(norm_url(u)); todo.append({'u': u, 'co': a.get('company') or '', 't': a.get('title') or '', 'l': '', 'src': 'Bewerberliste', 'fs': '9'})
+    st = load_startups(); hits = []
+    for fn in ('latest.json', 'boards.json'):
+        if os.path.exists(f'{D}/{fn}'): hits += json.load(open(f'{D}/{fn}')).get('hits') or []
+    cand = []
+    for h in hits:
+        k = norm_url(h.get('u'))
+        if not h.get('u') or done(k) or k in seen or not rate_candidate(h.get('t')): continue
+        seen.add(k)
+        cand.append({'u': h['u'], 'co': h.get('co') or (st.get(h.get('id')) or {}).get('name') or h.get('id'), 't': h.get('t'), 'l': h.get('l') or '',
+                     'src': h.get('src') or 'Startup-Liste', 'fs': h.get('fs') or ''})
+    cand.sort(key=lambda x: x['fs'], reverse=True)   # neueste zuerst
+    todo += cand
+    batch, rest = todo[:RATE_MAX], max(0, len(todo) - RATE_MAX)
+    def txt(j):
+        try: j['txt'] = job_text(j['u'])
+        except Exception: j['txt'] = ''
+        return j
+    with cf.ThreadPoolExecutor(max_workers=8) as ex:
+        batch = list(ex.map(txt, batch))
+    jobs = [{'k': norm_url(j['u']), 'co': j['co'], 't': j['t'], 'l': j['l'], 'src': j['src'], 'txt': j['txt']} for j in batch]
+    with open(f'{D}/rate_in.json', 'w') as f:   # eine Stelle je Zeile, damit sie sich abschnittsweise lesen lässt
+        f.write('{"profil": ' + json.dumps({'cv': str(prof.get('cv'))[:12000], 'wuensche': str(prof.get('wishes') or '')[:4000]}, ensure_ascii=False)
+                + ',\n"jobs": [\n' + ',\n'.join(json.dumps(j, ensure_ascii=False) for j in jobs) + '\n]}\n')
+    json.dump({'profile_at': pa, 'by_url': rated}, open(f'{D}/rate_state.json', 'w'), ensure_ascii=False)
+    print('KI-Bewertung:', len(jobs), 'Stellen in /tmp/radar/rate_in.json · danach noch offen', rest)
+    return {'n': len(jobs), 'rest': rest}
+
+def rate_save():
+    stt = json.load(open(f'{D}/rate_state.json'))
+    by = stt['by_url']; now = utcnow(); out = json.load(open(f'{D}/rate_out.json'))
+    want_k = {j['k'] for j in json.load(open(f'{D}/rate_in.json'))['jobs']}
+    n = 0
+    for x in out if isinstance(out, list) else []:
+        try:
+            k = str(x['k']); fit, imp, su = (max(0, min(100, int(round(float(x[f]))))) for f in ('fit', 'imp', 'su'))
+        except Exception: continue
+        if k not in want_k: continue
+        sc, p = prio_of(fit, imp, su)
+        by[k] = {'fit': fit, 'imp': imp, 'su': su, 's': sc, 'p': p, 'why': str(x.get('why') or '')[:160], 'at': now, 'pa': stt.get('profile_at')}; n += 1
+    cut = (datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=60)).isoformat()
+    by = {k: v for k, v in by.items() if v.get('at', '') >= cut}
+    json.dump({'updated_at': now, 'profile_at': stt.get('profile_at'), 'count': len(by), 'by_url': by}, open(f'{D}/ratings.json', 'w'), ensure_ascii=False, separators=(',', ':'))
+    cnt = {p: sum(1 for v in by.values() if v['p'] == p) for p in 'ABCD'}
+    print('KI-Bewertung gespeichert:', n, 'neu ·', cnt)
+    return {'n': n, **cnt}
 
 if __name__ == '__main__':
     import sys
-    cmds = {'init': cmd_init, 'daten': cmd_daten, 'startups': cmd_startups, 'boards': cmd_boards, 'details': cmd_details, 'fertig': cmd_fertig, 'alles': main}
+    cmds = {'init': cmd_init, 'daten': cmd_daten, 'startups': cmd_startups, 'boards': cmd_boards, 'details': cmd_details, 'bewerten': cmd_bewerten,
+            'bewerten-speichern': cmd_bewerten_speichern, 'fertig': cmd_fertig, 'alles': main}
     cmds[sys.argv[1] if len(sys.argv) > 1 else 'alles']()

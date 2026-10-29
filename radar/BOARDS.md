@@ -70,3 +70,16 @@ Der Lauf merkt das beim nächsten Schreiben am Versionskonflikt und hört nach d
 ## Quellen-Labels
 Jede Stelle zeigt, woher sie kommt: „Startup-Liste · Personio“ bzw. „Meine Liste · Ashby“ (Bewerbungssystem aus dem Link, sonst die Website), „Jobbörse · Earlybird-Portfolio“ für Treffer aus `scans/boards`.
 In der Bewerberliste steht das System bzw. die Plattform unter dem Link.
+
+## Stelle offline (`scans/details.by_url[].off` / `.moved`)
+Jeder Lauf prüft alle Links der Bewerberliste. Offline ist eine Stelle, wenn ihr Board (Personio, Ashby, Greenhouse, …) in diesem Lauf vollständig gelesen wurde und sie fehlt, wenn die Seite 404/410 liefert oder auf die Übersicht umleitet.
+`off` = seit wann offline. Leitet die alte Anzeige auf eine neue Stelle desselben Boards weiter, steht der neue Link in `moved` („neu ausgeschrieben“).
+
+## KI-Bewertung (`config/profile` → `scans/ratings`)
+Profil im Artefakt (Reiter „Profil“): `config/profile` = `{cv, wishes, updated_at}`.
+Der Lauf (`scan.py bewerten`) gibt Claude bis zu 100 noch nicht bewertete Stellen, zuerst die Bewerberliste, dann die neuesten Treffer. Grobe Vorauswahl über die Titel; Engineering, Design, HR u. Ä. fallen raus. Jede Stelle kommt mit Anzeigentext, bevorzugt aus der JSON-LD-JobPosting-Beschreibung.
+Claude vergibt `fit`, `imp` (Impact), `su` (Startup-Stärke), je 0–100, plus `why`. Das Skript berechnet `s = 0,45·fit + 0,35·imp + 0,2·su` und daraus die Prio: A ≥ 75, B ≥ 62, C ≥ 48, sonst D (D auch bei fit < 35).
+`scans/ratings.by_url[<normalisierter Link>] = {fit, imp, su, s, p, why, at, pa}`. `pa` ist der Profilstand; nach einer Profiländerung wird schrittweise neu bewertet. Einträge älter als 60 Tage fallen weg.
+
+## Pipeline
+Statuswechsel im Artefakt schreiben `status_at` und `hist[<Status>]` in `applications/<id>`. Die Pipeline zählt je Stufe, wie viele Bewerbungen sie erreicht haben (aktueller Status oder Verlauf). Board-Ansicht mit Drag & Drop.

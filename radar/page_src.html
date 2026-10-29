@@ -222,9 +222,73 @@ td .srcb { margin-top: 4px; }
 .cand .titles { color: var(--ink-3); font-size: 12.5px; margin-top: 2px; overflow-wrap: anywhere; }
 .cand .acts { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
 .badge.react { background: var(--accent-soft); color: var(--accent); }
-#appList table { min-width: 940px; }
+#appList table { min-width: 1080px; }
 #appList th { white-space: nowrap; }
 td.sd { font-size: 13px; min-width: 110px; max-width: 180px; overflow-wrap: anywhere; }
+
+/* KI-Prio */
+.prio { display: inline-grid; place-items: center; min-width: 26px; height: 22px; padding: 0 6px; border-radius: 6px; font-size: 12px; font-weight: 700; letter-spacing: .02em; cursor: help; }
+.prio.p-A { background: var(--accent); color: var(--accent-ink); }
+.prio.p-B { background: var(--accent-soft); color: var(--accent); }
+.prio.p-C { background: var(--muted-bg); color: var(--ink-2); }
+.prio.p-D { background: transparent; color: var(--ink-3); box-shadow: inset 0 0 0 1px var(--line-2); }
+.prio.p-none { background: transparent; color: var(--ink-3); font-weight: 500; cursor: default; }
+.rate { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; margin-top: 6px; font-size: 12px; color: var(--ink-3); }
+.rate .sc { font-variant-numeric: tabular-nums; }
+.rate .sc b { color: var(--ink-2); font-weight: 600; }
+.rate .why { color: var(--ink-2); flex-basis: 100%; }
+td .why { display: block; font-size: 11.5px; color: var(--ink-3); max-width: 260px; margin-top: 3px; }
+
+/* Offline */
+.badge.off { background: var(--err-bg); color: var(--err); display: inline-block; margin-top: 4px; }
+a.badge.moved { background: var(--new-bg); color: var(--new); display: inline-block; margin-top: 4px; }
+
+/* Bewerbungs-Pipeline */
+.pipe { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; box-shadow: var(--shadow); margin-bottom: 14px; display: grid; gap: 14px; }
+.pipe-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 12px; }
+.pipe-head h3 { margin: 0; font-size: 14px; font-weight: 700; }
+.flow { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; }
+.stage { position: relative; padding: 10px 14px 10px 18px; background: var(--surface-2); min-width: 0;
+  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%, 12px 50%); }
+.stage:first-child { clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%); border-radius: 8px 0 0 8px; padding-left: 14px; }
+.stage:last-child { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 12px 50%); border-radius: 0 8px 8px 0; }
+.stage + .stage { margin-left: -6px; }
+.stage .n { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; line-height: 1.15; }
+.stage .l { font-size: 12px; color: var(--ink-3); font-weight: 500; }
+.stage .cv { font-size: 11.5px; color: var(--ink-3); margin-top: 2px; }
+.stage .cv b { color: var(--accent); font-weight: 600; }
+.stage.s-Beworben { background: color-mix(in srgb, var(--accent) 10%, var(--surface-2)); }
+.stage.s-Gespräch { background: color-mix(in srgb, var(--accent) 20%, var(--surface-2)); }
+.stage.s-Zusage { background: var(--ok-bg); }
+.stage.s-Zusage .n { color: var(--ok); }
+.dist { display: flex; height: 8px; border-radius: 999px; overflow: hidden; background: var(--bar-bg); }
+.dist span { display: block; height: 100%; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12px; color: var(--ink-2); }
+.legend i { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 6px; vertical-align: 0; }
+.alerts { display: flex; flex-wrap: wrap; gap: 6px; }
+.alerts .badge { font-weight: 500; }
+@media (max-width: 620px) { .flow { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 6px; } .stage, .stage:first-child, .stage:last-child { clip-path: none; border-radius: 8px; margin-left: 0 !important; padding-left: 14px; } .flow { column-gap: 6px; } }
+.seg { display: inline-flex; border: 1px solid var(--line-2); border-radius: var(--r); overflow: hidden; box-shadow: var(--shadow); }
+.seg button { border: 0; background: var(--surface); padding: 6px 12px; font-size: 12.5px; font-weight: 500; color: var(--ink-2); cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--line-2); }
+.seg button[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+
+/* Board */
+.kb { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(220px, 1fr); gap: 10px; overflow-x: auto; padding-bottom: 6px; }
+.kcol { background: var(--surface-2); border-radius: 10px; padding: 8px; display: flex; flex-direction: column; gap: 6px; min-height: 120px; }
+.kcol.drop { outline: 2px dashed var(--accent); outline-offset: -2px; }
+.khead { display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: 600; color: var(--ink-2); padding: 2px 4px 4px; }
+.kcard { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; box-shadow: var(--shadow); cursor: grab; display: grid; gap: 3px; }
+.kcard:active { cursor: grabbing; }
+.kcard .kt { font-size: 12.5px; font-weight: 600; overflow-wrap: anywhere; }
+.kcard .kc { font-size: 12px; color: var(--ink-2); }
+.kcard .km { display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: center; font-size: 11.5px; color: var(--ink-3); }
+
+/* Profil */
+.prof { display: grid; gap: 14px; max-width: 860px; }
+.prof textarea { min-height: 220px; resize: vertical; font-size: 13px; line-height: 1.5; }
+.prof .hint { font-size: 12.5px; color: var(--ink-3); }
+.prof .card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; box-shadow: var(--shadow); display: grid; gap: 12px; }
 
 /* Live-Fortschritt eines Laufs: Ladebalken nach Phasen + Konsole */
 .live { margin-top: 20px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px 16px; display: grid; gap: 12px; box-shadow: var(--shadow); }
@@ -303,6 +367,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     <button class="tab" role="tab" id="tab-kandidaten" data-tab="kandidaten" aria-selected="false">Kandidaten<span class="c" id="c-kandidaten"></span></button>
     <button class="tab" role="tab" id="tab-fehler" data-tab="fehler" aria-selected="false">Fehler<span class="c" id="c-fehler"></span></button>
     <button class="tab" role="tab" id="tab-laeufe" data-tab="laeufe" aria-selected="false">Läufe<span class="c" id="c-laeufe"></span></button>
+    <button class="tab" role="tab" id="tab-profil" data-tab="profil" aria-selected="false">Profil<span class="c" id="c-profil"></span></button>
   </nav>
 
   <section class="panel" id="p-praktika">
@@ -310,6 +375,8 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
       <div class="grow"><input class="field" id="q" type="search" placeholder="Suche nach Rolle, Firma oder Ort" aria-label="Suche"></div>
       <select class="field" id="city" aria-label="Stadt"><option value="">Alle Städte</option></select>
       <select class="field" id="srcSel" aria-label="Quelle"><option value="">Alle Quellen</option><option value="liste">Startup-Liste</option><option value="boards">Jobbörsen</option></select>
+      <select class="field" id="prioSel" aria-label="Prio"><option value="">Alle Prios</option><option value="A">nur Prio A</option><option value="AB">Prio A + B</option><option value="ABC">Prio A – C</option></select>
+      <select class="field" id="sortSel" aria-label="Sortierung"><option value="prio">Nach Prio</option><option value="neu">Neueste zuerst</option></select>
     </div>
     <div class="toolbar">
       <div class="chips" id="kinds"></div>
@@ -335,6 +402,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
   </section>
 
   <section class="panel" id="p-bewerbungen" hidden>
+    <div id="pipe"></div>
     <details class="filters" id="appAdd">
       <summary>+ Eigene Stelle hinzufügen</summary>
       <form class="fbody" id="appForm" autocomplete="off">
@@ -353,7 +421,8 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
       <div class="grow"><input class="field" id="aq" type="search" placeholder="Suche in der Liste" aria-label="Suche in der Bewerberliste"></div>
       <select class="field" id="aco" aria-label="Firma"><option value="">Alle Firmen</option></select>
       <select class="field" id="ast" aria-label="Status"><option value="">Alle Status</option></select>
-      <select class="field" id="aso" aria-label="Sortierung"><option value="nr">Sortiert nach Nr.</option><option value="firma">Nach Firma</option><option value="status">Nach Status</option><option value="neu">Neueste zuerst</option></select>
+      <select class="field" id="aso" aria-label="Sortierung"><option value="nr">Sortiert nach Nr.</option><option value="firma">Nach Firma</option><option value="status">Nach Status</option><option value="neu">Neueste zuerst</option><option value="prio">Nach Prio</option></select>
+      <div class="seg" role="group" aria-label="Ansicht"><button type="button" data-appview="liste" aria-pressed="true">Liste</button><button type="button" data-appview="board" aria-pressed="false">Board</button></div>
     </div>
     <div id="appList"></div>
   </section>
@@ -389,6 +458,18 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
 
   <section class="panel" id="p-fehler" hidden>
     <div id="errList"></div>
+  </section>
+
+  <section class="panel" id="p-profil" hidden>
+    <form class="prof" id="profForm" autocomplete="off">
+      <div class="card">
+        <label class="f">Lebenslauf <span class="h">Text aus deinem CV einfügen: Studium, Erfahrung, Projekte, Skills und Tools</span><textarea class="field" id="pCv" placeholder="z. B. B.Sc. BWL (TUM, 5. Semester) · Werkstudent Business Development bei … · Tools: HubSpot, Pipedrive, Make, Snowflake …"></textarea></label>
+        <label class="f">Was ich suche <span class="h">Rollen, Themen, Städte, Zeitraum, Dauer, No-Gos</span><textarea class="field" id="pWish" style="min-height:120px" placeholder="z. B. Founders Associate oder Strategy/BizDev in AI-Startups · Berlin oder München · Start Feb.–Apr. 2027 · 6 Monate · kein reines Sales"></textarea></label>
+        <div class="factions"><button class="btn primary" type="submit">Profil speichern</button><span class="sub" id="pMsg"></span></div>
+      </div>
+      <div class="hint" id="pInfo"></div>
+      <div class="hint">So funktioniert die Bewertung: Jeder Lauf gibt Claude bis zu 100 noch nicht bewertete Stellen mit dem Anzeigentext und deinem Profil. Zuerst kommen die Stellen deiner Bewerberliste, dann die neuesten Treffer. Claude vergibt Fit (Passung zu CV und Wünschen), Impact (spannend oder 08/15) und Startup (wie stark die Firma ist), jeweils 0–100. Daraus ergibt sich die Prio: A = unbedingt bewerben, B = gut, C = ok, D = eher nicht. Änderst du das Profil, wird schrittweise neu bewertet. Das Profil ist für alle sichtbar, mit denen du das Artefakt teilst.</div>
+    </form>
   </section>
 
   <section class="panel" id="p-laeufe" hidden>
@@ -458,11 +539,12 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
 
   const S = {
     db: null, mcp: null, user: null, canWrite: true,
-    startups: new Map(), apps: new Map(), scan: null, boards: null, cands: null, details: null, runs: [], config: null,
+    startups: new Map(), apps: new Map(), scan: null, boards: null, cands: null, details: null, ratings: null, profile: null, runs: [], config: null,
     loaded: { startups: false, scan: false },
     tab: "praktika", kind: "Alle", limit: 150, editing: null, sched: null, schedMsg: "", busy: false,
   };
   try { const t = localStorage.getItem("radar.tab"); if (t) S.tab = t; } catch (e) {}
+  S.appView = "liste"; try { if (localStorage.getItem("radar.appView") === "board") S.appView = "board"; } catch (e) {}
 
   /* ---------- Helfer ---------- */
   /* ---------- Relevanz-Filter: Wortliste auf den Stellentitel, keine KI ---------- */
@@ -530,6 +612,11 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     for (const [re, name] of SRC_HOSTS) if (re.test(host)) return name;
     return host;
   }
+  // KI-Bewertung aus scans/ratings (Schlüssel: normalisierter Link)
+  const rateOf = (u) => (u && S.ratings?.by_url?.[normUrl(u)]) || null;
+  const rateTip = (r) => `Prio ${r.p} · Score ${r.s} – Fit ${r.fit} · Impact ${r.imp} · Startup ${r.su}${r.why ? " – " + r.why : ""}`;
+  const prioBadge = (r) => r ? `<span class="prio p-${esc(r.p)}" title="${esc(rateTip(r))}">${esc(r.p)}</span>` : "";
+  const rateLine = (r) => r ? `<div class="rate"><span class="sc">Fit <b>${esc(r.fit)}</b></span><span class="sc">Impact <b>${esc(r.imp)}</b></span><span class="sc">Startup <b>${esc(r.su)}</b></span>${r.why ? `<span class="why">${esc(r.why)}</span>` : ""}</div>` : "";
   function srcOf(h) {
     if (h.board) return { kind: "Jobbörse", name: h.src || "Jobbörse", title: "Gefunden über eine externe Jobbörse bzw. ein VC-Portfolio" };
     const sys = sysOf(h.u) || sysOf(h.st?.source_url) || "Website";
@@ -575,8 +662,8 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
   }
 
   /* ---------- Live-Fortschritt (runs/<Lauf-ID>: phase, pct, phase_at, log, dur – geschrieben vom Lauf nach jeder Phase) ---------- */
-  const PH = [["start", 0, "Start"], ["daten", 3, "Datenbank"], ["startups", 8, "Startups"], ["boards", 30, "Jobbörsen"], ["details", 88, "Bewerberliste"], ["fertig", 100, "Fertig"]];
-  const PH_DEF = { start: 30, daten: 60, startups: 70, boards: 200, details: 40, fertig: 25 };   // Sekunden, falls noch kein Lauf mit Messwerten
+  const PH = [["start", 0, "Start"], ["daten", 3, "Datenbank"], ["startups", 8, "Startups"], ["boards", 28, "Jobbörsen"], ["details", 72, "Bewerberliste"], ["bewerten", 78, "KI-Bewertung"], ["fertig", 100, "Fertig"]];
+  const PH_DEF = { start: 30, daten: 60, startups: 70, boards: 200, details: 40, bewerten: 180, fertig: 25 };   // Sekunden, falls noch kein Lauf mit Messwerten
   const KSYM = { ok: "✓", run: "▸", err: "✗", info: "!" };
   const hms = (iso) => { const d = new Date(iso); return isNaN(d) ? "--:--:--" : d.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit", second: "2-digit" }); };
   const mmss = (sec) => { sec = Math.max(0, Math.round(sec)); return `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, "0")}`; };
@@ -702,6 +789,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     if (S.tab === "kandidaten") renderCands();
     if (S.tab === "fehler") renderErrors();
     if (S.tab === "laeufe") renderRuns();
+    if (S.tab === "profil") renderProfile();
   }
 
   function renderHeader() {
@@ -726,13 +814,13 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     const own = hits.map((h) => {
       const st = S.startups.get(h.id); const company = st?.name || h.id;
       const c = classify(h.t, company);
-      return { ...h, st, company, city: st?.stadt || "", kinds: kindsOf(h.t), isNew: new Date(h.fs) >= start, fit: c.fit, topics: c.topics, generic: c.generic };
+      return { ...h, st, company, city: st?.stadt || "", kinds: kindsOf(h.t), isNew: new Date(h.fs) >= start, fit: c.fit, topics: c.topics, generic: c.generic, rt: rateOf(h.u) };
     });
     // Treffer aus externen Jobbörsen (scans/boards): Firma steht im Treffer selbst (co), Quelle in src
     const bStart = S.boards?.run_id && S.boards.run_id === S.scan?.run_id ? start : (S.boards?.finished_at ? new Date(S.boards.finished_at) - 15 * 60e3 : Infinity);
     const ext = (S.boards?.hits || []).map((h) => {
       const company = h.co || h.id; const c = classify(h.t, company);
-      return { ...h, st: null, company, city: cityOf(h.l), board: true, kinds: kindsOf(h.t), isNew: new Date(h.fs) >= bStart, fit: c.fit, topics: c.topics, generic: c.generic };
+      return { ...h, st: null, company, city: cityOf(h.l), board: true, kinds: kindsOf(h.t), isNew: new Date(h.fs) >= bStart, fit: c.fit, topics: c.topics, generic: c.generic, rt: rateOf(h.u) };
     });
     return own.concat(ext);
   }
@@ -761,7 +849,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
   }
 
   function renderTabs() {
-    for (const t of ["praktika", "bewerbungen", "startups", "kandidaten", "fehler", "laeufe"]) {
+    for (const t of ["praktika", "bewerbungen", "startups", "kandidaten", "fehler", "laeufe", "profil"]) {
       $("#tab-" + t).setAttribute("aria-selected", String(S.tab === t));
       $("#p-" + t).hidden = S.tab !== t;
     }
@@ -769,6 +857,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     const errs = Object.entries(S.scan?.results || {}).filter(([id, r]) => r.s === "err" && S.startups.get(id)?.active).length;
     $("#c-praktika").textContent = hits || ""; $("#c-bewerbungen").textContent = S.apps.size || ""; $("#c-startups").textContent = S.startups.size || "";
     $("#c-fehler").textContent = errs || ""; $("#c-laeufe").textContent = S.runs.length || "";
+    $("#c-profil").textContent = S.db && S.loaded.scan && !S.profile?.cv ? "!" : "";
     $("#c-kandidaten").textContent = Object.values(S.cands?.candidates || {}).filter((c) => (c.status || "neu") === "neu").length || "";
   }
 
@@ -785,13 +874,16 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     const want = ['<option value="">Alle Städte</option>', ...cities.map((c) => `<option${c === cur ? " selected" : ""}>${esc(c)}</option>`)].join("");
     if (citySel.dataset.sig !== cities.join("|")) { citySel.innerHTML = want; citySel.dataset.sig = cities.join("|"); citySel.value = cur; }
     const q = $("#q").value.trim().toLowerCase(), onlyFit = $("#onlyFit").checked, onlyNew = $("#onlyNew").checked, onlyMine = $("#onlyMine").checked, city = citySel.value, srcF = $("#srcSel").value;
+    const prioF = $("#prioSel").value, sortBy = $("#sortSel").value;
     let list = all.filter((h) =>
-      (!onlyFit || h.fit) &&
+      (!prioF || (h.rt && prioF.includes(h.rt.p))) &&
+      (!onlyFit || h.fit || (h.rt && "AB".includes(h.rt.p))) &&
       (!srcF || (srcF === "boards") === !!h.board) &&
       (S.kind === "Alle" || h.kinds.includes(S.kind)) &&
       (!onlyNew || h.isNew) && (!onlyMine || isMine(h.st)) && (!city || h.city === city) &&
       (!q || (h.t + " " + h.company + " " + h.l).toLowerCase().includes(q)));
-    list.sort((a, b) => (b.isNew - a.isNew) || (new Date(b.fs) - new Date(a.fs)) || a.company.localeCompare(b.company, "de"));
+    const byNew = (a, b) => (b.isNew - a.isNew) || (new Date(b.fs) - new Date(a.fs)) || a.company.localeCompare(b.company, "de");
+    list.sort(sortBy === "prio" ? (a, b) => ((b.rt?.s ?? -1) - (a.rt?.s ?? -1)) || byNew(a, b) : byNew);
     const box = $("#hitList");
     if (!S.db) { box.innerHTML = `<div class="list"><div class="empty"><strong>Noch keine Daten</strong>Die Trefferliste erscheint, sobald die Datenbank geladen ist.</div></div>`; return; }
     if (!all.length) { box.innerHTML = `<div class="list"><div class="empty"><strong>Noch keine Treffer</strong>${S.scan ? "Der letzte Lauf hat keine passenden Stellen gefunden." : "Nach dem ersten Scan stehen hier alle Praktika, Werkstudenten- und Founders-Associate-Stellen."}</div></div>`; return; }
@@ -804,9 +896,9 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
       return `<div class="row">
         <div style="min-width:0">
           <div class="title"><a href="${esc(lk.href)}" target="_blank" rel="noopener">${esc(h.t)}</a></div>
-          <div class="meta"><span class="co">${esc(h.company)}</span>${h.l ? `<span>${esc(h.l)}</span>` : ""}${h.topics.length ? `<span class="topics">${esc(h.topics.slice(0, 3).join(" · "))}</span>` : ""}${((q) => `<span class="srcb${h.board ? " ext" : ""}" title="${esc(q.title)}"><b>${esc(q.kind)}</b> · ${esc(q.name)}</span>`)(srcOf(h))}${lk.via ? `<span class="via">Link: ${esc(lk.via)}</span>` : ""}</div>
+          <div class="meta"><span class="co">${esc(h.company)}</span>${h.l ? `<span>${esc(h.l)}</span>` : ""}${h.topics.length ? `<span class="topics">${esc(h.topics.slice(0, 3).join(" · "))}</span>` : ""}${((q) => `<span class="srcb${h.board ? " ext" : ""}" title="${esc(q.title)}"><b>${esc(q.kind)}</b> · ${esc(q.name)}</span>`)(srcOf(h))}${lk.via ? `<span class="via">Link: ${esc(lk.via)}</span>` : ""}</div>${rateLine(h.rt)}
         </div>
-        <div class="side"><div class="badges">${h.isNew ? '<span class="badge new">neu</span>' : ""}${kb}</div><span class="when" title="Zuerst gesehen: ${esc(fmtDate(h.fs))}${h.pd ? " · online seit " + esc(fmtDate(h.pd)) : ""}">${h.pd ? "online " + esc(fmtDate(h.pd)) : "seit " + esc(fmtDate(h.fs))}</span><button class="btn small addapp${onl ? " onlist" : ""}" type="button" data-addapp="${i}"${onl || !S.canWrite ? " disabled" : ""}>${onl ? "✓ auf der Liste" : "+ Bewerberliste"}</button></div>
+        <div class="side"><div class="badges">${prioBadge(h.rt)}${h.isNew ? '<span class="badge new">neu</span>' : ""}${kb}</div><span class="when" title="Zuerst gesehen: ${esc(fmtDate(h.fs))}${h.pd ? " · online seit " + esc(fmtDate(h.pd)) : ""}">${h.pd ? "online " + esc(fmtDate(h.pd)) : "seit " + esc(fmtDate(h.fs))}</span><button class="btn small addapp${onl ? " onlist" : ""}" type="button" data-addapp="${i}"${onl || !S.canWrite ? " disabled" : ""}>${onl ? "✓ auf der Liste" : "+ Bewerberliste"}</button></div>
       </div>`;
     }).join("")}</div>`;
   }
@@ -929,6 +1021,11 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     try { await S.db.doc("applications/" + id).update(patch); }
     catch (e) { toast("Konnte nicht gespeichert werden."); }
   }
+  function setStatus(id, status) {
+    const a = S.apps.get(id); if (!a || a.status === status) return;
+    const now = new Date().toISOString();
+    updApp(id, { status, status_at: now, hist: { ...(a.hist || {}), [status]: now } });
+  }
   async function delApp(id) {
     if (!delAppArmed || delAppArmed !== id) { delAppArmed = id; schedule(); return; }
     delAppArmed = null;
@@ -950,30 +1047,97 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     rows.sort(so === "firma" ? (x, y) => (x[1].company || "").localeCompare(y[1].company || "", "de") || cmpNr(x, y)
       : so === "status" ? (x, y) => stRank(x[1].status) - stRank(y[1].status) || cmpNr(x, y)
       : so === "neu" ? (x, y) => new Date(y[1].added || 0) - new Date(x[1].added || 0) || (y[1].nr || 0) - (x[1].nr || 0)
+      : so === "prio" ? (x, y) => ((rateOf(y[1].url)?.s ?? -1) - (rateOf(x[1].url)?.s ?? -1)) || cmpNr(x, y)
       : cmpNr);
     const byUrl = new Map(); for (const [id, a] of all) { const u = normUrl(a.url); if (u) byUrl.set(u, [...(byUrl.get(u) || []), a.nr]); }
     const dupOf = (a) => { const l = (byUrl.get(normUrl(a.url)) || []).filter((n) => n !== a.nr); return l.length ? l : null; };
     // Online seit (pd) und Start (sd): aus den Scan-Treffern bzw. scans/details, über den Link zugeordnet
     const det = S.details?.by_url || {}, pdOf = new Map();
     for (const h of S.hm || []) if (h.pd && h.u) pdOf.set(normUrl(h.u), h.pd);
-    const infoOf = (a) => { const u = normUrl(a.url), d = det[u] || {}; return { pd: pdOf.get(u) || d.pd || "", sd: d.sd || "" }; };
+    const infoOf = (a) => { const u = normUrl(a.url), d = det[u] || {}; return { pd: pdOf.get(u) || d.pd || "", sd: d.sd || "", off: d.off || "", moved: d.moved || "" }; };
+    renderPipe(all, infoOf);
+    document.querySelectorAll("[data-appview]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.appview === S.appView)));
     if (!rows.length && all.length) { box.innerHTML = `<div class="list"><div class="empty"><strong>Nichts passt zu den Filtern</strong>Suche oder Filter zurücksetzen.</div></div>`; return; }
     if (!all.length) { box.innerHTML = `<div class="list"><div class="empty"><strong>Noch nichts auf der Liste</strong>Im Tab „Praktika“ bei einer Stelle auf „+ Bewerberliste“ klicken.</div></div>`; return; }
     const active = document.activeElement; if (active && box.contains(active) && /INPUT|SELECT/.test(active.tagName)) return;
     const done = all.filter(([, a]) => ["Beworben", "Gespräch", "Zusage"].includes(a.status)).length;
     const dups = all.filter(([, a]) => dupOf(a)).length;
+    if (S.appView === "board") { box.innerHTML = boardHtml(rows, infoOf); return; }
     box.innerHTML = `<div class="sub" style="margin:0 0 8px">${rows.length === all.length ? all.length + " Stellen" : rows.length + " von " + all.length + " Stellen"} · ${done} beworben oder weiter${dups ? ` · <span class="badge dup">${dups} mit gleichem Link</span>` : ""}</div><div class="tablewrap"><table>
-      <thead><tr><th>Nr.</th><th>Status</th><th>Unternehmen</th><th>Job-Titel</th><th title="Wann die Anzeige veröffentlicht wurde">Online seit</th><th title="Startdatum laut Anzeige">Start</th><th>Kommentar</th><th>Link</th><th></th></tr></thead>
+      <thead><tr><th>Nr.</th><th>Status</th><th title="KI-Bewertung nach deinem Profil">Prio</th><th>Unternehmen</th><th>Job-Titel</th><th title="Wann die Anzeige veröffentlicht wurde">Online seit</th><th title="Startdatum laut Anzeige">Start</th><th>Kommentar</th><th>Link</th><th></th></tr></thead>
       <tbody>${rows.map(([id, a]) => `<tr>
         <td class="num">${esc(a.nr || "")}</td>
         <td><select class="appstat" data-appstatus="${esc(id)}" aria-label="Status"${S.canWrite ? "" : " disabled"}>${APP_STATI.concat(APP_STATI.includes(a.status) ? [] : [a.status]).map((x) => `<option${x === a.status ? " selected" : ""}>${esc(x)}</option>`).join("")}</select></td>
+        <td>${((r) => r ? prioBadge(r) + `<span class="why">${esc(r.why || "")}</span>` : '<span class="prio p-none" title="Noch nicht bewertet">–</span>')(rateOf(a.url))}</td>
         <td class="name"><input class="appcom" data-appcompany="${esc(id)}" value="${esc(a.company || "")}" aria-label="Unternehmen"${S.canWrite ? "" : " disabled"}></td>
         <td><input class="appcom" data-apptitle="${esc(id)}" value="${esc(a.title || "")}" aria-label="Job-Titel"${S.canWrite ? "" : " disabled"}></td>
         ${((i) => `<td class="when">${i.pd ? esc(fmtDate(i.pd)) : "–"}</td><td class="sd">${i.sd ? esc(i.sd) : '<span class="when">–</span>'}</td>`)(infoOf(a))}
         <td><input class="appcom" data-appcomment="${esc(id)}" value="${esc(a.comment || "")}" placeholder="Notiz …" aria-label="Kommentar"${S.canWrite ? "" : " disabled"}></td>
-        <td>${a.url ? `<a href="${esc(a.url)}" target="_blank" rel="noopener">öffnen</a><br><span class="srcb" title="${esc(a.url)}">${esc(sysOf(a.url) || "Link")}</span>` : "–"}${dupOf(a) ? `<span class="badge dup" title="Gleicher Link wie Nr. ${esc(dupOf(a).join(", "))}">gleicher Link wie Nr. ${esc(dupOf(a).join(", "))}</span>` : ""}</td>
+        <td>${a.url ? `<a href="${esc(a.url)}" target="_blank" rel="noopener">öffnen</a><br><span class="srcb" title="${esc(a.url)}">${esc(sysOf(a.url) || "Link")}</span>` : "–"}${offBadge(infoOf(a))}${dupOf(a) ? `<span class="badge dup" title="Gleicher Link wie Nr. ${esc(dupOf(a).join(", "))}">gleicher Link wie Nr. ${esc(dupOf(a).join(", "))}</span>` : ""}</td>
         <td><button class="btn small${delAppArmed === id ? " danger" : ""}" type="button" data-delapp="${esc(id)}"${S.canWrite ? "" : " disabled"}>${delAppArmed === id ? "Wirklich?" : "Entfernen"}</button></td>
       </tr>`).join("")}</tbody></table></div>`;
+  }
+
+  const offBadge = (i) => i.moved ? `<br><a class="badge moved" href="${esc(i.moved)}" target="_blank" rel="noopener" title="Die alte Anzeige leitet auf eine neue weiter">neu ausgeschrieben ↗</a>`
+    : i.off ? `<br><span class="badge off" title="Beim Lauf nicht mehr im Stellenportal gefunden">offline seit ${esc(fmtDate(i.off))}</span>` : "";
+  const PIPE = ["Offen", "Beworben", "Gespräch", "Zusage"];
+  const ST_COLOR = { Offen: "var(--line-2)", Beworben: "color-mix(in srgb, var(--accent) 45%, var(--surface))", "Gespräch": "var(--accent)", Zusage: "var(--ok)", Absage: "var(--err)", "Nicht relevant": "var(--ink-3)" };
+  const daysSince = (iso) => iso ? Math.floor((Date.now() - new Date(iso)) / 864e5) : null;
+  // Pipeline: wie viele Bewerbungen welche Stufe erreicht haben (aktueller Status + Verlauf), dazu Absagen und Hinweise
+  function renderPipe(all, infoOf) {
+    const box = $("#pipe");
+    if (!all.length) { box.innerHTML = ""; return; }
+    const cnt = {}; for (const [, a] of all) cnt[a.status || "Offen"] = (cnt[a.status || "Offen"] || 0) + 1;
+    const reached = (stage) => all.filter(([, a]) => {
+      const i = PIPE.indexOf(a.status || "Offen"), j = PIPE.indexOf(stage);
+      if (i >= j) return true;
+      if (a.hist?.[stage]) return true;
+      return a.status === "Absage" && j <= 1;   // Absage ohne Verlauf: mindestens beworben
+    }).length;
+    const active = all.filter(([, a]) => a.status !== "Nicht relevant").length;
+    const r = PIPE.map((st) => (st === "Offen" ? active : reached(st)));
+    const stages = PIPE.map((st, i) => `<div class="stage s-${esc(st)}"><div class="l">${i === 0 ? "Auf der Liste" : esc(st === "Gespräch" ? "Einladung / Gespräch" : st)}</div><div class="n">${r[i]}</div>
+      <div class="cv">${i === 0 ? `davon offen: ${cnt.Offen || 0}` : `<b>${r[i - 1] ? Math.round((100 * r[i]) / r[i - 1]) : 0} %</b> von ${esc(i === 1 ? "Liste" : PIPE[i - 1] === "Gespräch" ? "Gesprächen" : PIPE[i - 1])}`}</div></div>`).join("");
+    const order = ["Offen", "Beworben", "Gespräch", "Zusage", "Absage", "Nicht relevant"];
+    const total = all.length;
+    const dist = order.filter((st) => cnt[st]).map((st) => `<span style="width:${(100 * cnt[st]) / total}%;background:${ST_COLOR[st]}" title="${esc(st)}: ${cnt[st]}"></span>`).join("");
+    const legend = order.filter((st) => cnt[st]).map((st) => `<span><i style="background:${ST_COLOR[st]}"></i>${esc(st)} ${cnt[st]}</span>`).join("");
+    const offline = all.filter(([, a]) => ["Offen", "Beworben"].includes(a.status || "Offen") && infoOf(a).off).length;
+    const waiting = all.filter(([, a]) => a.status === "Beworben" && daysSince(a.status_at || a.hist?.Beworben) >= 14).length;
+    const topOpen = all.filter(([, a]) => (a.status || "Offen") === "Offen" && rateOf(a.url)?.p === "A").length;
+    const alerts = [
+      topOpen ? `<span class="badge k-Praktikum">${topOpen} offene Prio-A-Stellen – noch nicht beworben</span>` : "",
+      offline ? `<span class="badge off">${offline} offene Anzeigen offline</span>` : "",
+      waiting ? `<span class="badge new">${waiting} seit über 14 Tagen ohne Antwort – nachhaken?</span>` : "",
+    ].join("");
+    box.innerHTML = `<div class="pipe"><div class="pipe-head"><h3>Bewerbungs-Pipeline</h3><span class="sub">${total} Stellen · ${cnt.Absage || 0} Absagen · ${cnt["Nicht relevant"] || 0} nicht relevant</span></div>
+      <div class="flow">${stages}</div><div class="dist" role="img" aria-label="Verteilung nach Status">${dist}</div><div class="legend">${legend}</div>${alerts ? `<div class="alerts">${alerts}</div>` : ""}</div>`;
+  }
+  // Board: eine Spalte je Status, Karten per Drag & Drop verschieben
+  function boardHtml(rows, infoOf) {
+    const cols = APP_STATI.concat([...new Set(rows.map(([, a]) => a.status).filter((x) => x && !APP_STATI.includes(x)))]);
+    return `<div class="kb">${cols.map((st) => {
+      const items = rows.filter(([, a]) => (a.status || "Offen") === st);
+      return `<div class="kcol" data-kcol="${esc(st)}"><div class="khead"><span>${esc(st)}</span><span class="badge">${items.length}</span></div>${items.map(([id, a]) => {
+        const rt = rateOf(a.url), i = infoOf(a), d = daysSince(a.status_at);
+        return `<div class="kcard" draggable="${S.canWrite}" data-kcard="${esc(id)}" title="${esc(rt ? rateTip(rt) : "")}"><div class="kt">${esc(a.title || "")}</div><div class="kc">${esc(a.company || "")}</div>
+          <div class="km">${prioBadge(rt)}${i.sd ? `<span>Start ${esc(i.sd)}</span>` : ""}${d != null ? `<span>seit ${d} T.</span>` : ""}${i.off ? '<span class="badge off" style="margin:0">offline</span>' : ""}${a.url ? `<a href="${esc(a.url)}" target="_blank" rel="noopener">öffnen</a>` : ""}</div></div>`;
+      }).join("")}</div>`;
+    }).join("")}</div>`;
+  }
+
+  /* ---------- Profil (config/profile) ---------- */
+  function fillProfile() {
+    const p = S.profile || {};
+    for (const [sel, k] of [["#pCv", "cv"], ["#pWish", "wishes"]]) { const el = $(sel); if (el && document.activeElement !== el && !el.dataset.dirty) el.value = p[k] || ""; }
+  }
+  function renderProfile() {
+    const r = S.ratings?.by_url || {}, vals = Object.values(r);
+    const cnt = { A: 0, B: 0, C: 0, D: 0 }; for (const v of vals) cnt[v.p] = (cnt[v.p] || 0) + 1;
+    const cur = vals.filter((v) => v.pa === S.profile?.updated_at).length;
+    $("#pInfo").innerHTML = !S.profile?.cv ? "Noch kein Profil gespeichert – ohne Profil bewertet der Lauf nichts."
+      : `Profil gespeichert am ${esc(fmtDate(S.profile.updated_at, true))} · bewertet: <b>${vals.length}</b> Stellen (A ${cnt.A} · B ${cnt.B} · C ${cnt.C} · D ${cnt.D})${vals.length && cur < vals.length ? ` · ${vals.length - cur} noch mit altem Profil bewertet` : ""}${S.ratings?.updated_at ? ` · letzte Bewertung ${esc(fmtDate(S.ratings.updated_at, true))}` : ""}`;
+    $("#c-profil").textContent = S.profile?.cv ? "" : "!";
   }
 
   function renderErrors() {
@@ -1192,6 +1356,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     else if (t.id === "cancelRun") { S.cancelArm = true; S.cancelMsg = ""; renderLive(); }
     else if (t.id === "cancelNo") { S.cancelArm = false; renderLive(); }
     else if (t.id === "cancelYes") cancelScan();
+    else if (t.dataset.appview) { S.appView = t.dataset.appview; try { localStorage.setItem("radar.appView", S.appView); } catch (e) {} schedule(); }
     else if (t.dataset.runlog) { S.openLog = S.openLog === t.dataset.runlog ? null : t.dataset.runlog; schedule(); }
     else if (t.dataset.kind) { S.kind = t.dataset.kind; schedule(); }
     else if (t.dataset.ftopic) { const d = draft(), k = t.dataset.ftopic; d.off_topics = d.off_topics.includes(k) ? d.off_topics.filter((x) => x !== k) : [...d.off_topics, k]; schedule(); }
@@ -1210,7 +1375,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
   });
   document.addEventListener("change", (ev) => {
     const t = ev.target;
-    if (t.dataset?.appstatus) updApp(t.dataset.appstatus, { status: t.value });
+    if (t.dataset?.appstatus) setStatus(t.dataset.appstatus, t.value);
     else if (t.dataset?.appcomment) updApp(t.dataset.appcomment, { comment: t.value.trim() });
     else if (t.dataset?.appcompany && t.value.trim()) updApp(t.dataset.appcompany, { company: t.value.trim() });
     else if (t.dataset?.apptitle && t.value.trim()) updApp(t.dataset.apptitle, { title: t.value.trim() });
@@ -1232,11 +1397,30 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     } catch (e) { msg.textContent = e?.code === "invalid_argument" ? "Keine Schreibrechte." : "Konnte nicht gespeichert werden."; }
   });
   $("#scanBtn").addEventListener("click", startScan);
+  let dragId = null;
+  document.addEventListener("dragstart", (ev) => { const c = ev.target.closest?.("[data-kcard]"); if (c) { dragId = c.dataset.kcard; ev.dataTransfer.effectAllowed = "move"; ev.dataTransfer.setData("text/plain", dragId); } });
+  document.addEventListener("dragover", (ev) => { const col = ev.target.closest?.("[data-kcol]"); if (col && dragId) { ev.preventDefault(); document.querySelectorAll(".kcol.drop").forEach((x) => x !== col && x.classList.remove("drop")); col.classList.add("drop"); } });
+  document.addEventListener("dragleave", (ev) => { const col = ev.target.closest?.("[data-kcol]"); if (col && !col.contains(ev.relatedTarget)) col.classList.remove("drop"); });
+  document.addEventListener("drop", (ev) => { const col = ev.target.closest?.("[data-kcol]"); if (col && dragId) { ev.preventDefault(); col.classList.remove("drop"); setStatus(dragId, col.dataset.kcol); } dragId = null; });
+  document.addEventListener("dragend", () => { dragId = null; document.querySelectorAll(".kcol.drop").forEach((x) => x.classList.remove("drop")); });
+  for (const sel of ["#pCv", "#pWish"]) $(sel).addEventListener("input", (ev) => { ev.target.dataset.dirty = "1"; $("#pMsg").textContent = "Nicht gespeichert"; });
+  $("#profForm").addEventListener("submit", async (ev) => {
+    ev.preventDefault();
+    const cv = $("#pCv").value.trim(), wishes = $("#pWish").value.trim(), msg = $("#pMsg");
+    if (cv.length < 80) { msg.textContent = "Bitte etwas mehr aus dem Lebenslauf einfügen (mindestens ein paar Zeilen)."; return; }
+    try {
+      await S.db.doc("config/profile").set({ cv, wishes, updated_at: new Date().toISOString() });
+      for (const sel of ["#pCv", "#pWish"]) delete $(sel).dataset.dirty;
+      msg.textContent = "Gespeichert – der nächste Lauf bewertet die Stellen."; toast("Profil gespeichert");
+    } catch (e) { msg.textContent = "Konnte nicht gespeichert werden: " + (e?.message || e?.code || "unbekannter Fehler"); }
+  });
   $("#addBtn").addEventListener("click", () => openEdit(null));
   $("#cancelBtn").addEventListener("click", () => $("#dlg").close());
   $("#delBtn").addEventListener("click", deleteCurrent);
   $("#dlgForm").addEventListener("submit", saveEdit);
-  for (const id of ["#q", "#city", "#srcSel", "#onlyNew", "#onlyMine", "#kq", "#kst"]) $(id).addEventListener("input", schedule);
+  for (const id of ["#q", "#city", "#srcSel", "#prioSel", "#onlyNew", "#onlyMine", "#kq", "#kst"]) $(id).addEventListener("input", schedule);
+  try { const v = localStorage.getItem("radar.sort"); if (v) $("#sortSel").value = v; } catch (e) {}
+  $("#sortSel").addEventListener("input", () => { try { localStorage.setItem("radar.sort", $("#sortSel").value); } catch (e) {} schedule(); });
   try { if (localStorage.getItem("radar.onlyFit") === "0") $("#onlyFit").checked = false; } catch (e) {}
   $("#onlyFit").addEventListener("input", () => { try { localStorage.setItem("radar.onlyFit", $("#onlyFit").checked ? "1" : "0"); } catch (e) {} schedule(); });
   $("#fExtra").addEventListener("input", () => { draft().extra = lines($("#fExtra").value); schedule(); });
@@ -1270,6 +1454,8 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     db.doc("scans/boards").onSnapshot((snap) => { S.boards = snap.exists ? snap.data() : null; schedule(); }, onErr);
     db.doc("scans/candidates").onSnapshot((snap) => { S.cands = snap.exists ? snap.data() : null; schedule(); }, onErr);
     db.doc("scans/details").onSnapshot((snap) => { S.details = snap.exists ? snap.data() : null; schedule(); }, onErr);
+    db.doc("scans/ratings").onSnapshot((snap) => { S.ratings = snap.exists ? snap.data() : null; schedule(); }, onErr);
+    db.doc("config/profile").onSnapshot((snap) => { S.profile = snap.exists ? snap.data() : null; fillProfile(); schedule(); }, onErr);
     db.collection("runs").orderBy("started_at", "desc").limit(20).onSnapshot((snap) => { S.runs = snap.docs.map((d) => d.data()); schedule(); }, onErr);
     db.doc("config/main").onSnapshot((snap) => { S.config = snap.exists ? snap.data() : null; schedule(); }, onErr);
     schedule();
