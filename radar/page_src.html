@@ -81,6 +81,7 @@ h1 { font-family: var(--f-display); font-weight: 700; font-size: 18px; letter-sp
 .btn:hover { background: var(--surface-2); }
 .btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
 .btn.primary:hover { filter: brightness(1.07); background: var(--accent); }
+.btn.primary[disabled] { background: var(--muted-bg); color: var(--ink-3); border-color: var(--line-2); opacity: 1; box-shadow: none; filter: none; cursor: not-allowed; }
 .btn.danger { color: var(--err); }
 .btn.danger:hover { background: var(--err-bg); border-color: color-mix(in srgb, var(--err) 35%, var(--line-2)); }
 .btn.small { padding: 4px 10px; font-size: 12.5px; }
@@ -955,9 +956,11 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     const run = runningRun(), pend = requestedPending();
     $("#scope").classList.toggle("on", !!(run || pend));
     const st = $("#scanstate"), btn = $("#scanBtn");
-    if (run) { st.textContent = `Scan läuft seit ${fmtDate(run.started_at, true)} – Fortschritt unten. Ergebnisse erscheinen automatisch.`; btn.disabled = true; }
-    else if (pend) { st.textContent = `Scan angefordert ${ago(pend)} – startet gleich.`; btn.disabled = true; }
-    else { st.textContent = S.scanMsg || ""; btn.disabled = S.busy || !S.db; }
+    // Während ein Scan angefordert ist oder läuft: Knopf ausgegraut, kein Zusatztext (Fortschritt steht im Live-Panel)
+    const active = !!(run || pend || S.busy);
+    st.textContent = active ? "" : S.scanMsg || "";
+    btn.disabled = active || !S.db;
+    btn.textContent = active ? "Scan läuft …" : "Jetzt scannen";
   }
 
   function hitsWithMeta() {
@@ -1489,7 +1492,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     if (!S.mcp) { S.scanMsg = "Scannen per Knopf geht nur, wenn das Artefakt in claude.ai geöffnet ist."; schedule(); return; }
     const trig = S.config?.trigger_id;
     if (!trig) { S.scanMsg = "Kein Zeitplan hinterlegt."; schedule(); return; }
-    S.busy = true; S.scanMsg = "Starte Scan …"; schedule();
+    S.busy = true; S.scanMsg = ""; schedule();
     const urls = currentSources();
     try {
       if (unapprovedSources().length) {
@@ -1499,7 +1502,6 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
       }
       const fr = await S.mcp.callTool(MCP, "fire_trigger", { trigger_id: trig });
       S.lastSession = fr?.payload?.session_id || fr?.payload?.trigger?.last_run?.session_id || "";
-      S.scanMsg = "Scan gestartet. Er dauert etwa 20–40 Minuten; die Ergebnisse erscheinen hier automatisch.";
       toast("Scan gestartet");
       try { await S.db.doc("config/main").update({ last_manual_request: new Date().toISOString(), last_session: S.lastSession || "" }); } catch (e) {}
     } catch (e) {
