@@ -266,14 +266,10 @@ td .srcb { margin-top: 4px; }
 .cand .titles { color: var(--ink-3); font-size: 12.5px; margin-top: 2px; overflow-wrap: anywhere; }
 .cand .acts { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
 .badge.react { background: var(--accent-soft); color: var(--accent); }
-body.full .wrap { max-width: none; padding-block: 12px 16px; }
-body.full .top, body.full .tabs, body.full #pipe, body.full #appAdd, body.full #live { display: none; }
-body.full .panel { padding-top: 0; }
-body.full #appList .tablewrap { max-height: calc(100vh - 80px); overflow: auto; }
-body.full #appList table { width: 100%; }
-body.full #appList .kb { max-height: calc(100vh - 80px); }
-#fullBtn[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); border-color: color-mix(in srgb, var(--accent) 40%, var(--line-2)); }
-#appList table { table-layout: fixed; width: max-content; min-width: 0; }
+#appList table { table-layout: fixed; width: 100%; min-width: 0; }
+#appList th, #appList td { padding: 8px 8px; }
+#appList .appstat { width: 100%; padding: 4px 4px; }
+#appList td.sd, #appList td.when { white-space: nowrap; text-overflow: ellipsis; }
 #appList th { position: relative; overflow: hidden; text-overflow: ellipsis; }
 #appList td { overflow: hidden; }
 #appList .appcom { min-width: 0; text-overflow: ellipsis; }
@@ -288,7 +284,7 @@ a.nrlink:hover { text-decoration: none; filter: brightness(.95); }
 .trash[disabled] { opacity: .4; cursor: default; }
 td a.badge.moved, td .badge.off { margin-left: 6px; }
 #appList th { white-space: nowrap; }
-td.sd { font-size: 13px; min-width: 110px; max-width: 180px; overflow-wrap: anywhere; }
+td.sd { font-size: 13px; }
 
 /* KI-Prio */
 .prio { display: inline-grid; place-items: center; min-width: 26px; height: 22px; padding: 0 6px; border-radius: 6px; font-size: 12px; font-weight: 700; letter-spacing: .02em; cursor: help; }
@@ -501,7 +497,6 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
       <select class="field" id="ast" aria-label="Status"><option value="">Alle Status</option></select>
       <select class="field" id="aso" aria-label="Sortierung"><option value="nr">Sortiert nach Nr.</option><option value="firma">Nach Firma</option><option value="status">Nach Status</option><option value="neu">Neueste zuerst</option><option value="prio">Nach Prio</option></select>
       <div class="seg" role="group" aria-label="Ansicht"><button type="button" data-appview="liste" aria-pressed="true">Liste</button><button type="button" data-appview="board" aria-pressed="false">Board</button></div>
-      <button class="btn" type="button" id="fullBtn" aria-pressed="false" title="Bewerberliste im Vollbild"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" style="vertical-align:-2px"><path d="M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg> <span id="fullLbl">Vollbild</span></button>
     </div>
     <div id="appList"></div>
   </section>
@@ -1175,17 +1170,6 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     purgeArmed = null;
     try { await S.db.doc("trash/" + id).delete(); toast("Endgültig gelöscht"); } catch (e) { toast("Konnte nicht gelöscht werden."); }
   }
-  // Vollbild für die Bewerberliste: nur Werkzeugleiste + Tabelle, volle Breite und Höhe (Browser-Vollbild, wo erlaubt)
-  function setFull(on) {
-    document.body.classList.toggle("full", on);
-    $("#fullBtn").setAttribute("aria-pressed", String(on)); $("#fullLbl").textContent = on ? "Vollbild beenden" : "Vollbild";
-    try {
-      if (on && !document.fullscreenElement) document.documentElement.requestFullscreen?.().catch(() => {});
-      if (!on && document.fullscreenElement) document.exitFullscreen?.().catch(() => {});
-    } catch (e) {}
-  }
-  document.addEventListener("fullscreenchange", () => { if (!document.fullscreenElement && document.body.classList.contains("full")) setFull(false); });
-  document.addEventListener("keydown", (ev) => { if (ev.key === "Escape" && document.body.classList.contains("full") && !ev.target.classList?.contains("appcom")) setFull(false); });
   function renderTrash() {
     const box = $("#trashList"), items = [...S.trash.entries()].sort((x, y) => String(y[1].deleted_at).localeCompare(String(x[1].deleted_at)));
     if (!items.length) { box.innerHTML = `<div class="list"><div class="empty"><strong>Papierkorb ist leer</strong>Gelöschte Stellen aus der Bewerberliste landen hier und lassen sich wiederherstellen.</div></div>`; return; }
@@ -1226,30 +1210,30 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     const dups = all.filter(([, a]) => dupOf(a)).length;
     if (S.appView === "board") { box.innerHTML = boardHtml(rows, infoOf); return; }
     box.innerHTML = `<div class="tablewrap"><table>
-      <colgroup>${COLS.map((c, i) => `<col style="width:${colW()[i]}px">`).join("")}</colgroup>
+      <colgroup>${((w) => { const sum = w.reduce((a, b) => a + b, 0); return w.map((x) => `<col style="width:${((100 * x) / sum).toFixed(2)}%">`).join(""); })(colW())}</colgroup>
       <thead><tr>${COLS.map((c, i) => `<th${c.tip ? ` title="${esc(c.tip)}"` : ""}>${esc(c.label)}${i < COLS.length - 1 ? `<span class="col-rz" data-colrz="${i}" title="Breite ziehen · Doppelklick: Standard"></span>` : ""}</th>`).join("")}</tr></thead>
       <tbody>${rows.map(([id, a]) => `<tr>
         <td class="num">${a.url ? `<a class="nrlink" href="${esc(a.url)}" target="_blank" rel="noopener" title="Anzeige öffnen">${esc(a.nr || "↗")}</a>` : esc(a.nr || "")}</td>
         <td><select class="appstat" data-appstatus="${esc(id)}" aria-label="Status"${S.canWrite ? "" : " disabled"}>${APP_STATI.concat(APP_STATI.includes(a.status) ? [] : [a.status]).map((x) => `<option${x === a.status ? " selected" : ""}>${esc(x)}</option>`).join("")}</select></td>
-        <td>${((r) => r ? prioBadge(r) + `<span class="why">${esc(r.why || "")}</span>` : '<span class="prio p-none" title="Noch nicht bewertet">–</span>')(rateOf(a.url))}</td>
+        <td>${((r) => r ? `<span data-full="${esc(rateTip(r))}">${prioBadge(r).replace(/ title="[^"]*"/, "")}</span>` : '<span class="prio p-none">–</span>')(rateOf(a.url))}</td>
         <td class="name"><input class="appcom" data-appcompany="${esc(id)}" value="${esc(a.company || "")}" aria-label="Unternehmen"${S.canWrite ? "" : " disabled"}></td>
         <td><input class="appcom" data-apptitle="${esc(id)}" value="${esc(a.title || "")}" aria-label="Job-Titel"${S.canWrite ? "" : " disabled"}>${offBadge(infoOf(a)).replace("<br>", "")}${dupOf(a) ? `<span class="badge dup" title="Gleicher Link wie Nr. ${esc(dupOf(a).join(", "))}">gleicher Link wie Nr. ${esc(dupOf(a).join(", "))}</span>` : ""}</td>
-        ${((i) => `<td class="when">${i.pd ? esc(fmtDate(i.pd)) : "–"}</td><td class="sd">${i.sd ? esc(i.sd) : '<span class="when">–</span>'}</td>`)(infoOf(a))}
+        ${((i) => `<td class="when">${i.pd ? esc(fmtDate(i.pd)) : "–"}</td><td class="sd"${i.sd ? ` data-fit="1"` : ""}>${i.sd ? esc(i.sd) : '<span class="when">–</span>'}</td>`)(infoOf(a))}
         <td><input class="appcom" data-appcomment="${esc(id)}" value="${esc(a.comment || "")}" placeholder="Notiz …" aria-label="Kommentar"${S.canWrite ? "" : " disabled"}></td>
         <td><button class="trash" type="button" data-delapp="${esc(id)}" title="In den Papierkorb" aria-label="In den Papierkorb"${S.canWrite ? "" : " disabled"}><svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><path d="M2.5 4h11M6.5 4V2.5h3V4M4 4l.7 9.2c.05.7.6 1.3 1.3 1.3h4c.7 0 1.25-.6 1.3-1.3L12 4M6.8 7v5M9.2 7v5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button></td>
       </tr>`).join("")}</tbody></table></div>`;
   }
 
   // Spalten der Bewerberliste: Breite per Ziehen am rechten Rand, gemerkt im Browser
-  const COLS = [{ label: "Nr.", w: 52 }, { label: "Status", w: 140 }, { label: "Prio", w: 150, tip: "KI-Bewertung nach deinem Profil" }, { label: "Unternehmen", w: 170 },
-    { label: "Job-Titel", w: 280 }, { label: "Online seit", w: 92, tip: "Wann die Anzeige veröffentlicht wurde" }, { label: "Start", w: 120, tip: "Startdatum laut Anzeige" }, { label: "Kommentar", w: 240 }, { label: "", w: 48 }];
+  const COLS = [{ label: "Nr.", w: 48 }, { label: "Status", w: 128 }, { label: "Prio", w: 52, tip: "KI-Bewertung nach deinem Profil" }, { label: "Unternehmen", w: 150 },
+    { label: "Job-Titel", w: 250 }, { label: "Online", w: 74, tip: "Wann die Anzeige veröffentlicht wurde" }, { label: "Start", w: 104, tip: "Startdatum laut Anzeige" }, { label: "Kommentar", w: 200 }, { label: "", w: 40 }];
   function colW() {
-    let w = null; try { w = JSON.parse(localStorage.getItem("radar.appCols") || "null"); } catch (e) { w = S.appCols; }
-    return COLS.map((c, i) => Math.max(40, (Array.isArray(w) && w[i]) || c.w));
+    let w = null; try { w = JSON.parse(localStorage.getItem("radar.appCols2") || "null"); } catch (e) { w = S.appCols; }
+    return COLS.map((c, i) => Math.max(28, (Array.isArray(w) && w[i]) || c.w));
   }
   function setColW(i, px) {
-    const w = colW(); w[i] = Math.max(40, Math.round(px)); S.appCols = w;
-    try { localStorage.setItem("radar.appCols", JSON.stringify(w)); } catch (e) {}
+    const w = colW(); w[i] = Math.max(28, Math.round(px)); S.appCols = w;
+    try { localStorage.setItem("radar.appCols2", JSON.stringify(w)); } catch (e) {}
     return w;
   }
   const offBadge = (i) => i.moved ? `<br><a class="badge moved" href="${esc(i.moved)}" target="_blank" rel="noopener" title="Die alte Anzeige leitet auf eine neue weiter">neu ausgeschrieben ↗</a>`
@@ -1535,7 +1519,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     if (t.id === "moreBtn") { const m = $("#moreMenu"); closePops("menu"); m.hidden = !m.hidden; t.setAttribute("aria-expanded", String(!m.hidden)); return; }
     if (t.dataset.alertx) { dismissAlert(t.dataset.alertx); return; }
     if (t.id === "alertBtn") { const p = $("#alertPop"); closePops("alert"); p.hidden = !p.hidden; t.setAttribute("aria-expanded", String(!p.hidden)); return; }
-    if (t.dataset.tab || t.dataset.go) { closePops(); if (document.body.classList.contains("full")) setFull(false); }
+    if (t.dataset.tab || t.dataset.go) closePops();
     if (t.dataset.tab) { S.tab = t.dataset.tab; try { localStorage.setItem("radar.tab", S.tab); } catch (e) {} schedule(); }
     else if (t.dataset.go) { S.tab = t.dataset.go; schedule(); }
     else if (t.id === "cancelRun") { S.cancelArm = true; S.cancelMsg = ""; renderLive(); }
@@ -1554,7 +1538,6 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     else if (t.dataset.delapp) delApp(t.dataset.delapp);
     else if (t.dataset.restore) restoreApp(t.dataset.restore);
     else if (t.dataset.purge) purgeApp(t.dataset.purge);
-    else if (t.id === "fullBtn") setFull(!document.body.classList.contains("full"));
     else if (t.id === "cfNo") { delPending = null; $("#cfDlg").close(); }
     else if (t.id === "cfYes") { const id = delPending; delPending = null; $("#cfDlg").close(); if (id) moveToTrash(id); }
     else if (t.dataset.edit) openEdit(t.dataset.edit);
@@ -1592,11 +1575,19 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
   $("#scanBtn").addEventListener("click", startScan);
   // Volltext beim Überfahren: Felder der Bewerberliste, deren Inhalt abgeschnitten ist
   const tip = $("#tip");
-  const fullText = (el) => el.matches?.("input.appcom") ? el.value : el.matches?.("[data-full]") ? el.dataset.full : "";
+  const fullText = (el) => el.matches?.("input.appcom") ? el.value : el.dataset.full || el.textContent.trim();
+  const mctx = document.createElement("canvas").getContext("2d");
+  function overflows(el) {
+    const cs = getComputedStyle(el), txt = fullText(el);
+    mctx.font = `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+    const avail = el.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+    return mctx.measureText(txt).width > avail + 1 || el.scrollWidth > el.clientWidth + 1;
+  }
+  const HOVER = "input.appcom, [data-full], td[data-fit]";
   document.addEventListener("mouseover", (ev) => {
-    const el = ev.target.closest?.("input.appcom, [data-full]");
+    const el = ev.target.closest?.(HOVER);
     const txt = el && document.activeElement !== el ? fullText(el) : "";
-    if (!txt || (el.scrollWidth <= el.clientWidth + 1 && !el.dataset.full)) { tip.hidden = true; return; }
+    if (!txt || (!el.dataset.full && !overflows(el))) { tip.hidden = true; return; }
     tip.textContent = txt; tip.hidden = false;
     const r = el.getBoundingClientRect(), tw = Math.min(420, window.innerWidth - 32);
     tip.style.maxWidth = tw + "px";
@@ -1604,19 +1595,25 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     const below = r.bottom + 6, h = tip.offsetHeight;
     tip.style.top = (below + h > window.innerHeight - 8 ? r.top - h - 6 : below) + "px";
   });
-  document.addEventListener("mouseout", (ev) => { if (ev.target.closest?.("input.appcom, [data-full]") && !ev.relatedTarget?.closest?.("#tip")) tip.hidden = true; });
+  document.addEventListener("mouseout", (ev) => { const el = ev.target.closest?.(HOVER); if (el && !el.contains(ev.relatedTarget)) tip.hidden = true; });
   document.addEventListener("focusin", () => { tip.hidden = true; });
   document.addEventListener("scroll", () => { tip.hidden = true; }, true);
   document.addEventListener("pointerdown", (ev) => {
     const h = ev.target.closest?.("[data-colrz]"); if (!h) return;
     ev.preventDefault();
-    const i = +h.dataset.colrz, table = h.closest("table"), col = table.querySelectorAll("col")[i], x0 = ev.clientX, w0 = col.getBoundingClientRect().width || colW()[i];
+    const i = +h.dataset.colrz, table = h.closest("table"), cols = table.querySelectorAll("col"), x0 = ev.clientX;
+    const tw = table.getBoundingClientRect().width, a0 = cols[i].getBoundingClientRect().width, b0 = cols[i + 1].getBoundingClientRect().width;
     h.classList.add("on");
-    const move = (e) => { const w = Math.max(40, w0 + e.clientX - x0); col.style.width = w + "px"; table.style.width = colW().reduce((a, b, k) => a + (k === i ? w : b), 0) + "px"; };
-    const up = (e) => { h.classList.remove("on"); document.removeEventListener("pointermove", move); document.removeEventListener("pointerup", up); setColW(i, w0 + e.clientX - x0); schedule(); };
+    const calc = (e) => { const d = Math.max(32 - a0, Math.min(b0 - 32, e.clientX - x0)); return [a0 + d, b0 - d]; };
+    const move = (e) => { const [a, b] = calc(e); cols[i].style.width = (100 * a / tw) + "%"; cols[i + 1].style.width = (100 * b / tw) + "%"; };
+    const up = (e) => {
+      h.classList.remove("on"); document.removeEventListener("pointermove", move); document.removeEventListener("pointerup", up);
+      const [a, b] = calc(e), w = colW(), sum = w.reduce((x, y) => x + y, 0), k = sum / tw;
+      setColW(i, a * k); setColW(i + 1, b * k); schedule();
+    };
     document.addEventListener("pointermove", move); document.addEventListener("pointerup", up);
   });
-  document.addEventListener("dblclick", (ev) => { const h = ev.target.closest?.("[data-colrz]"); if (h) { setColW(+h.dataset.colrz, COLS[+h.dataset.colrz].w); schedule(); } });
+  document.addEventListener("dblclick", (ev) => { const h = ev.target.closest?.("[data-colrz]"); if (h) { S.appCols = null; try { localStorage.removeItem("radar.appCols2"); } catch (e) {} schedule(); } });
   document.addEventListener("keydown", (ev) => {
     const t = ev.target;
     if (t.classList?.contains("appcom") && (ev.key === "Enter" || ev.key === "Escape")) { ev.preventDefault(); if (ev.key === "Escape") t.value = t.defaultValue; t.blur(); schedule(); }
