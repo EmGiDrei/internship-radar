@@ -246,9 +246,6 @@ details.filters textarea { resize: vertical; min-height: 84px; }
 .grp .info { display: inline-grid; place-items: center; width: 16px; height: 16px; margin-left: 8px; border-radius: 50%; background: var(--line-2); color: var(--ink-2); font-size: 10.5px; font-weight: 700; cursor: help; vertical-align: 1px; }
 .grp .info:hover, .grp .info:focus { background: var(--accent); color: var(--accent-ink); outline: none; }
 .pipe-head h3 { display: inline-flex; align-items: center; gap: 8px; }
-.reload { display: inline-grid; place-items: center; width: 26px; height: 26px; border: 1px solid var(--line-2); border-radius: 7px; background: var(--surface); color: var(--ink-3); cursor: pointer; padding: 0; }
-.reload:hover { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 40%, var(--line-2)); }
-.reload.spin svg { animation: spin .6s linear; }
 .ibar { display: inline-flex; align-items: center; gap: 6px; }
 .ipop { position: relative; }
 .ipop .menu { left: auto; right: 0; min-width: 190px; }
@@ -761,16 +758,6 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
   }
   // Ausgeblendete Stellen (prefs/hidden.by_url): bleiben sichtbar, aber ausgegraut
   const isHidden = (h) => !!(h.u && S.hidden?.[normUrl(h.u)]);
-  // Pipeline neu laden: Bewerberliste frisch aus der Datenbank lesen und alles neu zeichnen
-  async function reloadApps(btn) {
-    btn.classList.add("spin");
-    try {
-      if (document.activeElement?.blur) document.activeElement.blur();
-      const snap = await S.db.collection("applications").limit(500).get();
-      const m = new Map(); for (const d of snap.docs) m.set(d.id, d.data()); S.apps = m;
-    } catch (e) {}
-    schedule(); setTimeout(() => btn.classList.remove("spin"), 600);
-  }
   async function toggleHidden(h) {
     if (!h?.u) return;
     const k = normUrl(h.u), m = { ...(S.hidden || {}) };
@@ -1342,7 +1329,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     const r = PIPE.map((st) => (st === "Offen" ? active : reached(st)));
     const stages = PIPE.map((st, i) => `<div class="stage s-${esc(st)}" data-stage="${i}"><div class="l">${i === 0 ? "Auf der Liste" : esc(st === "Gespräch" ? "Einladung / Gespräch" : st)}</div><div class="n" data-n="${r[i]}">${S.pipePrev ? S.pipePrev[i] : r[i]}</div>
       <div class="cv">${i === 0 ? `davon offen: ${cnt.Offen || 0}` : `<b>${r[i - 1] ? Math.round((100 * r[i]) / r[i - 1]) : 0} %</b> von ${esc(i === 1 ? "Liste" : PIPE[i - 1] === "Gespräch" ? "Gesprächen" : PIPE[i - 1])}`}</div></div>`).join("");
-    box.innerHTML = `<div class="pipe"><div class="pipe-head"><h3>Bewerbungs-Pipeline<button class="reload" type="button" id="pipeReload" title="Pipeline mit dem aktuellen Status neu berechnen" aria-label="Pipeline aktualisieren"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M13.5 8a5.5 5.5 0 1 1-1.6-3.9M13.5 2.5v3h-3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></h3></div>
+    box.innerHTML = `<div class="pipe"><div class="pipe-head"><h3>Bewerbungs-Pipeline</h3></div>
       <div class="flow">${stages}</div></div>`;
     animatePipe(r);
   }
@@ -1633,7 +1620,6 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     else if (t.id === "fSave") saveFilter();
     else if (t.id === "fReset") { FDRAFT = { off_topics: [], extra: [], exclude_extra: [] }; $("#fExtra").value = ""; $("#fExcl").value = ""; schedule(); }
     else if (t.dataset.toggle) { const c = $("#" + t.dataset.toggle); c.checked = !c.checked; c.dispatchEvent(new Event("input")); }
-    else if (t.id === "pipeReload") { reloadApps(t); }
     else if (t.dataset.hide) { toggleHidden(S.shownHits?.[+t.dataset.hide]); }
     else if (t.dataset.addapp) { const h = S.shownHits?.[+t.dataset.addapp]; if (h) addApp(h); }
     else if (t.dataset.delapp) delApp(t.dataset.delapp);
