@@ -271,7 +271,7 @@ td .srcb { margin-top: 4px; }
 .linkbtn:hover { background: var(--accent-soft); text-decoration: none; }
 .trash { display: inline-flex; align-items: center; gap: 6px; border: 0; background: none; color: var(--err); padding: 5px 6px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; }
 .trash:hover { background: var(--err-bg); }
-.trash.armed { background: var(--err); color: #ffffff; }
+.btn.primary.del { background: var(--err); border-color: var(--err); color: #ffffff; }
 .trash[disabled] { opacity: .4; cursor: default; }
 td a.badge.moved, td .badge.off { margin-left: 6px; }
 #appList th { white-space: nowrap; }
@@ -413,6 +413,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
           <button class="mi" role="menuitem" id="tab-fehler" data-tab="fehler">Fehler<span class="c" id="c-fehler"></span></button>
           <button class="mi" role="menuitem" id="tab-laeufe" data-tab="laeufe">Läufe<span class="c" id="c-laeufe"></span></button>
           <button class="mi" role="menuitem" id="tab-profil" data-tab="profil">Profil (für KI-Bewertung)<span class="c" id="c-profil"></span></button>
+          <button class="mi" role="menuitem" id="tab-papierkorb" data-tab="papierkorb">Papierkorb<span class="c" id="c-papierkorb"></span></button>
           <button class="mi" role="menuitem" id="tab-info" data-tab="info">So funktioniert der Radar</button>
         </div>
       </div>
@@ -524,6 +525,10 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     <div id="errList"></div>
   </section>
 
+  <section class="panel" id="p-papierkorb" hidden>
+    <div id="trashList"></div>
+  </section>
+
   <section class="panel" id="p-info" hidden>
     <div class="how card">
       <h2>So funktioniert der Radar</h2>
@@ -556,6 +561,14 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
   </section>
 
 </div>
+
+<dialog id="cfDlg" aria-labelledby="cfTitle">
+  <div class="dlg">
+    <h2 id="cfTitle">Stelle löschen?</h2>
+    <p id="cfText" style="margin:0;color:var(--ink-2)"></p>
+    <div class="row-actions"><span></span><div style="display:flex;gap:8px"><button class="btn" type="button" id="cfNo">Abbrechen</button><button class="btn primary del" type="button" id="cfYes">Löschen</button></div></div>
+  </div>
+</dialog>
 
 <dialog id="dlg">
   <form class="dlg" id="dlgForm" method="dialog">
@@ -606,7 +619,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
 
   const S = {
     db: null, mcp: null, user: null, canWrite: true,
-    startups: new Map(), apps: new Map(), scan: null, boards: null, cands: null, details: null, ratings: null, profile: null, runs: [], config: null,
+    startups: new Map(), apps: new Map(), trash: new Map(), scan: null, boards: null, cands: null, details: null, ratings: null, profile: null, runs: [], config: null,
     loaded: { startups: false, scan: false },
     tab: "praktika", kind: "Alle", limit: 150, editing: null, sched: null, schedMsg: "", busy: false,
   };
@@ -861,6 +874,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     if (S.tab === "fehler") renderErrors();
     if (S.tab === "laeufe") renderRuns();
     if (S.tab === "profil") renderProfile();
+    if (S.tab === "papierkorb") renderTrash();
   }
 
   function renderHeader() {
@@ -915,7 +929,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     pop.innerHTML = msgs.map((m) => `<div class="msg">${m}</div>`).join("");
   }
   function renderTabs() {
-    for (const t of ["praktika", "bewerbungen", "startups", "kandidaten", "fehler", "laeufe", "profil", "info"]) {
+    for (const t of ["praktika", "bewerbungen", "startups", "kandidaten", "fehler", "laeufe", "profil", "papierkorb", "info"]) {
       $("#tab-" + t).setAttribute("aria-selected", String(S.tab === t));
       $("#p-" + t).hidden = S.tab !== t;
     }
@@ -924,9 +938,10 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     $("#c-startups").textContent = S.startups.size || "";
     $("#c-fehler").textContent = errs || ""; $("#c-laeufe").textContent = S.runs.length || "";
     $("#c-profil").textContent = S.db && S.profileLoaded && !S.profile?.cv ? "!" : "";
-    const sec = ["startups", "kandidaten", "fehler", "laeufe", "profil", "info"].includes(S.tab);
+    $("#c-papierkorb").textContent = S.trash.size || "";
+    const sec = ["startups", "kandidaten", "fehler", "laeufe", "profil", "papierkorb", "info"].includes(S.tab);
     $("#moreBtn").setAttribute("aria-selected", String(sec));
-    $("#moreLbl").textContent = sec ? { startups: "Startups", kandidaten: "Kandidaten", fehler: "Fehler", laeufe: "Läufe", profil: "Profil", info: "So funktioniert’s" }[S.tab] : "Mehr";
+    $("#moreLbl").textContent = sec ? { startups: "Startups", kandidaten: "Kandidaten", fehler: "Fehler", laeufe: "Läufe", profil: "Profil", papierkorb: "Papierkorb", info: "So funktioniert’s" }[S.tab] : "Mehr";
     $("#c-kandidaten").textContent = Object.values(S.cands?.candidates || {}).filter((c) => (c.status || "neu") === "neu").length || "";
   }
 
@@ -1115,13 +1130,44 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     const now = new Date().toISOString();
     updApp(id, { status, status_at: now, hist: { ...(a.hist || {}), [status]: now } });
   }
-  async function delApp(id) {
-    if (!delAppArmed || delAppArmed !== id) { delAppArmed = id; schedule(); return; }
-    delAppArmed = null;
-    try { await S.db.doc("applications/" + id).delete(); toast("Von der Liste entfernt"); }
-    catch (e) { toast("Konnte nicht entfernt werden."); }
+  // Löschen: erst nachfragen, dann in den Papierkorb (Collection trash) verschieben – wiederherstellbar unter Mehr → Papierkorb
+  let delPending = null;
+  function delApp(id) {
+    const a = S.apps.get(id); if (!a) return;
+    delPending = id;
+    $("#cfText").textContent = `„${a.title || "Ohne Titel"}“${a.company ? " bei " + a.company : ""} wirklich löschen? Die Stelle landet im Papierkorb und lässt sich dort wiederherstellen.`;
+    $("#cfDlg").showModal();
   }
-  let delAppArmed = null;
+  async function moveToTrash(id) {
+    const a = S.apps.get(id); if (!a) return;
+    try {
+      await S.db.doc("trash/" + id).set({ ...a, deleted_at: new Date().toISOString() });
+      await S.db.doc("applications/" + id).delete();
+      toast("In den Papierkorb verschoben");
+    } catch (e) { toast("Konnte nicht gelöscht werden."); }
+  }
+  async function restoreApp(id) {
+    const t = S.trash.get(id); if (!t) return;
+    const { deleted_at, ...a } = t;
+    try { await S.db.doc("applications/" + id).set(a); await S.db.doc("trash/" + id).delete(); toast("Wiederhergestellt"); }
+    catch (e) { toast("Konnte nicht wiederhergestellt werden."); }
+  }
+  let purgeArmed = null;
+  async function purgeApp(id) {
+    if (purgeArmed !== id) { purgeArmed = id; schedule(); return; }
+    purgeArmed = null;
+    try { await S.db.doc("trash/" + id).delete(); toast("Endgültig gelöscht"); } catch (e) { toast("Konnte nicht gelöscht werden."); }
+  }
+  function renderTrash() {
+    const box = $("#trashList"), items = [...S.trash.entries()].sort((x, y) => String(y[1].deleted_at).localeCompare(String(x[1].deleted_at)));
+    if (!items.length) { box.innerHTML = `<div class="list"><div class="empty"><strong>Papierkorb ist leer</strong>Gelöschte Stellen aus der Bewerberliste landen hier und lassen sich wiederherstellen.</div></div>`; return; }
+    box.innerHTML = `<div class="list">${items.map(([id, a]) => `<div class="row">
+      <div style="min-width:0"><div class="title">${a.url ? `<a href="${esc(a.url)}" target="_blank" rel="noopener">${esc(a.title || "Ohne Titel")}</a>` : esc(a.title || "Ohne Titel")}</div>
+        <div class="meta"><span class="co">${esc(a.company || "")}</span><span>Nr. ${esc(a.nr ?? "–")}</span><span>Status: ${esc(a.status || "Offen")}</span><span>gelöscht ${esc(fmtDate(a.deleted_at, true))}</span></div></div>
+      <div class="side" style="flex-direction:row;flex-wrap:wrap;justify-content:flex-end"><button class="btn small primary" type="button" data-restore="${esc(id)}"${S.canWrite ? "" : " disabled"}>Wiederherstellen</button>
+        <button class="btn small${purgeArmed === id ? " danger" : ""}" type="button" data-purge="${esc(id)}"${S.canWrite ? "" : " disabled"}>${purgeArmed === id ? "Wirklich endgültig?" : "Endgültig löschen"}</button></div>
+    </div>`).join("")}</div>`;
+  }
   function renderApps() {
     const box = $("#appList");
     if (!S.db) { box.innerHTML = `<div class="list"><div class="empty"><strong>Datenbank nicht verfügbar</strong>Öffne das Artefakt in Claude, um die Bewerberliste zu sehen.</div></div>`; return; }
@@ -1161,7 +1207,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
         <td><input class="appcom" data-apptitle="${esc(id)}" value="${esc(a.title || "")}" aria-label="Job-Titel"${S.canWrite ? "" : " disabled"}>${offBadge(infoOf(a)).replace("<br>", "")}${dupOf(a) ? `<span class="badge dup" title="Gleicher Link wie Nr. ${esc(dupOf(a).join(", "))}">gleicher Link wie Nr. ${esc(dupOf(a).join(", "))}</span>` : ""}</td>
         ${((i) => `<td class="when">${i.pd ? esc(fmtDate(i.pd)) : "–"}</td><td class="sd">${i.sd ? esc(i.sd) : '<span class="when">–</span>'}</td>`)(infoOf(a))}
         <td><input class="appcom" data-appcomment="${esc(id)}" value="${esc(a.comment || "")}" placeholder="Notiz …" aria-label="Kommentar"${S.canWrite ? "" : " disabled"}></td>
-        <td><button class="trash${delAppArmed === id ? " armed" : ""}" type="button" data-delapp="${esc(id)}" title="${delAppArmed === id ? "Nochmal klicken zum Entfernen" : "Von der Liste entfernen"}" aria-label="${delAppArmed === id ? "Wirklich entfernen?" : "Von der Liste entfernen"}"${S.canWrite ? "" : " disabled"}><svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><path d="M2.5 4h11M6.5 4V2.5h3V4M4 4l.7 9.2c.05.7.6 1.3 1.3 1.3h4c.7 0 1.25-.6 1.3-1.3L12 4M6.8 7v5M9.2 7v5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button></td>
+        <td><button class="trash" type="button" data-delapp="${esc(id)}" title="In den Papierkorb" aria-label="In den Papierkorb"${S.canWrite ? "" : " disabled"}><svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><path d="M2.5 4h11M6.5 4V2.5h3V4M4 4l.7 9.2c.05.7.6 1.3 1.3 1.3h4c.7 0 1.25-.6 1.3-1.3L12 4M6.8 7v5M9.2 7v5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button></td>
       </tr>`).join("")}</tbody></table></div>`;
   }
 
@@ -1465,6 +1511,10 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     else if (t.id === "fReset") { FDRAFT = { off_topics: [], extra: [], exclude_extra: [] }; $("#fExtra").value = ""; $("#fExcl").value = ""; schedule(); }
     else if (t.dataset.addapp) { const h = S.shownHits?.[+t.dataset.addapp]; if (h) addApp(h); }
     else if (t.dataset.delapp) delApp(t.dataset.delapp);
+    else if (t.dataset.restore) restoreApp(t.dataset.restore);
+    else if (t.dataset.purge) purgeApp(t.dataset.purge);
+    else if (t.id === "cfNo") { delPending = null; $("#cfDlg").close(); }
+    else if (t.id === "cfYes") { const id = delPending; delPending = null; $("#cfDlg").close(); if (id) moveToTrash(id); }
     else if (t.dataset.edit) openEdit(t.dataset.edit);
     else if (t.dataset.toggle) toggleActive(t.dataset.toggle);
     else if (t.dataset.cadopt) adoptCand(t.dataset.cadopt);
@@ -1547,6 +1597,10 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     db.collection("startups").limit(1000).onSnapshot((snap) => {
       const m = new Map(); for (const d of snap.docs) m.set(d.id, d.data());
       S.startups = m; S.loaded.startups = true; schedule();
+    }, onErr);
+    db.collection("trash").limit(500).onSnapshot((snap) => {
+      const m = new Map(); for (const d of snap.docs) m.set(d.id, d.data());
+      S.trash = m; schedule();
     }, onErr);
     db.collection("applications").limit(500).onSnapshot((snap) => {
       const m = new Map(); for (const d of snap.docs) m.set(d.id, d.data());
