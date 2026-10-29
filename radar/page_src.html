@@ -88,8 +88,11 @@ h1 { font-family: var(--f-display); font-weight: 700; font-size: 18px; letter-sp
 .scanstate { font-size: 12.5px; color: var(--ink-3); max-width: 320px; text-align: right; }
 
 /* KPIs */
-.stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 20px; }
-@media (max-width: 620px) { .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 20px; }
+.stats .stat { padding: 16px 20px; }
+.stats .stat .n { font-size: 34px; font-weight: 700; }
+.stats .stat .l { font-size: 13px; font-weight: 600; color: var(--ink-2); }
+@media (max-width: 520px) { .stats .stat { padding: 12px 14px; } .stats .stat .n { font-size: 26px; } }
 .stat .hint { color: var(--ink-3); font-size: 11.5px; }
 .stat { display: flex; flex-direction: column-reverse; justify-content: flex-end; gap: 4px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 16px; box-shadow: var(--shadow); }
 .stat .n { font-weight: 600; font-size: 24px; letter-spacing: -0.02em; line-height: 1.1; font-variant-numeric: tabular-nums; }
@@ -220,6 +223,11 @@ details.filters > summary { cursor: pointer; font-weight: 600; font-size: 13px; 
 details.filters > summary .sub { display: inline; font-weight: 400; }
 details.filters .fbody { display: grid; gap: 12px; padding-top: 12px; }
 details.filters textarea { resize: vertical; min-height: 84px; }
+.fgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; }
+.fgrid select.field { width: 100%; }
+.fcount:not(:empty) { margin-left: 6px; font-size: 11px; font-weight: 600; color: var(--accent); background: var(--accent-soft); border-radius: 999px; padding: 1px 8px; }
+#fmore, #fbox { display: inline-block; vertical-align: top; margin-right: 8px; }
+#fmore[open], #fbox[open] { display: block; margin-right: 0; }
 .flabel { font-size: 12px; font-weight: 600; color: var(--ink-2); }
 .fhelp, .fwords { font-size: 12px; color: var(--ink-3); }
 .fwords summary { cursor: pointer; }
@@ -397,19 +405,24 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
   <section class="panel" id="p-praktika">
     <div class="toolbar">
       <div class="grow"><input class="field" id="q" type="search" placeholder="Suche nach Rolle, Firma oder Ort" aria-label="Suche"></div>
-      <select class="field" id="city" aria-label="Stadt"><option value="">Alle Städte</option></select>
-      <select class="field" id="srcSel" aria-label="Quelle"><option value="">Alle Quellen</option><option value="liste">Startup-Liste</option><option value="boards">Jobbörsen</option></select>
-      <select class="field" id="prioSel" aria-label="Prio"><option value="">Alle Prios</option><option value="A">nur Prio A</option><option value="AB">Prio A + B</option><option value="ABC">Prio A – C</option></select>
-      <select class="field" id="sortSel" aria-label="Sortierung"><option value="prio">Nach Prio</option><option value="neu">Neueste zuerst</option></select>
-    </div>
-    <div class="toolbar">
       <div class="chips" id="kinds"></div>
       <label class="check"><input type="checkbox" id="onlyFit" checked> nur passende</label>
-      <label class="check"><input type="checkbox" id="onlyNew"> nur neue</label>
-      <label class="check"><input type="checkbox" id="onlyMine"> nur meine Liste</label>
     </div>
+    <details class="filters" id="fmore">
+      <summary>Weitere Filter <span class="fcount" id="fcount"></span></summary>
+      <div class="fbody">
+        <div class="fgrid">
+          <label class="f">Stellenart<select class="field" id="kindSel"></select></label>
+          <label class="f">Stadt<select class="field" id="city"><option value="">Alle Städte</option></select></label>
+          <label class="f">Quelle<select class="field" id="srcSel"><option value="">Alle Quellen</option><option value="liste">Startup-Liste</option><option value="boards">Jobbörsen</option></select></label>
+          <label class="f">Prio<select class="field" id="prioSel"><option value="">Alle Prios</option><option value="A">nur Prio A</option><option value="AB">Prio A + B</option><option value="ABC">Prio A – C</option></select></label>
+          <label class="f">Sortierung<select class="field" id="sortSel"><option value="prio">Nach Prio</option><option value="neu">Neueste zuerst</option></select></label>
+        </div>
+        <div class="factions"><label class="check"><input type="checkbox" id="onlyNew"> nur neue</label><label class="check"><input type="checkbox" id="onlyMine"> nur meine Liste</label><button class="btn small" type="button" id="fClear">Zurücksetzen</button></div>
+      </div>
+    </details>
     <details class="filters" id="fbox">
-      <summary>Filter anpassen <span class="sub" id="fsum"></span></summary>
+      <summary>Themen &amp; Suchwörter <span class="sub" id="fsum"></span></summary>
       <div class="fbody">
         <div class="flabel">Themen, die als passend zählen</div>
         <div class="chips" id="ftopics"></div>
@@ -443,7 +456,6 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     </details>
     <div class="toolbar">
       <div class="grow"><input class="field" id="aq" type="search" placeholder="Suche in der Liste" aria-label="Suche in der Bewerberliste"></div>
-      <select class="field" id="aco" aria-label="Firma"><option value="">Alle Firmen</option></select>
       <select class="field" id="ast" aria-label="Status"><option value="">Alle Status</option></select>
       <select class="field" id="aso" aria-label="Sortierung"><option value="nr">Sortiert nach Nr.</option><option value="firma">Nach Firma</option><option value="status">Nach Status</option><option value="neu">Neueste zuerst</option><option value="prio">Nach Prio</option></select>
       <div class="seg" role="group" aria-label="Ansicht"><button type="button" data-appview="liste" aria-pressed="true">Liste</button><button type="button" data-appview="board" aria-pressed="false">Board</button></div>
@@ -850,15 +862,15 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
 
   function renderStats() {
     const el = $("#stats");
+    el.hidden = S.tab === "bewerbungen";
     if (!S.db) { el.innerHTML = ""; return; }
     const fresh = (S.hm || []).filter((h) => h.fit && h.isNew).length;
     const apps = [...S.apps.values()], st = (a) => a.status || "Offen";
     const open = apps.filter((a) => st(a) === "Offen").length, waiting = apps.filter((a) => ["Beworben", "Gespräch"].includes(st(a))).length;
     el.innerHTML = [
-      `<div class="stat new"><span class="n">${fresh}</span><span class="l">neu im letzten Lauf</span></div>`,
-      `<div class="stat"><span class="n">${apps.length}</span><span class="l">Stellen auf der Bewerberliste</span></div>`,
-      `<div class="stat"><span class="n">${open}</span><span class="l">offen – noch nicht beworben</span></div>`,
-      `<div class="stat wait"><span class="n">${waiting}</span><span class="l">ausstehend – warten auf Antwort</span></div>`,
+      `<div class="stat new"><span class="n">${fresh}</span><span class="l">Neu im letzten Lauf</span></div>`,
+      `<div class="stat"><span class="n">${open}</span><span class="l">Offen</span></div>`,
+      `<div class="stat wait"><span class="n">${waiting}</span><span class="l">Ausstehend</span></div>`,
     ].join("");
     renderAlerts();
   }
@@ -896,8 +908,12 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
   function renderHits() {
     const chips = $("#kinds");
     if (!chips.childElementCount) {
-      chips.innerHTML = KINDS.map((k) => `<button class="chip" type="button" data-kind="${esc(k)}" aria-pressed="false">${esc(k)}</button>`).join("");
+      chips.innerHTML = ["Alle", "Praktikum"].map((k) => `<button class="chip" type="button" data-kind="${esc(k)}" aria-pressed="false">${esc(k)}</button>`).join("");
+      $("#kindSel").innerHTML = KINDS.map((k) => `<option>${esc(k)}</option>`).join("");
     }
+    $("#kindSel").value = S.kind;
+    const extra = [S.kind !== "Alle" && S.kind !== "Praktikum", $("#city").value, $("#srcSel").value, $("#prioSel").value, $("#sortSel").value !== "prio", $("#onlyNew").checked, $("#onlyMine").checked].filter(Boolean).length;
+    $("#fcount").textContent = extra ? extra + " aktiv" : "";
     chips.querySelectorAll(".chip").forEach((c) => c.setAttribute("aria-pressed", String(c.dataset.kind === S.kind)));
     renderFilterBox();
     const all = S.hm || [];
@@ -1070,11 +1086,10 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     if (!S.db) { box.innerHTML = `<div class="list"><div class="empty"><strong>Datenbank nicht verfügbar</strong>Öffne das Artefakt in Claude, um die Bewerberliste zu sehen.</div></div>`; return; }
     const all = [...S.apps.entries()];
     const fill = (sel, first, vals) => { const cur = sel.value, sig = vals.join("|"); if (sel.dataset.sig === sig) return; sel.innerHTML = `<option value="">${first}</option>` + vals.map((v) => `<option>${esc(v)}</option>`).join(""); sel.dataset.sig = sig; sel.value = vals.includes(cur) ? cur : ""; };
-    fill($("#aco"), "Alle Firmen", [...new Set(all.map(([, a]) => a.company).filter(Boolean))].sort((x, y) => x.localeCompare(y, "de")));
     fill($("#ast"), "Alle Status", APP_STATI.concat([...new Set(all.map(([, a]) => a.status).filter((x) => x && !APP_STATI.includes(x)))]));
-    const q = $("#aq").value.trim().toLowerCase(), fco = $("#aco").value, fst = $("#ast").value, so = $("#aso").value;
+    const q = $("#aq").value.trim().toLowerCase(), fst = $("#ast").value, so = $("#aso").value;
     const stRank = (x) => { const i = APP_STATI.indexOf(x); return i < 0 ? 99 : i; };
-    let rows = all.filter(([, a]) => (!fco || a.company === fco) && (!fst || a.status === fst) && (!q || ((a.company || "") + " " + (a.title || "") + " " + (a.comment || "")).toLowerCase().includes(q)));
+    let rows = all.filter(([, a]) => (!fst || a.status === fst) && (!q || ((a.company || "") + " " + (a.title || "") + " " + (a.comment || "")).toLowerCase().includes(q)));
     const cmpNr = (x, y) => (x[1].nr || 9999) - (y[1].nr || 9999);
     rows.sort(so === "firma" ? (x, y) => (x[1].company || "").localeCompare(y[1].company || "", "de") || cmpNr(x, y)
       : so === "status" ? (x, y) => stRank(x[1].status) - stRank(y[1].status) || cmpNr(x, y)
@@ -1095,7 +1110,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     const done = all.filter(([, a]) => ["Beworben", "Gespräch", "Zusage"].includes(a.status)).length;
     const dups = all.filter(([, a]) => dupOf(a)).length;
     if (S.appView === "board") { box.innerHTML = boardHtml(rows, infoOf); return; }
-    box.innerHTML = `<div class="sub" style="margin:0 0 8px">${rows.length === all.length ? all.length + " Stellen" : rows.length + " von " + all.length + " Stellen"} · ${done} beworben oder weiter${dups ? ` · <span class="badge dup">${dups} mit gleichem Link</span>` : ""}</div><div class="tablewrap"><table>
+    box.innerHTML = `<div class="tablewrap"><table>
       <thead><tr><th>Nr.</th><th>Status</th><th title="KI-Bewertung nach deinem Profil">Prio</th><th>Unternehmen</th><th>Job-Titel</th><th title="Wann die Anzeige veröffentlicht wurde">Online seit</th><th title="Startdatum laut Anzeige">Start</th><th>Kommentar</th><th>Link</th><th></th></tr></thead>
       <tbody>${rows.map(([id, a]) => `<tr>
         <td class="num">${esc(a.nr || "")}</td>
@@ -1398,6 +1413,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     else if (t.id === "cancelNo") { S.cancelArm = false; renderLive(); }
     else if (t.id === "cancelYes") cancelScan();
     else if (t.dataset.appview) { S.appView = t.dataset.appview; try { localStorage.setItem("radar.appView", S.appView); } catch (e) {} schedule(); }
+    else if (t.id === "fClear") { S.kind = "Alle"; for (const id of ["#city", "#srcSel", "#prioSel"]) $(id).value = ""; $("#sortSel").value = "prio"; $("#onlyNew").checked = $("#onlyMine").checked = false; try { localStorage.setItem("radar.sort", "prio"); } catch (e) {} schedule(); }
     else if (t.dataset.runlog) { S.openLog = S.openLog === t.dataset.runlog ? null : t.dataset.runlog; schedule(); }
     else if (t.dataset.kind) { S.kind = t.dataset.kind; schedule(); }
     else if (t.dataset.ftopic) { const d = draft(), k = t.dataset.ftopic; d.off_topics = d.off_topics.includes(k) ? d.off_topics.filter((x) => x !== k) : [...d.off_topics, k]; schedule(); }
@@ -1421,7 +1437,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     else if (t.dataset?.appcompany && t.value.trim()) updApp(t.dataset.appcompany, { company: t.value.trim() });
     else if (t.dataset?.apptitle && t.value.trim()) updApp(t.dataset.apptitle, { title: t.value.trim() });
   });
-  for (const id of ["#aq", "#aco", "#ast", "#aso"]) $(id).addEventListener("input", schedule);
+  for (const id of ["#aq", "#ast", "#aso"]) $(id).addEventListener("input", schedule);
   $("#appForm").addEventListener("submit", async (ev) => {
     ev.preventDefault();
     const company = $("#aCompany").value.trim(), title = $("#aTitle").value.trim(), url = $("#aUrl").value.trim(), comment = $("#aComment").value.trim();
@@ -1460,6 +1476,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
   $("#delBtn").addEventListener("click", deleteCurrent);
   $("#dlgForm").addEventListener("submit", saveEdit);
   for (const id of ["#q", "#city", "#srcSel", "#prioSel", "#onlyNew", "#onlyMine", "#kq", "#kst"]) $(id).addEventListener("input", schedule);
+  $("#kindSel").addEventListener("input", () => { S.kind = $("#kindSel").value; schedule(); });
   try { const v = localStorage.getItem("radar.sort"); if (v) $("#sortSel").value = v; } catch (e) {}
   $("#sortSel").addEventListener("input", () => { try { localStorage.setItem("radar.sort", $("#sortSel").value); } catch (e) {} schedule(); });
   try { if (localStorage.getItem("radar.onlyFit") === "0") $("#onlyFit").checked = false; } catch (e) {}
