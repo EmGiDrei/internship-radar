@@ -325,6 +325,17 @@ td.sd { font-size: 13px; }
 .prio.p-C { background: var(--muted-bg); color: var(--ink-2); }
 .prio.p-D { background: transparent; color: var(--ink-3); box-shadow: inset 0 0 0 1px var(--line-2); }
 .prio.p-none { background: transparent; color: var(--ink-3); font-weight: 500; cursor: default; }
+button.prio { border: 0; font-family: inherit; cursor: pointer; }
+button.prio:hover { filter: brightness(.94); }
+.ppop { position: fixed; z-index: 60; width: 280px; max-width: calc(100vw - 32px); background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow-pop); padding: 12px 14px; font-size: 13px; display: grid; gap: 7px; }
+.ppop .ph { display: flex; align-items: center; gap: 8px; }
+.ppop .ph strong { font-size: 15px; }
+.ppop .pw { color: var(--ink-3); font-size: 12px; }
+.ppop .pb { display: grid; grid-template-columns: 58px 1fr 28px; align-items: center; gap: 8px; font-size: 12px; color: var(--ink-2); }
+.ppop .pb i { height: 6px; border-radius: 3px; background: var(--muted-bg); overflow: hidden; }
+.ppop .pb b { display: block; height: 100%; background: var(--accent); border-radius: 3px; }
+.ppop .pb em { font-style: normal; text-align: right; font-weight: 600; color: var(--ink); }
+.ppop p { margin: 2px 0 0; color: var(--ink-2); line-height: 1.45; }
 .rate { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; margin-top: 6px; font-size: 12px; color: var(--ink-3); }
 .rate .sc { font-variant-numeric: tabular-nums; }
 .rate .sc b { color: var(--ink-2); font-weight: 600; }
@@ -679,6 +690,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
 
 <div class="toast" id="toast" hidden></div>
 <div class="tip" id="tip" role="tooltip" hidden></div>
+<div class="ppop" id="ppop" role="dialog" aria-label="Prio-Details" hidden></div>
 
 <script type="text/plain" id="scan-template">(Skript-Scan: Prompt der geplanten Aufgabe wird nicht mehr aus dem Artefakt gesetzt.)</script>
 <script>
@@ -777,7 +789,19 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
   // KI-Bewertung aus scans/ratings (Schlüssel: normalisierter Link)
   const rateOf = (u) => (u && S.ratings?.by_url?.[normUrl(u)]) || null;
   const rateTip = (r) => `Prio ${r.p} · Score ${r.s} – Fit ${r.fit} · Impact ${r.imp} · Startup ${r.su}${r.why ? " – " + r.why : ""}`;
-  const prioBadge = (r) => r ? `<span class="prio p-${esc(r.p)}" data-full="${esc(rateTip(r))}" tabindex="0">${esc(r.p)}</span>` : "";
+  // Prio-Plakette: Klick öffnet die Details (Score, Fit, Impact, Startup, Begründung)
+  const prioBadge = (r) => r ? `<button type="button" class="prio p-${esc(r.p)}" data-rate="${esc(JSON.stringify({ p: r.p, s: r.s, fit: r.fit, imp: r.imp, su: r.su, why: r.why || "" }))}" aria-haspopup="dialog" aria-label="${esc(rateTip(r))}">${esc(r.p)}</button>` : "";
+  function showRate(btn) {
+    const pop = $("#ppop"), r = JSON.parse(btn.dataset.rate || "{}");
+    if (!pop.hidden && pop.dataset.for === btn.dataset.rate) { pop.hidden = true; return; }
+    const bar = (l, v) => `<div class="pb"><span>${l}</span><i><b style="width:${Math.max(0, Math.min(100, +v || 0))}%"></b></i><em>${esc(v)}</em></div>`;
+    pop.innerHTML = `<div class="ph"><span class="prio p-${esc(r.p)}">${esc(r.p)}</span><strong>Score ${esc(r.s)}</strong><span class="pw">von 100</span></div>
+      ${bar("Fit", r.fit)}${bar("Impact", r.imp)}${bar("Startup", r.su)}${r.why ? `<p>${esc(r.why)}</p>` : ""}`;
+    pop.dataset.for = btn.dataset.rate; pop.hidden = false; $("#tip").hidden = true;
+    const b = btn.getBoundingClientRect(), w = pop.offsetWidth, h = pop.offsetHeight;
+    pop.style.left = Math.max(16, Math.min(b.left, window.innerWidth - w - 16)) + "px";
+    pop.style.top = (b.bottom + 6 + h > window.innerHeight - 8 ? Math.max(8, b.top - h - 6) : b.bottom + 6) + "px";
+  }
   const rateLine = (r) => r ? `<div class="rate"><span class="sc">Fit <b>${esc(r.fit)}</b></span><span class="sc">Impact <b>${esc(r.imp)}</b></span><span class="sc">Startup <b>${esc(r.su)}</b></span>${r.why ? `<span class="why">${esc(r.why)}</span>` : ""}</div>` : "";
   function srcOf(h) {
     if (h.board) return { kind: "Jobbörse", name: h.src || "Jobbörse", title: "Gefunden über eine externe Jobbörse bzw. ein VC-Portfolio" };
@@ -1620,9 +1644,12 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     if (except !== "menu") { $("#moreMenu").hidden = true; $("#moreBtn").setAttribute("aria-expanded", "false"); }
     if (except !== "alert") { $("#alertPop").hidden = true; $("#alertBtn").setAttribute("aria-expanded", "false"); }
   };
-  document.addEventListener("keydown", (ev) => { if (ev.key === "Escape") closePops(); });
+  document.addEventListener("keydown", (ev) => { if (ev.key === "Escape") { closePops(); $("#ppop").hidden = true; } });
   document.addEventListener("click", (ev) => {
     if (!ev.target.closest(".moremenu, .alertwrap, .ipop")) closePops();
+    const pb = ev.target.closest?.("button.prio[data-rate]");
+    if (pb) { ev.preventDefault(); showRate(pb); return; }
+    if (!ev.target.closest(".ppop")) $("#ppop").hidden = true;
     const th = ev.target.closest?.("th[data-asort]");   // Klick auf Spaltenüberschrift sortiert (nicht beim Breite-Ziehen)
     if (th && !ev.target.closest("[data-colrz]") && Date.now() - (S.rzAt || 0) > 400) { const k = th.dataset.asort, so = $("#aso");
       S.aDir = { [k]: so.value === k ? !aDesc(k) : A_DESC_DEFAULT.has(k) }; so.value = k; schedule(); return; }
@@ -1717,7 +1744,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
   document.addEventListener("mouseout", (ev) => { const el = ev.target.closest?.(HOVER); if (el && !el.contains(ev.relatedTarget)) tip.hidden = true; });
   document.addEventListener("focusin", () => { tip.hidden = true; });
   document.addEventListener("click", (ev) => { const i = ev.target.closest?.(".grp .info"); if (i) setTimeout(() => i.dispatchEvent(new MouseEvent("mouseover", { bubbles: true })), 0); });
-  document.addEventListener("scroll", () => { tip.hidden = true; }, true);
+  document.addEventListener("scroll", () => { tip.hidden = true; $("#ppop").hidden = true; }, true);
   document.addEventListener("pointerdown", (ev) => {
     const h = ev.target.closest?.("[data-colrz]"); if (!h) return;
     ev.preventDefault();
