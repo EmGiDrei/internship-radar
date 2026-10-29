@@ -306,7 +306,12 @@ a.nrlink:hover { text-decoration: none; filter: brightness(.95); }
 .trash:hover { background: var(--err-bg); }
 .btn.primary.del { background: var(--err); border-color: var(--err); color: #ffffff; }
 .trash[disabled] { opacity: .4; cursor: default; }
-td a.badge.moved, td .badge.off { margin-left: 6px; }
+#appList tr.r-moved > td { background: var(--ok-bg); }
+#appList tr.r-moved > td:first-child { box-shadow: inset 3px 0 0 var(--ok); }
+#appList tr.r-off > td { background: var(--err-bg); }
+#appList tr.r-off > td:first-child { box-shadow: inset 3px 0 0 var(--err); }
+.kcard.r-moved { background: var(--ok-bg); border-color: color-mix(in srgb, var(--ok) 45%, var(--line)); }
+.kcard.r-off { background: var(--err-bg); border-color: color-mix(in srgb, var(--err) 45%, var(--line)); }
 #appList th { white-space: nowrap; }
 td.sd { font-size: 13px; }
 
@@ -486,9 +491,9 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
       <span class="vsep" aria-hidden="true"></span>
       <div class="chips">
         <button class="chip tgl" type="button" data-toggle="onlyFit" aria-pressed="true" title="Nur Stellen, die zu deinen Themen passen">Passend</button>
-        <button class="chip tgl" type="button" data-toggle="onlyNew" aria-pressed="false" title="Nur Stellen aus dem letzten Lauf">Neu</button>
+        <button class="chip tgl" type="button" data-toggle="onlyNew" aria-pressed="true" title="Nur Stellen aus dem letzten Lauf">Neu</button>
       </div>
-      <input type="checkbox" id="onlyFit" checked hidden><input type="checkbox" id="onlyNew" hidden>
+      <input type="checkbox" id="onlyFit" checked hidden><input type="checkbox" id="onlyNew" checked hidden>
       <button class="btn dots" id="fToggle" type="button" aria-expanded="false" aria-controls="fpanel" title="Weitere Filter und Themen">⋯<span class="ddot" id="fDot" hidden></span></button>
     </div>
     <div id="fpanel" hidden>
@@ -686,7 +691,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     db: null, mcp: null, user: null, canWrite: true,
     startups: new Map(), apps: new Map(), trash: new Map(), scan: null, boards: null, cands: null, details: null, ratings: null, profile: null, runs: [], config: null,
     loaded: { startups: false, scan: false },
-    tab: "praktika", kind: "Alle", limit: 150, editing: null, sched: null, schedMsg: "", busy: false,
+    tab: "praktika", kind: "Praktikum", limit: 150, editing: null, sched: null, schedMsg: "", busy: false,
   };
   try { const t = localStorage.getItem("radar.tab"); if (t) S.tab = t; } catch (e) {}
   S.appView = "liste"; try { if (localStorage.getItem("radar.appView") === "board") S.appView = "board"; } catch (e) {}
@@ -1288,12 +1293,12 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     box.innerHTML = `<div class="tablewrap"><table>
       <colgroup>${((w) => { const sum = w.reduce((a, b) => a + b, 0); return w.map((x) => `<col style="width:${((100 * x) / sum).toFixed(2)}%">`).join(""); })(colW())}</colgroup>
       <thead><tr>${COLS.map((c, i) => `<th${c.tip ? ` title="${esc(c.tip)}"` : ""}>${esc(c.label)}${i < COLS.length - 1 ? `<span class="col-rz" data-colrz="${i}" title="Breite ziehen · Doppelklick: Standard"></span>` : ""}</th>`).join("")}</tr></thead>
-      <tbody>${rows.map(([id, a]) => `<tr>
-        <td class="num">${a.url ? `<a class="nrlink" href="${esc(a.url)}" target="_blank" rel="noopener" title="Anzeige öffnen">${esc(a.nr || "↗")}</a>` : esc(a.nr || "")}</td>
+      <tbody>${rows.map(([id, a]) => `<tr${rowMark(infoOf(a))}>
+        <td class="num">${a.url ? `<a class="nrlink" href="${esc(infoOf(a).moved || a.url)}" target="_blank" rel="noopener" title="Anzeige öffnen">${esc(a.nr || "↗")}</a>` : esc(a.nr || "")}</td>
         <td><select class="appstat" data-appstatus="${esc(id)}" aria-label="Status"${S.canWrite ? "" : " disabled"}>${APP_STATI.concat(APP_STATI.includes(a.status) ? [] : [a.status]).map((x) => `<option${x === a.status ? " selected" : ""}>${esc(x)}</option>`).join("")}</select></td>
         <td>${((r) => r ? `<span data-full="${esc(rateTip(r))}">${prioBadge(r).replace(/ title="[^"]*"/, "")}</span>` : '<span class="prio p-none">–</span>')(rateOf(a.url))}</td>
         <td class="name"><input class="appcom" data-appcompany="${esc(id)}" value="${esc(a.company || "")}" aria-label="Unternehmen"${S.canWrite ? "" : " disabled"}></td>
-        <td><input class="appcom" data-apptitle="${esc(id)}" value="${esc(a.title || "")}" aria-label="Job-Titel"${S.canWrite ? "" : " disabled"}>${offBadge(infoOf(a)).replace("<br>", "")}${dupOf(a) ? `<span class="badge dup" title="Gleicher Link wie Nr. ${esc(dupOf(a).join(", "))}">gleicher Link wie Nr. ${esc(dupOf(a).join(", "))}</span>` : ""}</td>
+        <td><input class="appcom" data-apptitle="${esc(id)}" value="${esc(a.title || "")}" aria-label="Job-Titel"${S.canWrite ? "" : " disabled"}>${dupOf(a) ? `<span class="badge dup" title="Gleicher Link wie Nr. ${esc(dupOf(a).join(", "))}">gleicher Link wie Nr. ${esc(dupOf(a).join(", "))}</span>` : ""}</td>
         ${((i) => `<td class="when">${i.pd ? esc(fmtDate(i.pd)) : "–"}</td><td class="sd"${i.sd ? ` data-fit="1"` : ""}>${i.sd ? esc(i.sd) : '<span class="when">–</span>'}</td>`)(infoOf(a))}
         <td><input class="appcom" data-appcomment="${esc(id)}" value="${esc(a.comment || "")}" placeholder="Notiz …" aria-label="Kommentar"${S.canWrite ? "" : " disabled"}></td>
         <td><button class="trash" type="button" data-delapp="${esc(id)}" title="In den Papierkorb" aria-label="In den Papierkorb"${S.canWrite ? "" : " disabled"}><svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><path d="M2.5 4h11M6.5 4V2.5h3V4M4 4l.7 9.2c.05.7.6 1.3 1.3 1.3h4c.7 0 1.25-.6 1.3-1.3L12 4M6.8 7v5M9.2 7v5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button></td>
@@ -1312,8 +1317,9 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     try { localStorage.setItem("radar.appCols2", JSON.stringify(w)); } catch (e) {}
     return w;
   }
-  const offBadge = (i) => i.moved ? `<br><a class="badge moved" href="${esc(i.moved)}" target="_blank" rel="noopener" title="Die alte Anzeige leitet auf eine neue weiter">neu ausgeschrieben ↗</a>`
-    : i.off ? `<br><span class="badge off" title="Beim Lauf nicht mehr im Stellenportal gefunden">offline seit ${esc(fmtDate(i.off))}</span>` : "";
+  // Grün = neu ausgeschrieben (Nr. öffnet die neue Anzeige), rot = offline
+  const rowMark = (i) => i.moved ? ' class="r-moved" data-full="Neu ausgeschrieben – Nr. öffnet die neue Anzeige"'
+    : i.off ? ` class="r-off" data-full="${esc("Offline seit " + fmtDate(i.off))}"` : "";
   const PIPE = ["Offen", "Beworben", "Gespräch", "Zusage"];
   const ST_COLOR = { Offen: "var(--line-2)", Beworben: "color-mix(in srgb, var(--accent) 45%, var(--surface))", "Gespräch": "var(--accent)", Zusage: "var(--ok)", Absage: "var(--err)", "Nicht relevant": "var(--ink-3)" };
   const daysSince = (iso) => iso ? Math.floor((Date.now() - new Date(iso)) / 864e5) : null;
@@ -1358,8 +1364,8 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
       const items = rows.filter(([, a]) => (a.status || "Offen") === st);
       return `<div class="kcol" data-kcol="${esc(st)}"><div class="khead"><span>${esc(st)}</span><span class="badge">${items.length}</span></div>${items.map(([id, a]) => {
         const rt = rateOf(a.url), i = infoOf(a), d = daysSince(a.status_at);
-        return `<div class="kcard" draggable="${S.canWrite}" data-kcard="${esc(id)}" title="${esc(rt ? rateTip(rt) : "")}"><div class="kt">${esc(a.title || "")}</div><div class="kc">${esc(a.company || "")}</div>
-          <div class="km">${prioBadge(rt)}${i.sd ? `<span>Start ${esc(i.sd)}</span>` : ""}${d != null ? `<span>seit ${d} T.</span>` : ""}${i.off ? '<span class="badge off" style="margin:0">offline</span>' : ""}${a.url ? `<a href="${esc(a.url)}" target="_blank" rel="noopener">öffnen</a>` : ""}</div></div>`;
+        return `<div class="kcard${i.moved ? " r-moved" : i.off ? " r-off" : ""}" draggable="${S.canWrite}" data-kcard="${esc(id)}" title="${esc((i.moved ? "Neu ausgeschrieben · " : i.off ? "Offline seit " + fmtDate(i.off) + " · " : "") + (rt ? rateTip(rt) : ""))}"><div class="kt">${esc(a.title || "")}</div><div class="kc">${esc(a.company || "")}</div>
+          <div class="km">${prioBadge(rt)}${i.sd ? `<span>Start ${esc(i.sd)}</span>` : ""}${d != null ? `<span>seit ${d} T.</span>` : ""}${a.url ? `<a href="${esc(i.moved || a.url)}" target="_blank" rel="noopener">öffnen</a>` : ""}</div></div>`;
       }).join("")}</div>`;
     }).join("")}</div>`;
   }
@@ -1733,8 +1739,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
   $("#kindSel").addEventListener("input", () => { S.kind = $("#kindSel").value; schedule(); });
   try { const v = localStorage.getItem("radar.sort"); if (v) $("#sortSel").value = v; } catch (e) {}
   $("#sortSel").addEventListener("input", () => { try { localStorage.setItem("radar.sort", $("#sortSel").value); } catch (e) {} schedule(); });
-  try { if (localStorage.getItem("radar.onlyFit") === "0") $("#onlyFit").checked = false; } catch (e) {}
-  $("#onlyFit").addEventListener("input", () => { try { localStorage.setItem("radar.onlyFit", $("#onlyFit").checked ? "1" : "0"); } catch (e) {} schedule(); });
+  $("#onlyFit").addEventListener("input", schedule);   // Passend, Neu und Praktikum sind beim Öffnen immer aktiv
   $("#fExtra").addEventListener("input", () => { draft().extra = lines($("#fExtra").value); schedule(); });
   $("#fExcl").addEventListener("input", () => { draft().exclude_extra = lines($("#fExcl").value); schedule(); });
   for (const id of ["#sq", "#sfilter"]) $(id).addEventListener("input", () => { S.limit = 150; schedule(); });
