@@ -108,7 +108,9 @@ h1 { font-family: var(--f-display); font-weight: 700; font-size: 18px; letter-sp
 
 /* Reiter */
 .tabs { display: flex; gap: 2px; margin-top: 24px; border-bottom: 1px solid var(--line); }
-.moremenu { position: relative; margin-left: auto; }
+.moremenu { position: relative; }
+#moreBtn[aria-selected="true"] { border-color: var(--accent); color: var(--accent); }
+.tabs .tab { flex: 1 1 0; text-align: center; padding: 14px 12px; font-size: 15px; font-weight: 600; }
 .menu { position: absolute; right: 0; top: calc(100% + 6px); z-index: 20; min-width: 230px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow-pop); padding: 6px; display: grid; gap: 2px; }
 .mi { display: flex; justify-content: space-between; align-items: center; gap: 12px; border: 0; background: none; text-align: left; padding: 8px 10px; border-radius: 6px; font-size: 13px; color: var(--ink-2); cursor: pointer; }
 .mi:hover { background: var(--surface-2); color: var(--ink); }
@@ -228,6 +230,10 @@ details.filters > summary { cursor: pointer; font-weight: 600; font-size: 13px; 
 details.filters > summary .sub { display: inline; font-weight: 400; }
 details.filters .fbody { display: grid; gap: 12px; padding-top: 12px; }
 details.filters textarea { resize: vertical; min-height: 84px; }
+.btn.dots { position: relative; padding: 4px 12px; font-size: 18px; line-height: 1.2; letter-spacing: .05em; }
+.btn.dots[aria-expanded="true"] { background: var(--accent-soft); color: var(--accent); border-color: color-mix(in srgb, var(--accent) 40%, var(--line-2)); }
+.ddot { position: absolute; top: -3px; right: -3px; width: 9px; height: 9px; border-radius: 50%; background: var(--accent); border: 2px solid var(--bg); }
+#fpanel { margin-bottom: 4px; }
 .fgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; }
 .fgrid select.field { width: 100%; }
 .fcount:not(:empty) { margin-left: 6px; font-size: 11px; font-weight: 600; color: var(--accent); background: var(--accent-soft); border-radius: 999px; padding: 1px 8px; }
@@ -386,6 +392,16 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     <div class="actions">
       <div class="scanstate" id="scanstate" role="status"></div>
       <button class="btn primary" id="scanBtn" type="button">Jetzt scannen</button>
+      <div class="moremenu">
+        <button class="btn" id="moreBtn" type="button" aria-haspopup="menu" aria-expanded="false"><span id="moreLbl">Mehr</span> <span aria-hidden="true">▾</span></button>
+        <div class="menu" id="moreMenu" role="menu" hidden>
+          <button class="mi" role="menuitem" id="tab-startups" data-tab="startups">Startups<span class="c" id="c-startups"></span></button>
+          <button class="mi" role="menuitem" id="tab-kandidaten" data-tab="kandidaten">Kandidaten<span class="c" id="c-kandidaten"></span></button>
+          <button class="mi" role="menuitem" id="tab-fehler" data-tab="fehler">Fehler<span class="c" id="c-fehler"></span></button>
+          <button class="mi" role="menuitem" id="tab-laeufe" data-tab="laeufe">Läufe<span class="c" id="c-laeufe"></span></button>
+          <button class="mi" role="menuitem" id="tab-profil" data-tab="profil">Profil (für KI-Bewertung)<span class="c" id="c-profil"></span></button>
+        </div>
+      </div>
     </div>
   </header>
 
@@ -393,18 +409,8 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
   <div class="stats" id="stats"></div>
 
   <nav class="tabs" role="tablist">
-    <button class="tab" role="tab" id="tab-praktika" data-tab="praktika" aria-selected="true">Praktika<span class="c" id="c-praktika"></span></button>
-    <button class="tab" role="tab" id="tab-bewerbungen" data-tab="bewerbungen" aria-selected="false">Bewerberliste<span class="c" id="c-bewerbungen"></span></button>
-    <div class="moremenu">
-      <button class="tab" id="moreBtn" type="button" aria-haspopup="menu" aria-expanded="false"><span id="moreLbl">Mehr</span> <span aria-hidden="true">▾</span></button>
-      <div class="menu" id="moreMenu" role="menu" hidden>
-        <button class="mi" role="menuitem" id="tab-startups" data-tab="startups">Startups<span class="c" id="c-startups"></span></button>
-        <button class="mi" role="menuitem" id="tab-kandidaten" data-tab="kandidaten">Kandidaten<span class="c" id="c-kandidaten"></span></button>
-        <button class="mi" role="menuitem" id="tab-fehler" data-tab="fehler">Fehler<span class="c" id="c-fehler"></span></button>
-        <button class="mi" role="menuitem" id="tab-laeufe" data-tab="laeufe">Läufe<span class="c" id="c-laeufe"></span></button>
-        <button class="mi" role="menuitem" id="tab-profil" data-tab="profil">Profil (für KI-Bewertung)<span class="c" id="c-profil"></span></button>
-      </div>
-    </div>
+    <button class="tab" role="tab" id="tab-praktika" data-tab="praktika" aria-selected="true">Praktika</button>
+    <button class="tab" role="tab" id="tab-bewerbungen" data-tab="bewerbungen" aria-selected="false">Bewerberliste</button>
   </nav>
 
   <section class="panel" id="p-praktika">
@@ -413,7 +419,9 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
       <div class="chips" id="kinds"></div>
       <label class="check"><input type="checkbox" id="onlyFit" checked> nur passende</label>
       <label class="check"><input type="checkbox" id="onlyNew"> nur neue</label>
+      <button class="btn dots" id="fToggle" type="button" aria-expanded="false" aria-controls="fpanel" title="Weitere Filter und Themen">⋯<span class="ddot" id="fDot" hidden></span></button>
     </div>
+    <div id="fpanel" hidden>
     <details class="filters" id="fmore">
       <summary>Weitere Filter <span class="fcount" id="fcount"></span></summary>
       <div class="fbody">
@@ -441,6 +449,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
         <div class="factions"><button class="btn small primary" type="button" id="fSave">Filter speichern</button><button class="btn small" type="button" id="fReset">Standard wiederherstellen</button><span class="sub" id="fMsg"></span></div>
       </div>
     </details>
+    </div>
     <div id="hitList"></div>
   </section>
 
@@ -902,7 +911,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     }
     const hits = (S.hm || []).filter((h) => h.fit).length;
     const errs = Object.entries(S.scan?.results || {}).filter(([id, r]) => r.s === "err" && S.startups.get(id)?.active).length;
-    $("#c-praktika").textContent = hits || ""; $("#c-bewerbungen").textContent = S.apps.size || ""; $("#c-startups").textContent = S.startups.size || "";
+    $("#c-startups").textContent = S.startups.size || "";
     $("#c-fehler").textContent = errs || ""; $("#c-laeufe").textContent = S.runs.length || "";
     $("#c-profil").textContent = S.db && S.profileLoaded && !S.profile?.cv ? "!" : "";
     const sec = ["startups", "kandidaten", "fehler", "laeufe", "profil"].includes(S.tab);
@@ -920,6 +929,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     $("#kindSel").value = S.kind;
     const extra = [S.kind !== "Alle" && S.kind !== "Praktikum", $("#city").value, $("#srcSel").value, $("#prioSel").value, $("#sortSel").value !== "prio", $("#onlyMine").checked].filter(Boolean).length;
     $("#fcount").textContent = extra ? extra + " aktiv" : "";
+    $("#fDot").hidden = !extra;
     chips.querySelectorAll(".chip").forEach((c) => c.setAttribute("aria-pressed", String(c.dataset.kind === S.kind)));
     renderFilterBox();
     const all = S.hm || [];
@@ -1174,7 +1184,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
       offline ? `<span class="badge off">${offline} offene Anzeigen offline</span>` : "",
       waiting ? `<span class="badge new">${waiting} seit über 14 Tagen ohne Antwort – nachhaken?</span>` : "",
     ].join("");
-    box.innerHTML = `<div class="pipe"><div class="pipe-head"><h3>Bewerbungs-Pipeline</h3><span class="sub">${total} Stellen · ${cnt.Absage || 0} Absagen · ${cnt["Nicht relevant"] || 0} nicht relevant</span></div>
+    box.innerHTML = `<div class="pipe"><div class="pipe-head"><h3>Bewerbungs-Pipeline</h3></div>
       <div class="flow">${stages}</div><div class="dist" role="img" aria-label="Verteilung nach Status">${dist}</div><div class="legend">${legend}</div>${alerts ? `<div class="alerts">${alerts}</div>` : ""}</div>`;
   }
   // Board: eine Spalte je Status, Karten per Drag & Drop verschieben
@@ -1430,6 +1440,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     else if (t.id === "cancelNo") { S.cancelArm = false; renderLive(); }
     else if (t.id === "cancelYes") cancelScan();
     else if (t.dataset.appview) { S.appView = t.dataset.appview; try { localStorage.setItem("radar.appView", S.appView); } catch (e) {} schedule(); }
+    else if (t.id === "fToggle") { const pn = $("#fpanel"); pn.hidden = !pn.hidden; t.setAttribute("aria-expanded", String(!pn.hidden)); }
     else if (t.id === "fClear") { S.kind = "Alle"; for (const id of ["#city", "#srcSel", "#prioSel"]) $(id).value = ""; $("#sortSel").value = "prio"; $("#onlyMine").checked = false; try { localStorage.setItem("radar.sort", "prio"); } catch (e) {} schedule(); }
     else if (t.dataset.runlog) { S.openLog = S.openLog === t.dataset.runlog ? null : t.dataset.runlog; schedule(); }
     else if (t.dataset.kind) { S.kind = t.dataset.kind; schedule(); }
