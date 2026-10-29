@@ -235,6 +235,20 @@ details.filters > summary { cursor: pointer; font-weight: 600; font-size: 13px; 
 details.filters > summary .sub { display: inline; font-weight: 400; }
 details.filters .fbody { display: grid; gap: 12px; padding-top: 12px; }
 details.filters textarea { resize: vertical; min-height: 84px; }
+.row.dim { opacity: .45; }
+.row.dim:hover { opacity: .75; }
+.side .acts { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.btn.hidebtn { color: var(--ink-3); box-shadow: none; }
+.vsep { width: 1px; height: 22px; background: var(--line-2); }
+.chip.tgl { display: inline-flex; align-items: center; gap: 6px; }
+.chip.tgl::before { content: ""; width: 14px; height: 14px; border-radius: 4px; border: 1.5px solid var(--line-2); box-sizing: border-box; background: var(--surface); }
+.chip.tgl[aria-pressed="true"]::before { border-color: var(--accent); background: var(--accent) center / 10px no-repeat url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath d='M2 5.2 4.2 7.4 8 3' fill='none' stroke='white' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); }
+.grp .info { display: inline-grid; place-items: center; width: 16px; height: 16px; margin-left: 8px; border-radius: 50%; background: var(--line-2); color: var(--ink-2); font-size: 10.5px; font-weight: 700; cursor: help; vertical-align: 1px; }
+.grp .info:hover, .grp .info:focus { background: var(--accent); color: var(--accent-ink); outline: none; }
+.pipe-head h3 { display: inline-flex; align-items: center; gap: 8px; }
+.reload { display: inline-grid; place-items: center; width: 26px; height: 26px; border: 1px solid var(--line-2); border-radius: 7px; background: var(--surface); color: var(--ink-3); cursor: pointer; padding: 0; }
+.reload:hover { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 40%, var(--line-2)); }
+.reload.spin svg { animation: spin .6s linear; }
 .ibar { display: inline-flex; align-items: center; gap: 6px; }
 .ipop { position: relative; }
 .ipop .menu { left: auto; right: 0; min-width: 190px; }
@@ -460,8 +474,12 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     <div class="toolbar">
       <div class="grow"><input class="field" id="q" type="search" placeholder="Suche nach Rolle, Firma oder Ort" aria-label="Suche"></div>
       <div class="chips" id="kinds"></div>
-      <label class="check"><input type="checkbox" id="onlyFit" checked> nur passende</label>
-      <label class="check"><input type="checkbox" id="onlyNew"> nur neue</label>
+      <span class="vsep" aria-hidden="true"></span>
+      <div class="chips">
+        <button class="chip tgl" type="button" data-toggle="onlyFit" aria-pressed="true" title="Nur Stellen, die zu deinen Themen passen">Passend</button>
+        <button class="chip tgl" type="button" data-toggle="onlyNew" aria-pressed="false" title="Nur Stellen aus dem letzten Lauf">Neu</button>
+      </div>
+      <input type="checkbox" id="onlyFit" checked hidden><input type="checkbox" id="onlyNew" hidden>
       <button class="btn dots" id="fToggle" type="button" aria-expanded="false" aria-controls="fpanel" title="Weitere Filter und Themen">⋯<span class="ddot" id="fDot" hidden></span></button>
     </div>
     <div id="fpanel" hidden>
@@ -730,6 +748,25 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     for (const [re, name] of SRC_HOSTS) if (re.test(host)) return name;
     return host;
   }
+  // Ausgeblendete Stellen (prefs/hidden.by_url): bleiben sichtbar, aber ausgegraut
+  const isHidden = (h) => !!(h.u && S.hidden?.[normUrl(h.u)]);
+  // Pipeline neu laden: Bewerberliste frisch aus der Datenbank lesen und alles neu zeichnen
+  async function reloadApps(btn) {
+    btn.classList.add("spin");
+    try {
+      if (document.activeElement?.blur) document.activeElement.blur();
+      const snap = await S.db.collection("applications").limit(500).get();
+      const m = new Map(); for (const d of snap.docs) m.set(d.id, d.data()); S.apps = m;
+    } catch (e) {}
+    schedule(); setTimeout(() => btn.classList.remove("spin"), 600);
+  }
+  async function toggleHidden(h) {
+    if (!h?.u) return;
+    const k = normUrl(h.u), m = { ...(S.hidden || {}) };
+    if (m[k]) delete m[k]; else m[k] = new Date().toISOString();
+    S.hidden = m; schedule();
+    try { await S.db.doc("prefs/hidden").set({ by_url: m, updated_at: new Date().toISOString() }); } catch (e) { toast("Konnte nicht gespeichert werden."); }
+  }
   // KI-Bewertung aus scans/ratings (Schlüssel: normalisierter Link)
   const rateOf = (u) => (u && S.ratings?.by_url?.[normUrl(u)]) || null;
   const rateTip = (r) => `Prio ${r.p} · Score ${r.s} – Fit ${r.fit} · Impact ${r.imp} · Startup ${r.su}${r.why ? " – " + r.why : ""}`;
@@ -990,6 +1027,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
       $("#kindSel").innerHTML = KINDS.map((k) => `<option>${esc(k)}</option>`).join("");
     }
     $("#kindSel").value = S.kind;
+    document.querySelectorAll("[data-toggle]").forEach((b) => b.setAttribute("aria-pressed", String($("#" + b.dataset.toggle).checked)));
     const extra = [S.kind !== "Alle" && S.kind !== "Praktikum", $("#city").value, $("#srcSel").value, $("#prioSel").value, $("#sortSel").value !== "prio", $("#onlyMine").checked].filter(Boolean).length;
     $("#fcount").textContent = extra ? extra + " aktiv" : "";
     $("#fDot").hidden = !extra;
@@ -1028,18 +1066,18 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
       const g = grps[h.g], when = fmtDate(new Date(g.start).toISOString(), true);
       const label = h.isNew ? "Neu im letzten Lauf" : h.g === grps.length - 1 && grps.length > 1 ? "Erster Scan" : "Lauf";
       const cnt = `${g.n} ${g.n === 1 ? "Stelle" : "Stellen"}`;
-      return `<div class="grp"><span><b>${esc(label)}</b> · ${cnt} (${esc(when)})</span></div>`;
+      return `<div class="grp"><span><b>${esc(label)}</b><span class="info" data-full="${esc(`${cnt} · ${when}`)}" tabindex="0" aria-label="${esc(`${cnt}, ${when}`)}">!</span></span></div>`;
     };
     box.innerHTML = lead + `<div class="list">${S.shownHits.map((h, i) => {
       const lk = jobLink(h);
       const onl = appOnList(h);
       const kb = h.kinds.filter((k) => k !== "Sonstiges").map((k) => `<span class="badge ${k === "Praktikum" ? "k-Praktikum" : k === "Founder & CEO-Office" ? "k-Founders" : ""}">${esc(k)}</span>`).join("") + (h.generic ? `<span class="badge">Allgemein</span>` : "");
-      return `${grpHead(h, i)}<div class="row">
+      return `${grpHead(h, i)}<div class="row${isHidden(h) ? " dim" : ""}">
         <div style="min-width:0">
           <div class="title"><a href="${esc(lk.href)}" target="_blank" rel="noopener">${esc(h.t)}</a></div>
           <div class="meta"><span class="co">${esc(h.company)}</span>${h.l ? `<span>${esc(h.l)}</span>` : ""}${h.topics.length ? `<span class="topics">${esc(h.topics.slice(0, 3).join(" · "))}</span>` : ""}${((q) => `<span class="srcb${h.board ? " ext" : ""}" title="${esc(q.title)}"><b>${esc(q.kind)}</b> · ${esc(q.name)}</span>`)(srcOf(h))}${lk.via ? `<span class="via">Link: ${esc(lk.via)}</span>` : ""}</div>${rateLine(h.rt)}
         </div>
-        <div class="side"><div class="badges">${prioBadge(h.rt)}${h.isNew ? '<span class="badge new">neu</span>' : ""}${kb}</div><span class="when" title="Zuerst gesehen: ${esc(fmtDate(h.fs))}${h.pd ? " · online seit " + esc(fmtDate(h.pd)) : ""}">${h.pd ? "online " + esc(fmtDate(h.pd)) : "seit " + esc(fmtDate(h.fs))}</span><button class="btn small addapp${onl ? " onlist" : ""}" type="button" data-addapp="${i}"${onl || !S.canWrite ? " disabled" : ""}>${onl ? "✓ auf der Liste" : "+ Bewerberliste"}</button></div>
+        <div class="side"><div class="badges">${prioBadge(h.rt)}${h.isNew ? '<span class="badge new">neu</span>' : ""}${kb}</div><span class="when" title="Zuerst gesehen: ${esc(fmtDate(h.fs))}${h.pd ? " · online seit " + esc(fmtDate(h.pd)) : ""}">${h.pd ? "online " + esc(fmtDate(h.pd)) : "seit " + esc(fmtDate(h.fs))}</span><div class="acts"><button class="btn small hidebtn" type="button" data-hide="${i}"${S.canWrite ? "" : " disabled"} title="${isHidden(h) ? "Wieder normal anzeigen" : "Ausgrauen – bleibt in der Liste"}">${isHidden(h) ? "Einblenden" : "Ausblenden"}</button><button class="btn small addapp${onl ? " onlist" : ""}" type="button" data-addapp="${i}"${onl || !S.canWrite ? " disabled" : ""}>${onl ? "✓ auf der Liste" : "+ Bewerberliste"}</button></div></div>
       </div>`;
     }).join("")}</div>`;
   }
@@ -1305,7 +1343,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
       offline ? `<span class="badge off">${offline} offene Anzeigen offline</span>` : "",
       waiting ? `<span class="badge new">${waiting} seit über 14 Tagen ohne Antwort – nachhaken?</span>` : "",
     ].join("");
-    box.innerHTML = `<div class="pipe"><div class="pipe-head"><h3>Bewerbungs-Pipeline</h3></div>
+    box.innerHTML = `<div class="pipe"><div class="pipe-head"><h3>Bewerbungs-Pipeline<button class="reload" type="button" id="pipeReload" title="Pipeline mit dem aktuellen Status neu berechnen" aria-label="Pipeline aktualisieren"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M13.5 8a5.5 5.5 0 1 1-1.6-3.9M13.5 2.5v3h-3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></h3></div>
       <div class="flow">${stages}</div><div class="dist" role="img" aria-label="Verteilung nach Status">${dist}</div><div class="legend">${legend}</div>${alerts ? `<div class="alerts">${alerts}</div>` : ""}</div>`;
   }
   // Board: eine Spalte je Status, Karten per Drag & Drop verschieben
@@ -1579,6 +1617,9 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     else if (t.dataset.ftopic) { const d = draft(), k = t.dataset.ftopic; d.off_topics = d.off_topics.includes(k) ? d.off_topics.filter((x) => x !== k) : [...d.off_topics, k]; schedule(); }
     else if (t.id === "fSave") saveFilter();
     else if (t.id === "fReset") { FDRAFT = { off_topics: [], extra: [], exclude_extra: [] }; $("#fExtra").value = ""; $("#fExcl").value = ""; schedule(); }
+    else if (t.dataset.toggle) { const c = $("#" + t.dataset.toggle); c.checked = !c.checked; c.dispatchEvent(new Event("input")); }
+    else if (t.id === "pipeReload") { reloadApps(t); }
+    else if (t.dataset.hide) { toggleHidden(S.shownHits?.[+t.dataset.hide]); }
     else if (t.dataset.addapp) { const h = S.shownHits?.[+t.dataset.addapp]; if (h) addApp(h); }
     else if (t.dataset.delapp) delApp(t.dataset.delapp);
     else if (t.dataset.restore) restoreApp(t.dataset.restore);
@@ -1642,6 +1683,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
   });
   document.addEventListener("mouseout", (ev) => { const el = ev.target.closest?.(HOVER); if (el && !el.contains(ev.relatedTarget)) tip.hidden = true; });
   document.addEventListener("focusin", () => { tip.hidden = true; });
+  document.addEventListener("click", (ev) => { const i = ev.target.closest?.(".grp .info"); if (i) setTimeout(() => i.dispatchEvent(new MouseEvent("mouseover", { bubbles: true })), 0); });
   document.addEventListener("scroll", () => { tip.hidden = true; }, true);
   document.addEventListener("pointerdown", (ev) => {
     const h = ev.target.closest?.("[data-colrz]"); if (!h) return;
@@ -1725,6 +1767,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     db.doc("scans/boards").onSnapshot((snap) => { S.boards = snap.exists ? snap.data() : null; schedule(); }, onErr);
     db.doc("scans/candidates").onSnapshot((snap) => { S.cands = snap.exists ? snap.data() : null; schedule(); }, onErr);
     db.doc("scans/details").onSnapshot((snap) => { S.details = snap.exists ? snap.data() : null; schedule(); }, onErr);
+    db.doc("prefs/hidden").onSnapshot((snap) => { S.hidden = (snap.exists && snap.data().by_url) || {}; schedule(); }, onErr);
     db.doc("scans/ratings").onSnapshot((snap) => { S.ratings = snap.exists ? snap.data() : null; schedule(); }, onErr);
     db.doc("config/profile").onSnapshot((snap) => { S.profile = snap.exists ? snap.data() : null; S.profileLoaded = true; fillProfile(); schedule(); }, onErr);
     db.collection("runs").orderBy("started_at", "desc").limit(20).onSnapshot((snap) => { S.runs = snap.docs.map((d) => d.data()); schedule(); }, onErr);
