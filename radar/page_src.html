@@ -265,6 +265,13 @@ td .srcb { margin-top: 4px; }
 .cand .titles { color: var(--ink-3); font-size: 12.5px; margin-top: 2px; overflow-wrap: anywhere; }
 .cand .acts { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
 .badge.react { background: var(--accent-soft); color: var(--accent); }
+body.full .wrap { max-width: none; padding-block: 12px 16px; }
+body.full .top, body.full .tabs, body.full #pipe, body.full #appAdd, body.full #live { display: none; }
+body.full .panel { padding-top: 0; }
+body.full #appList .tablewrap { max-height: calc(100vh - 80px); overflow: auto; }
+body.full #appList table { width: 100%; }
+body.full #appList .kb { max-height: calc(100vh - 80px); }
+#fullBtn[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); border-color: color-mix(in srgb, var(--accent) 40%, var(--line-2)); }
 #appList table { table-layout: fixed; width: max-content; min-width: 0; }
 #appList th { position: relative; overflow: hidden; text-overflow: ellipsis; }
 #appList td { overflow: hidden; }
@@ -493,6 +500,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
       <select class="field" id="ast" aria-label="Status"><option value="">Alle Status</option></select>
       <select class="field" id="aso" aria-label="Sortierung"><option value="nr">Sortiert nach Nr.</option><option value="firma">Nach Firma</option><option value="status">Nach Status</option><option value="neu">Neueste zuerst</option><option value="prio">Nach Prio</option></select>
       <div class="seg" role="group" aria-label="Ansicht"><button type="button" data-appview="liste" aria-pressed="true">Liste</button><button type="button" data-appview="board" aria-pressed="false">Board</button></div>
+      <button class="btn" type="button" id="fullBtn" aria-pressed="false" title="Bewerberliste im Vollbild"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" style="vertical-align:-2px"><path d="M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg> <span id="fullLbl">Vollbild</span></button>
     </div>
     <div id="appList"></div>
   </section>
@@ -1132,8 +1140,11 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
   }
   function setStatus(id, status) {
     const a = S.apps.get(id); if (!a || a.status === status) return;
-    const now = new Date().toISOString();
-    updApp(id, { status, status_at: now, hist: { ...(a.hist || {}), [status]: now } });
+    const now = new Date().toISOString(), hist = { ...(a.hist || {}) }, j = PIPE.indexOf(status);
+    // Zurück auf eine frühere Stufe (z. B. aus Versehen „Beworben“): spätere Stufen und Absage aus dem Verlauf streichen
+    if (j >= 0) for (const k of Object.keys(hist)) { const i = PIPE.indexOf(k); if (i > j || (i < 0 && k !== status)) delete hist[k]; }
+    hist[status] = now;
+    updApp(id, { status, status_at: now, hist });
   }
   // Löschen: erst nachfragen, dann in den Papierkorb (Collection trash) verschieben – wiederherstellbar unter Mehr → Papierkorb
   let delPending = null;
@@ -1163,6 +1174,17 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     purgeArmed = null;
     try { await S.db.doc("trash/" + id).delete(); toast("Endgültig gelöscht"); } catch (e) { toast("Konnte nicht gelöscht werden."); }
   }
+  // Vollbild für die Bewerberliste: nur Werkzeugleiste + Tabelle, volle Breite und Höhe (Browser-Vollbild, wo erlaubt)
+  function setFull(on) {
+    document.body.classList.toggle("full", on);
+    $("#fullBtn").setAttribute("aria-pressed", String(on)); $("#fullLbl").textContent = on ? "Vollbild beenden" : "Vollbild";
+    try {
+      if (on && !document.fullscreenElement) document.documentElement.requestFullscreen?.().catch(() => {});
+      if (!on && document.fullscreenElement) document.exitFullscreen?.().catch(() => {});
+    } catch (e) {}
+  }
+  document.addEventListener("fullscreenchange", () => { if (!document.fullscreenElement && document.body.classList.contains("full")) setFull(false); });
+  document.addEventListener("keydown", (ev) => { if (ev.key === "Escape" && document.body.classList.contains("full") && !ev.target.classList?.contains("appcom")) setFull(false); });
   function renderTrash() {
     const box = $("#trashList"), items = [...S.trash.entries()].sort((x, y) => String(y[1].deleted_at).localeCompare(String(x[1].deleted_at)));
     if (!items.length) { box.innerHTML = `<div class="list"><div class="empty"><strong>Papierkorb ist leer</strong>Gelöschte Stellen aus der Bewerberliste landen hier und lassen sich wiederherstellen.</div></div>`; return; }
@@ -1512,7 +1534,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     if (t.id === "moreBtn") { const m = $("#moreMenu"); closePops("menu"); m.hidden = !m.hidden; t.setAttribute("aria-expanded", String(!m.hidden)); return; }
     if (t.dataset.alertx) { dismissAlert(t.dataset.alertx); return; }
     if (t.id === "alertBtn") { const p = $("#alertPop"); closePops("alert"); p.hidden = !p.hidden; t.setAttribute("aria-expanded", String(!p.hidden)); return; }
-    if (t.dataset.tab || t.dataset.go) closePops();
+    if (t.dataset.tab || t.dataset.go) { closePops(); if (document.body.classList.contains("full")) setFull(false); }
     if (t.dataset.tab) { S.tab = t.dataset.tab; try { localStorage.setItem("radar.tab", S.tab); } catch (e) {} schedule(); }
     else if (t.dataset.go) { S.tab = t.dataset.go; schedule(); }
     else if (t.id === "cancelRun") { S.cancelArm = true; S.cancelMsg = ""; renderLive(); }
@@ -1531,6 +1553,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     else if (t.dataset.delapp) delApp(t.dataset.delapp);
     else if (t.dataset.restore) restoreApp(t.dataset.restore);
     else if (t.dataset.purge) purgeApp(t.dataset.purge);
+    else if (t.id === "fullBtn") setFull(!document.body.classList.contains("full"));
     else if (t.id === "cfNo") { delPending = null; $("#cfDlg").close(); }
     else if (t.id === "cfYes") { const id = delPending; delPending = null; $("#cfDlg").close(); if (id) moveToTrash(id); }
     else if (t.dataset.edit) openEdit(t.dataset.edit);
