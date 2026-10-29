@@ -1005,8 +1005,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
       const g = grps[h.g], when = fmtDate(new Date(g.start).toISOString(), true);
       const label = h.isNew ? "Neu im letzten Lauf" : h.g === grps.length - 1 && grps.length > 1 ? "Erster Scan" : "Lauf";
       const cnt = `${g.n} ${g.n === 1 ? "Stelle" : "Stellen"}`;
-      return onlyNew ? `<div class="grp"><span><b>${esc(label)}</b> · ${cnt} (${esc(when)})</span></div>`
-        : `<div class="grp"><span><b>${esc(label)}</b> · ${esc(when)}</span><span class="grp-n">${cnt}</span></div>`;
+      return `<div class="grp"><span><b>${esc(label)}</b> · ${cnt} (${esc(when)})</span></div>`;
     };
     box.innerHTML = lead + `<div class="list">${S.shownHits.map((h, i) => {
       const lk = jobLink(h);
