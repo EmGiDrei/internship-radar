@@ -334,12 +334,12 @@ a.badge.moved { background: var(--new-bg); color: var(--new); display: inline-bl
 .pipe-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 12px; }
 .pipe-head h3 { margin: 0; font-size: 14px; font-weight: 700; }
 .flow { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; }
-.stage { position: relative; padding: 10px 14px 10px 18px; background: var(--surface-2); min-width: 0;
+.stage { position: relative; padding: 20px 16px 20px 22px; background: var(--surface-2); min-width: 0;
   clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%, 12px 50%); }
 .stage:first-child { clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%); border-radius: 8px 0 0 8px; padding-left: 14px; }
 .stage:last-child { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 12px 50%); border-radius: 0 8px 8px 0; }
 .stage + .stage { margin-left: -6px; }
-.stage .n { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; line-height: 1.15; }
+.stage .n { font-size: 30px; font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; line-height: 1.15; }
 .stage .l { font-size: 12px; color: var(--ink-3); font-weight: 500; }
 .stage .cv { font-size: 11.5px; color: var(--ink-3); margin-top: 2px; }
 .stage .cv b { color: var(--accent); font-weight: 600; }
@@ -347,6 +347,17 @@ a.badge.moved { background: var(--new-bg); color: var(--new); display: inline-bl
 .stage.s-Gespräch { background: color-mix(in srgb, var(--accent) 20%, var(--surface-2)); }
 .stage.s-Zusage { background: var(--ok-bg); }
 .stage.s-Zusage .n { color: var(--ok); }
+.stage .l { font-size: 12.5px; }
+.stage .cv { margin-top: 4px; }
+.stage.up { animation: stUp 1.2s ease; }
+.stage.down { animation: stDown 1.2s ease; }
+.stage.up .n { animation: nPop .6s ease; }
+.stage.down .n { animation: nPop .6s ease; }
+@keyframes stUp { 0% { filter: none; } 25% { filter: brightness(.92) saturate(1.6); } 100% { filter: none; } }
+@keyframes stDown { 0% { filter: none; } 25% { filter: brightness(1.06) grayscale(.5); } 100% { filter: none; } }
+@keyframes nPop { 0% { transform: scale(1); } 35% { transform: scale(1.18); } 100% { transform: scale(1); } }
+.stage .n { display: inline-block; transform-origin: left center; }
+@media (prefers-reduced-motion: reduce) { .stage.up, .stage.down, .stage.up .n, .stage.down .n { animation: none; } }
 .dist { display: flex; height: 8px; border-radius: 999px; overflow: hidden; background: var(--bar-bg); }
 .dist span { display: block; height: 100%; }
 .legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12px; color: var(--ink-2); }
@@ -1066,7 +1077,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
       const g = grps[h.g], when = fmtDate(new Date(g.start).toISOString(), true);
       const label = h.isNew ? "Neu im letzten Lauf" : h.g === grps.length - 1 && grps.length > 1 ? "Erster Scan" : "Lauf";
       const cnt = `${g.n} ${g.n === 1 ? "Stelle" : "Stellen"}`;
-      return `<div class="grp"><span><b>${esc(label)}</b><span class="info" data-full="${esc(`${cnt} · ${when}`)}" tabindex="0" aria-label="${esc(`${cnt}, ${when}`)}">!</span></span></div>`;
+      return `<div class="grp"><span><b>${esc(label)}</b><span class="info" data-full="${esc(`${cnt}  |  ${when}`)}" tabindex="0" aria-label="${esc(`${cnt}, ${when}`)}">!</span></span></div>`;
     };
     box.innerHTML = lead + `<div class="list">${S.shownHits.map((h, i) => {
       const lk = jobLink(h);
@@ -1206,7 +1217,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     // Zurück auf eine frühere Stufe (z. B. aus Versehen „Beworben“): spätere Stufen und Absage aus dem Verlauf streichen
     if (j >= 0) for (const k of Object.keys(hist)) { const i = PIPE.indexOf(k); if (i > j || (i < 0 && k !== status)) delete hist[k]; }
     hist[status] = now;
-    updApp(id, { status, status_at: now, hist });
+    S.db.doc("applications/" + id).set({ ...a, status, status_at: now, hist }).catch(() => toast("Konnte nicht gespeichert werden."));
   }
   // Löschen: erst nachfragen, dann in den Papierkorb (Collection trash) verschieben – wiederherstellbar unter Mehr → Papierkorb
   let delPending = null;
@@ -1329,22 +1340,26 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     }).length;
     const active = all.filter(([, a]) => a.status !== "Nicht relevant").length;
     const r = PIPE.map((st) => (st === "Offen" ? active : reached(st)));
-    const stages = PIPE.map((st, i) => `<div class="stage s-${esc(st)}"><div class="l">${i === 0 ? "Auf der Liste" : esc(st === "Gespräch" ? "Einladung / Gespräch" : st)}</div><div class="n">${r[i]}</div>
+    const stages = PIPE.map((st, i) => `<div class="stage s-${esc(st)}" data-stage="${i}"><div class="l">${i === 0 ? "Auf der Liste" : esc(st === "Gespräch" ? "Einladung / Gespräch" : st)}</div><div class="n" data-n="${r[i]}">${S.pipePrev ? S.pipePrev[i] : r[i]}</div>
       <div class="cv">${i === 0 ? `davon offen: ${cnt.Offen || 0}` : `<b>${r[i - 1] ? Math.round((100 * r[i]) / r[i - 1]) : 0} %</b> von ${esc(i === 1 ? "Liste" : PIPE[i - 1] === "Gespräch" ? "Gesprächen" : PIPE[i - 1])}`}</div></div>`).join("");
-    const order = ["Offen", "Beworben", "Gespräch", "Zusage", "Absage", "Nicht relevant"];
-    const total = all.length;
-    const dist = order.filter((st) => cnt[st]).map((st) => `<span style="width:${(100 * cnt[st]) / total}%;background:${ST_COLOR[st]}" title="${esc(st)}: ${cnt[st]}"></span>`).join("");
-    const legend = order.filter((st) => cnt[st] && st !== "Offen").map((st) => `<span><i style="background:${ST_COLOR[st]}"></i>${esc(st)} ${cnt[st]}</span>`).join("");
-    const offline = all.filter(([, a]) => ["Offen", "Beworben"].includes(a.status || "Offen") && infoOf(a).off).length;
-    const waiting = all.filter(([, a]) => a.status === "Beworben" && daysSince(a.status_at || a.hist?.Beworben) >= 14).length;
-    const topOpen = all.filter(([, a]) => (a.status || "Offen") === "Offen" && rateOf(a.url)?.p === "A").length;
-    const alerts = [
-      topOpen ? `<span class="badge k-Praktikum">${topOpen} offene Prio-A-Stellen – noch nicht beworben</span>` : "",
-      offline ? `<span class="badge off">${offline} offene Anzeigen offline</span>` : "",
-      waiting ? `<span class="badge new">${waiting} seit über 14 Tagen ohne Antwort – nachhaken?</span>` : "",
-    ].join("");
     box.innerHTML = `<div class="pipe"><div class="pipe-head"><h3>Bewerbungs-Pipeline<button class="reload" type="button" id="pipeReload" title="Pipeline mit dem aktuellen Status neu berechnen" aria-label="Pipeline aktualisieren"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M13.5 8a5.5 5.5 0 1 1-1.6-3.9M13.5 2.5v3h-3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></h3></div>
-      <div class="flow">${stages}</div><div class="dist" role="img" aria-label="Verteilung nach Status">${dist}</div><div class="legend">${legend}</div>${alerts ? `<div class="alerts">${alerts}</div>` : ""}</div>`;
+      <div class="flow">${stages}</div></div>`;
+    animatePipe(r);
+  }
+  function animatePipe(r) {
+    const prev = S.pipePrev; S.pipePrev = r.slice();
+    if (!prev) return;
+    const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    r.forEach((v, i) => {
+      const st = document.querySelector(`.stage[data-stage="${i}"]`), el = st?.querySelector(".n");
+      if (!el) return;
+      if (prev[i] === v || reduce) { el.textContent = v; return; }
+      st.classList.remove("up", "down"); void st.offsetWidth; st.classList.add(v > prev[i] ? "up" : "down");
+      const from = prev[i], t0 = performance.now(), dur = 600;
+      const step = (t) => { const k = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - k, 3); el.textContent = Math.round(from + (v - from) * e); if (k < 1) requestAnimationFrame(step); };
+      requestAnimationFrame(step);
+      setTimeout(() => st.classList.remove("up", "down"), 1300);
+    });
   }
   // Board: eine Spalte je Status, Karten per Drag & Drop verschieben
   function boardHtml(rows, infoOf) {
