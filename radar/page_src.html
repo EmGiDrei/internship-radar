@@ -236,6 +236,19 @@ details.filters > summary { cursor: pointer; font-weight: 600; font-size: 13px; 
 details.filters > summary .sub { display: inline; font-weight: 400; }
 details.filters .fbody { display: grid; gap: 12px; padding-top: 12px; }
 details.filters textarea { resize: vertical; min-height: 84px; }
+.ibar { display: inline-flex; align-items: center; gap: 6px; }
+.ipop { position: relative; }
+.ipop .menu { left: auto; right: 0; min-width: 190px; }
+.ibtn { position: relative; display: inline-grid; place-items: center; width: 36px; height: 36px; border: 1px solid var(--line-2); background: var(--surface); color: var(--ink-2); border-radius: var(--r); cursor: pointer; box-shadow: var(--shadow); padding: 0; }
+.ibtn:hover { background: var(--surface-2); color: var(--ink); }
+.ibtn[aria-expanded="true"], .ibtn[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); border-color: color-mix(in srgb, var(--accent) 40%, var(--line-2)); }
+.iseg { display: inline-flex; }
+.iseg .ibtn { border-radius: 0; box-shadow: none; }
+.iseg .ibtn:first-child { border-radius: var(--r) 0 0 var(--r); }
+.iseg .ibtn + .ibtn { border-left: 0; border-radius: 0 var(--r) var(--r) 0; }
+.isep { width: 1px; height: 22px; background: var(--line-2); margin: 0 2px; }
+.mh { font-size: 11px; font-weight: 600; color: var(--ink-3); text-transform: uppercase; letter-spacing: .05em; padding: 4px 10px 2px; }
+.mi[aria-checked="true"] { color: var(--accent); font-weight: 600; }
 .btn.dots { position: relative; padding: 4px 12px; font-size: 18px; line-height: 1.2; letter-spacing: .05em; }
 .btn.dots[aria-expanded="true"] { background: var(--accent-soft); color: var(--accent); border-color: color-mix(in srgb, var(--accent) 40%, var(--line-2)); }
 .ddot { position: absolute; top: -3px; right: -3px; width: 9px; height: 9px; border-radius: 50%; background: var(--accent); border: 2px solid var(--bg); }
@@ -478,25 +491,19 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
 
   <section class="panel" id="p-bewerbungen" hidden>
     <div id="pipe"></div>
-    <details class="filters" id="appAdd">
-      <summary>+ Eigene Stelle hinzufügen</summary>
-      <form class="fbody" id="appForm" autocomplete="off">
-        <div class="grid2">
-          <label class="f">Unternehmen<input class="field" id="aCompany" required></label>
-          <label class="f">Job-Titel<input class="field" id="aTitle" required></label>
-        </div>
-        <div class="grid2">
-          <label class="f">Link <span class="h">https://…</span><input class="field" id="aUrl" type="url" placeholder="https://"></label>
-          <label class="f">Kommentar<input class="field" id="aComment"></label>
-        </div>
-        <div class="factions"><button class="btn small primary" type="submit">Zur Liste hinzufügen</button><span class="sub" id="aMsg"></span></div>
-      </form>
-    </details>
     <div class="toolbar">
       <div class="grow"><input class="field" id="aq" type="search" placeholder="Suche in der Liste" aria-label="Suche in der Bewerberliste"></div>
-      <select class="field" id="ast" aria-label="Status"><option value="">Alle Status</option></select>
-      <select class="field" id="aso" aria-label="Sortierung"><option value="nr">Sortiert nach Nr.</option><option value="firma">Nach Firma</option><option value="status">Nach Status</option><option value="neu">Neueste zuerst</option><option value="prio">Nach Prio</option></select>
-      <div class="seg" role="group" aria-label="Ansicht"><button type="button" data-appview="liste" aria-pressed="true">Liste</button><button type="button" data-appview="board" aria-pressed="false">Board</button></div>
+      <select id="ast" hidden aria-hidden="true"><option value="">Alle Status</option></select>
+      <select id="aso" hidden aria-hidden="true"><option value="nr">Nr.</option><option value="firma">Firma</option><option value="status">Status</option><option value="neu">Neueste zuerst</option><option value="prio">Prio</option></select>
+      <div class="ibar">
+        <div class="ipop"><button class="ibtn" type="button" id="aFiltBtn" aria-haspopup="menu" aria-expanded="false" title="Nach Status filtern" aria-label="Nach Status filtern"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M2 3h12l-4.5 5.2V13l-3 1.2V8.2z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="ddot" id="aFiltDot" hidden></span></button>
+          <div class="menu" id="aFiltMenu" role="menu" hidden></div></div>
+        <div class="ipop"><button class="ibtn" type="button" id="aSortBtn" aria-haspopup="menu" aria-expanded="false" title="Sortieren" aria-label="Sortieren"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M5 2.5v11M2.5 11 5 13.5 7.5 11M11 13.5v-11M8.5 5 11 2.5 13.5 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="ddot" id="aSortDot" hidden></span></button>
+          <div class="menu" id="aSortMenu" role="menu" hidden></div></div>
+        <button class="ibtn" type="button" id="aAddBtn" title="Eigene Stelle hinzufügen" aria-label="Eigene Stelle hinzufügen"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M8 3v10M3 8h10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <span class="isep" aria-hidden="true"></span>
+        <div class="iseg" role="group" aria-label="Ansicht"><button class="ibtn" type="button" data-appview="liste" aria-pressed="true" title="Liste" aria-label="Liste"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M5.5 4h8M5.5 8h8M5.5 12h8M2.5 4h.01M2.5 8h.01M2.5 12h.01" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="ibtn" type="button" data-appview="board" aria-pressed="false" title="Board" aria-label="Board"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M2.5 2.5h3v11h-3zM6.5 2.5h3v7h-3zM10.5 2.5h3v9h-3z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
+      </div>
     </div>
     <div id="appList"></div>
   </section>
@@ -570,6 +577,20 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
   </section>
 
 </div>
+
+<dialog id="addDlg" aria-labelledby="addTitle">
+  <form class="dlg" id="appForm" autocomplete="off">
+    <h2 id="addTitle">Eigene Stelle hinzufügen</h2>
+    <div class="grid2">
+      <label class="f">Unternehmen<input class="field" id="aCompany" required></label>
+      <label class="f">Job-Titel<input class="field" id="aTitle" required></label>
+    </div>
+    <label class="f">Link <span class="h">https://…</span><input class="field" id="aUrl" type="url" placeholder="https://"></label>
+    <label class="f">Kommentar<input class="field" id="aComment"></label>
+    <div class="msg" id="aMsg" role="alert"></div>
+    <div class="row-actions"><span></span><div style="display:flex;gap:8px"><button class="btn" type="button" id="aCancel">Abbrechen</button><button class="btn primary" type="submit">Zur Liste hinzufügen</button></div></div>
+  </form>
+</dialog>
 
 <dialog id="cfDlg" aria-labelledby="cfTitle">
   <div class="dlg">
@@ -1170,6 +1191,14 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     purgeArmed = null;
     try { await S.db.doc("trash/" + id).delete(); toast("Endgültig gelöscht"); } catch (e) { toast("Konnte nicht gelöscht werden."); }
   }
+  // Werkzeugleiste der Bewerberliste: Filter- und Sortiermenü (Werte liegen in den versteckten Selects #ast / #aso)
+  function renderAppMenus() {
+    const st = $("#ast"), so = $("#aso");
+    const opts = [...st.options].map((o) => [o.value, o.value ? o.textContent : "Alle Status"]);
+    $("#aFiltMenu").innerHTML = `<div class="mh">Status</div>` + opts.map(([v, l]) => `<button class="mi" role="menuitemradio" aria-checked="${st.value === v}" data-ast="${esc(v)}">${esc(l)}${st.value === v ? "<span>✓</span>" : ""}</button>`).join("");
+    $("#aSortMenu").innerHTML = `<div class="mh">Sortieren nach</div>` + [...so.options].map((o) => `<button class="mi" role="menuitemradio" aria-checked="${so.value === o.value}" data-aso="${esc(o.value)}">${esc(o.textContent)}${so.value === o.value ? "<span>✓</span>" : ""}</button>`).join("");
+    $("#aFiltDot").hidden = !st.value; $("#aSortDot").hidden = so.value === "nr";
+  }
   function renderTrash() {
     const box = $("#trashList"), items = [...S.trash.entries()].sort((x, y) => String(y[1].deleted_at).localeCompare(String(x[1].deleted_at)));
     if (!items.length) { box.innerHTML = `<div class="list"><div class="empty"><strong>Papierkorb ist leer</strong>Gelöschte Stellen aus der Bewerberliste landen hier und lassen sich wiederherstellen.</div></div>`; return; }
@@ -1186,6 +1215,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     const all = [...S.apps.entries()];
     const fill = (sel, first, vals) => { const cur = sel.value, sig = vals.join("|"); if (sel.dataset.sig === sig) return; sel.innerHTML = `<option value="">${first}</option>` + vals.map((v) => `<option>${esc(v)}</option>`).join(""); sel.dataset.sig = sig; sel.value = vals.includes(cur) ? cur : ""; };
     fill($("#ast"), "Alle Status", APP_STATI.concat([...new Set(all.map(([, a]) => a.status).filter((x) => x && !APP_STATI.includes(x)))]));
+    renderAppMenus();
     const q = $("#aq").value.trim().toLowerCase(), fst = $("#ast").value, so = $("#aso").value;
     const stRank = (x) => { const i = APP_STATI.indexOf(x); return i < 0 ? 99 : i; };
     let rows = all.filter(([, a]) => (!fst || a.status === fst) && (!q || ((a.company || "") + " " + (a.title || "") + " " + (a.comment || "")).toLowerCase().includes(q)));
@@ -1508,14 +1538,22 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
   }
 
   /* ---------- Events ---------- */
+  const toggleMenu = (btn, menu) => { const open = menu.hidden; closePops(); menu.hidden = !open; btn.setAttribute("aria-expanded", String(open)); };
   const closePops = (except) => {
+    for (const [b, m] of [["#aFiltBtn", "#aFiltMenu"], ["#aSortBtn", "#aSortMenu"]]) { $(m).hidden = true; $(b).setAttribute("aria-expanded", "false"); }
     if (except !== "menu") { $("#moreMenu").hidden = true; $("#moreBtn").setAttribute("aria-expanded", "false"); }
     if (except !== "alert") { $("#alertPop").hidden = true; $("#alertBtn").setAttribute("aria-expanded", "false"); }
   };
   document.addEventListener("keydown", (ev) => { if (ev.key === "Escape") closePops(); });
   document.addEventListener("click", (ev) => {
-    if (!ev.target.closest(".moremenu, .alertwrap")) closePops();
+    if (!ev.target.closest(".moremenu, .alertwrap, .ipop")) closePops();
     const t = ev.target.closest("button"); if (!t) return;
+    if (t.id === "aFiltBtn") { toggleMenu(t, $("#aFiltMenu")); return; }
+    if (t.id === "aSortBtn") { toggleMenu(t, $("#aSortMenu")); return; }
+    if (t.dataset.ast !== undefined) { $("#ast").value = t.dataset.ast; closePops(); schedule(); return; }
+    if (t.dataset.aso !== undefined) { $("#aso").value = t.dataset.aso; closePops(); schedule(); return; }
+    if (t.id === "aAddBtn") { closePops(); $("#aMsg").textContent = ""; $("#addDlg").showModal(); $("#aCompany").focus(); return; }
+    if (t.id === "aCancel") { $("#addDlg").close(); return; }
     if (t.id === "moreBtn") { const m = $("#moreMenu"); closePops("menu"); m.hidden = !m.hidden; t.setAttribute("aria-expanded", String(!m.hidden)); return; }
     if (t.dataset.alertx) { dismissAlert(t.dataset.alertx); return; }
     if (t.id === "alertBtn") { const p = $("#alertPop"); closePops("alert"); p.hidden = !p.hidden; t.setAttribute("aria-expanded", String(!p.hidden)); return; }
@@ -1569,7 +1607,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     let id = "m-" + slug(company + " " + title), n = 2; while (S.apps.has(id)) id = "m-" + slug(company + " " + title) + "-" + n++;
     try {
       await S.db.doc("applications/" + id).set({ nr, status: "Offen", company, title, comment, url, added: new Date().toISOString(), source: "manuell" });
-      $("#appForm").reset(); msg.textContent = ""; $("#appAdd").open = false; toast("Zur Bewerberliste hinzugefügt");
+      $("#appForm").reset(); msg.textContent = ""; $("#addDlg").close(); toast("Zur Bewerberliste hinzugefügt");
     } catch (e) { msg.textContent = e?.code === "invalid_argument" ? "Keine Schreibrechte." : "Konnte nicht gespeichert werden."; }
   });
   $("#scanBtn").addEventListener("click", startScan);
