@@ -88,12 +88,14 @@ h1 { font-family: var(--f-display); font-weight: 700; font-size: 18px; letter-sp
 .scanstate { font-size: 12.5px; color: var(--ink-3); max-width: 320px; text-align: right; }
 
 /* KPIs */
-.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-top: 20px; }
+.stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 20px; }
+@media (max-width: 620px) { .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.stat .hint { color: var(--ink-3); font-size: 11.5px; }
 .stat { display: flex; flex-direction: column-reverse; justify-content: flex-end; gap: 4px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 16px; box-shadow: var(--shadow); }
 .stat .n { font-weight: 600; font-size: 24px; letter-spacing: -0.02em; line-height: 1.1; font-variant-numeric: tabular-nums; }
 .stat .l { color: var(--ink-3); font-size: 12px; font-weight: 500; }
 .stat.new .n { color: var(--new); }
-.stat.err .n { color: var(--err); }
+.stat.wait .n { color: var(--accent); }
 .stat .of { color: var(--ink-3); font-size: 12px; }
 
 .banner { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between;
@@ -102,7 +104,23 @@ h1 { font-family: var(--f-display); font-weight: 700; font-size: 18px; letter-sp
 .notice { margin-top: 12px; background: var(--surface); border: 1px dashed var(--line-2); border-radius: var(--r); padding: 12px 14px; color: var(--ink-2); font-size: 13px; }
 
 /* Reiter */
-.tabs { display: flex; gap: 2px; margin-top: 24px; border-bottom: 1px solid var(--line); overflow-x: auto; }
+.tabs { display: flex; gap: 2px; margin-top: 24px; border-bottom: 1px solid var(--line); }
+.moremenu { position: relative; margin-left: auto; }
+.menu { position: absolute; right: 0; top: calc(100% + 6px); z-index: 20; min-width: 230px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow-pop); padding: 6px; display: grid; gap: 2px; }
+.mi { display: flex; justify-content: space-between; align-items: center; gap: 12px; border: 0; background: none; text-align: left; padding: 8px 10px; border-radius: 6px; font-size: 13px; color: var(--ink-2); cursor: pointer; }
+.mi:hover { background: var(--surface-2); color: var(--ink); }
+.mi[aria-selected="true"] { color: var(--accent); font-weight: 600; background: var(--accent-soft); }
+.mi .c { font-size: 11px; font-weight: 600; color: var(--ink-3); background: var(--muted-bg); border-radius: 999px; padding: 1px 7px; }
+.mi .c:empty { display: none; }
+.titlerow { display: flex; align-items: center; gap: 8px; }
+.alertwrap { position: relative; display: inline-flex; }
+.alertdot { width: 20px; height: 20px; border-radius: 50%; border: 0; background: var(--err); color: #ffffff; font-size: 12px; font-weight: 700; line-height: 1; cursor: pointer; display: inline-grid; place-items: center; padding: 0; }
+.alertdot:hover { filter: brightness(1.08); }
+.pop { position: absolute; left: 0; top: calc(100% + 8px); z-index: 30; width: min(340px, calc(100vw - 32px)); background: var(--surface); border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow-pop); padding: 12px; display: grid; gap: 10px; font-size: 13px; color: var(--ink-2); }
+.pop .msg { line-height: 1.45; }
+.pop .msg > div { margin-top: 8px; }
+.pop .msg b { color: var(--ink); font-weight: 600; }
+.pop .msg + .msg { border-top: 1px solid var(--line); padding-top: 10px; }
 .tab { border: 0; background: none; padding: 10px 12px; cursor: pointer; color: var(--ink-3); font-weight: 500; font-size: 13.5px; border-bottom: 2px solid transparent; margin-bottom: -1px; white-space: nowrap; }
 .tab:hover { color: var(--ink); }
 .tab[aria-selected="true"] { color: var(--ink); font-weight: 600; border-bottom-color: var(--accent); }
@@ -346,8 +364,10 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     <div class="brand">
       <div class="scope" id="scope" aria-hidden="true"></div>
       <div style="min-width:0">
-        <h1>Praktikums-Radar</h1>
-        <div class="sub" id="sub">Lade Datenbank …</div>
+        <div class="titlerow"><h1>Praktikums-Radar</h1>
+          <span class="alertwrap"><button class="alertdot" id="alertBtn" type="button" aria-haspopup="dialog" aria-expanded="false" aria-label="Hinweise anzeigen" hidden>!</button>
+          <div class="pop" id="alertPop" role="dialog" aria-label="Hinweise" hidden></div></span></div>
+        <div class="sub" id="sub">Lade …</div>
       </div>
     </div>
     <div class="actions">
@@ -358,16 +378,20 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
 
   <section class="live" id="live" hidden aria-live="polite" aria-label="Fortschritt des Scans"></section>
   <div class="stats" id="stats"></div>
-  <div id="bannerSlot"></div>
 
   <nav class="tabs" role="tablist">
     <button class="tab" role="tab" id="tab-praktika" data-tab="praktika" aria-selected="true">Praktika<span class="c" id="c-praktika"></span></button>
     <button class="tab" role="tab" id="tab-bewerbungen" data-tab="bewerbungen" aria-selected="false">Bewerberliste<span class="c" id="c-bewerbungen"></span></button>
-    <button class="tab" role="tab" id="tab-startups" data-tab="startups" aria-selected="false">Startups<span class="c" id="c-startups"></span></button>
-    <button class="tab" role="tab" id="tab-kandidaten" data-tab="kandidaten" aria-selected="false">Kandidaten<span class="c" id="c-kandidaten"></span></button>
-    <button class="tab" role="tab" id="tab-fehler" data-tab="fehler" aria-selected="false">Fehler<span class="c" id="c-fehler"></span></button>
-    <button class="tab" role="tab" id="tab-laeufe" data-tab="laeufe" aria-selected="false">Läufe<span class="c" id="c-laeufe"></span></button>
-    <button class="tab" role="tab" id="tab-profil" data-tab="profil" aria-selected="false">Profil<span class="c" id="c-profil"></span></button>
+    <div class="moremenu">
+      <button class="tab" id="moreBtn" type="button" aria-haspopup="menu" aria-expanded="false"><span id="moreLbl">Mehr</span> <span aria-hidden="true">▾</span></button>
+      <div class="menu" id="moreMenu" role="menu" hidden>
+        <button class="mi" role="menuitem" id="tab-startups" data-tab="startups">Startups<span class="c" id="c-startups"></span></button>
+        <button class="mi" role="menuitem" id="tab-kandidaten" data-tab="kandidaten">Kandidaten<span class="c" id="c-kandidaten"></span></button>
+        <button class="mi" role="menuitem" id="tab-fehler" data-tab="fehler">Fehler<span class="c" id="c-fehler"></span></button>
+        <button class="mi" role="menuitem" id="tab-laeufe" data-tab="laeufe">Läufe<span class="c" id="c-laeufe"></span></button>
+        <button class="mi" role="menuitem" id="tab-profil" data-tab="profil">Profil (für KI-Bewertung)<span class="c" id="c-profil"></span></button>
+      </div>
+    </div>
   </nav>
 
   <section class="panel" id="p-praktika">
@@ -796,9 +820,8 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     const sub = $("#sub");
     if (!S.db) { sub.textContent = S.dbMissing ? "Datenbank nur in Claude verfügbar – öffne das Artefakt in claude.ai." : "Lade Datenbank …"; }
     else {
-      const total = S.startups.size, active = [...S.startups.values()].filter((s) => s.active && s.source_url).length;
-      const last = S.scan?.finished_at;
-      sub.innerHTML = `<b>${total}</b> Startups, <b>${active}</b> werden gescannt · letzter Scan: <b>${last ? esc(fmtDate(last, true)) : "noch keiner"}</b>${S.config?.schedule_text ? " · " + esc(S.config.schedule_text) : ""}`;
+      const last = S.runs.find((r) => r.status === "done")?.finished_at || S.scan?.finished_at;
+      sub.textContent = last ? `Letzter Scan: ${fmtDate(last, true)} (${ago(last)})` : "Noch kein Scan";
     }
     const run = runningRun(), pend = requestedPending();
     $("#scope").classList.toggle("on", !!(run || pend));
@@ -827,27 +850,33 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
 
   function renderStats() {
     const el = $("#stats");
-    if (!S.db) { el.innerHTML = ""; $("#bannerSlot").innerHTML = ""; return; }
-    const all = S.hm || [], hits = all.filter((h) => h.fit);
-    const fresh = hits.filter((h) => h.isNew).length;
-    const errs = Object.entries(S.scan?.results || {}).filter(([id, r]) => r.s === "err" && S.startups.get(id)?.active).length;
-    const intern = hits.filter((h) => h.kinds.includes("Praktikum")).length;
-    const fa = hits.filter((h) => h.kinds.includes("Founder & CEO-Office")).length;
+    if (!S.db) { el.innerHTML = ""; return; }
+    const fresh = (S.hm || []).filter((h) => h.fit && h.isNew).length;
+    const apps = [...S.apps.values()], st = (a) => a.status || "Offen";
+    const open = apps.filter((a) => st(a) === "Offen").length, waiting = apps.filter((a) => ["Beworben", "Gespräch"].includes(st(a))).length;
     el.innerHTML = [
-      `<div class="stat"><span class="n">${hits.length}</span><span class="l">passende Stellen <span class="of">von ${all.length}</span></span></div>`,
-      `<div class="stat"><span class="n">${intern}</span><span class="l">Praktika</span></div>`,
-      `<div class="stat"><span class="n">${fa}</span><span class="l">Founder &amp; CEO-Office</span></div>`,
       `<div class="stat new"><span class="n">${fresh}</span><span class="l">neu im letzten Lauf</span></div>`,
-      `<div class="stat err"><span class="n">${errs}</span><span class="l">Quellen mit Fehler</span></div>`,
+      `<div class="stat"><span class="n">${apps.length}</span><span class="l">Stellen auf der Bewerberliste</span></div>`,
+      `<div class="stat"><span class="n">${open}</span><span class="l">offen – noch nicht beworben</span></div>`,
+      `<div class="stat wait"><span class="n">${waiting}</span><span class="l">ausstehend – warten auf Antwort</span></div>`,
     ].join("");
-    const slot = $("#bannerSlot");
-    const lastRun = S.runs[0];
-    if (S.loaded.scan && !S.scan) slot.innerHTML = `<div class="notice">Noch kein Scan gelaufen. Starte den ersten mit „Jetzt scannen“ oder warte auf den nächsten geplanten Lauf.</div>`;
-    else if (lastRun && lastRun.status === "failed") slot.innerHTML = `<div class="banner"><span><b>Letzter Scan abgebrochen</b> (${esc(fmtDate(lastRun.started_at, true))}): ${esc(lastRun.error || "unbekannter Grund")}</span><button class="btn small" type="button" data-go="laeufe">Läufe ansehen</button></div>`;
-    else if (errs > 0) slot.innerHTML = `<div class="banner"><span><b>${errs} Karriereseiten</b> konnten beim letzten Lauf nicht gelesen werden.</span><button class="btn small" type="button" data-go="fehler">Fehler ansehen</button></div>`;
-    else slot.innerHTML = "";
+    renderAlerts();
   }
 
+  // Hinweise (Fehler, abgebrochener Lauf, fehlendes Profil) nur als kleines rotes „!“ neben dem Titel
+  function renderAlerts() {
+    const msgs = [];
+    const errs = Object.entries(S.scan?.results || {}).filter(([id, r]) => r.s === "err" && S.startups.get(id)?.active).length;
+    const lastRun = S.runs[0];
+    if (S.loaded.scan && !S.scan) msgs.push(`<b>Noch kein Scan gelaufen.</b> Starte den ersten mit „Jetzt scannen“.`);
+    if (lastRun && lastRun.status === "failed") msgs.push(`<b>Letzter Scan abgebrochen</b> (${esc(fmtDate(lastRun.started_at, true))}): ${esc(lastRun.error || "unbekannter Grund")}<div><button class="btn small" type="button" data-go="laeufe">Läufe ansehen</button></div>`);
+    if (errs) msgs.push(`<b>${errs} Karriereseiten</b> konnten beim letzten Lauf nicht gelesen werden.<div><button class="btn small" type="button" data-go="fehler">Fehler ansehen</button></div>`);
+    if (S.loaded.scan && S.profileLoaded && !S.profile?.cv) msgs.push(`<b>Kein Profil hinterlegt</b> – ohne Lebenslauf gibt es keine KI-Bewertung.<div><button class="btn small" type="button" data-go="profil">Profil öffnen</button></div>`);
+    const btn = $("#alertBtn"), pop = $("#alertPop");
+    btn.hidden = !msgs.length; btn.title = msgs.length + (msgs.length === 1 ? " Hinweis" : " Hinweise");
+    if (!msgs.length) { pop.hidden = true; btn.setAttribute("aria-expanded", "false"); }
+    pop.innerHTML = msgs.map((m) => `<div class="msg">${m}</div>`).join("");
+  }
   function renderTabs() {
     for (const t of ["praktika", "bewerbungen", "startups", "kandidaten", "fehler", "laeufe", "profil"]) {
       $("#tab-" + t).setAttribute("aria-selected", String(S.tab === t));
@@ -857,7 +886,10 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     const errs = Object.entries(S.scan?.results || {}).filter(([id, r]) => r.s === "err" && S.startups.get(id)?.active).length;
     $("#c-praktika").textContent = hits || ""; $("#c-bewerbungen").textContent = S.apps.size || ""; $("#c-startups").textContent = S.startups.size || "";
     $("#c-fehler").textContent = errs || ""; $("#c-laeufe").textContent = S.runs.length || "";
-    $("#c-profil").textContent = S.db && S.loaded.scan && !S.profile?.cv ? "!" : "";
+    $("#c-profil").textContent = S.db && S.profileLoaded && !S.profile?.cv ? "!" : "";
+    const sec = ["startups", "kandidaten", "fehler", "laeufe", "profil"].includes(S.tab);
+    $("#moreBtn").setAttribute("aria-selected", String(sec));
+    $("#moreLbl").textContent = sec ? { startups: "Startups", kandidaten: "Kandidaten", fehler: "Fehler", laeufe: "Läufe", profil: "Profil" }[S.tab] : "Mehr";
     $("#c-kandidaten").textContent = Object.values(S.cands?.candidates || {}).filter((c) => (c.status || "neu") === "neu").length || "";
   }
 
@@ -1349,8 +1381,17 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
   }
 
   /* ---------- Events ---------- */
+  const closePops = (except) => {
+    if (except !== "menu") { $("#moreMenu").hidden = true; $("#moreBtn").setAttribute("aria-expanded", "false"); }
+    if (except !== "alert") { $("#alertPop").hidden = true; $("#alertBtn").setAttribute("aria-expanded", "false"); }
+  };
+  document.addEventListener("keydown", (ev) => { if (ev.key === "Escape") closePops(); });
   document.addEventListener("click", (ev) => {
+    if (!ev.target.closest(".moremenu, .alertwrap")) closePops();
     const t = ev.target.closest("button"); if (!t) return;
+    if (t.id === "moreBtn") { const m = $("#moreMenu"); closePops("menu"); m.hidden = !m.hidden; t.setAttribute("aria-expanded", String(!m.hidden)); return; }
+    if (t.id === "alertBtn") { const p = $("#alertPop"); closePops("alert"); p.hidden = !p.hidden; t.setAttribute("aria-expanded", String(!p.hidden)); return; }
+    if (t.dataset.tab || t.dataset.go) closePops();
     if (t.dataset.tab) { S.tab = t.dataset.tab; try { localStorage.setItem("radar.tab", S.tab); } catch (e) {} schedule(); }
     else if (t.dataset.go) { S.tab = t.dataset.go; schedule(); }
     else if (t.id === "cancelRun") { S.cancelArm = true; S.cancelMsg = ""; renderLive(); }
@@ -1455,7 +1496,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     db.doc("scans/candidates").onSnapshot((snap) => { S.cands = snap.exists ? snap.data() : null; schedule(); }, onErr);
     db.doc("scans/details").onSnapshot((snap) => { S.details = snap.exists ? snap.data() : null; schedule(); }, onErr);
     db.doc("scans/ratings").onSnapshot((snap) => { S.ratings = snap.exists ? snap.data() : null; schedule(); }, onErr);
-    db.doc("config/profile").onSnapshot((snap) => { S.profile = snap.exists ? snap.data() : null; fillProfile(); schedule(); }, onErr);
+    db.doc("config/profile").onSnapshot((snap) => { S.profile = snap.exists ? snap.data() : null; S.profileLoaded = true; fillProfile(); schedule(); }, onErr);
     db.collection("runs").orderBy("started_at", "desc").limit(20).onSnapshot((snap) => { S.runs = snap.docs.map((d) => d.data()); schedule(); }, onErr);
     db.doc("config/main").onSnapshot((snap) => { S.config = snap.exists ? snap.data() : null; schedule(); }, onErr);
     schedule();
