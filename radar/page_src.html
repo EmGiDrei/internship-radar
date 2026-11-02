@@ -23,6 +23,8 @@
   --err: #c0362c;
   --err-bg: #fdeeec;
   --warn: #b7791f;
+  --orange: #e8730c;
+  --violet: #7c4ddb;
   --muted-bg: #f1f2f5;
   --shadow: 0 1px 2px rgba(16, 24, 40, .05);
   --shadow-pop: 0 12px 32px rgba(16, 24, 40, .14);
@@ -39,7 +41,7 @@
     --ink: #eceff3; --ink-2: #a3acb9; --ink-3: #6f7886;
     --accent: #6c8fff; --accent-ink: #0b1020; --accent-soft: #1a2342;
     --new: #f2b24c; --new-bg: #33260e; --ok: #4cc38a; --ok-bg: #11291c;
-    --err: #f2857a; --err-bg: #351614; --warn: #e0a84a; --muted-bg: #1b2028;
+    --err: #f2857a; --err-bg: #351614; --warn: #e0a84a; --muted-bg: #1b2028; --orange: #f59a4a; --violet: #a98bf0;
     --shadow: 0 1px 2px rgba(0,0,0,.35); --shadow-pop: 0 12px 32px rgba(0,0,0,.5);
     --term-bg: #090c10; --term-line: #1c232c; --bar-bg: #242a33;
     color-scheme: dark;
@@ -50,7 +52,7 @@
   --ink: #eceff3; --ink-2: #a3acb9; --ink-3: #6f7886;
   --accent: #6c8fff; --accent-ink: #0b1020; --accent-soft: #1a2342;
   --new: #f2b24c; --new-bg: #33260e; --ok: #4cc38a; --ok-bg: #11291c;
-  --err: #f2857a; --err-bg: #351614; --warn: #e0a84a; --muted-bg: #1b2028;
+  --err: #f2857a; --err-bg: #351614; --warn: #e0a84a; --muted-bg: #1b2028; --orange: #f59a4a; --violet: #a98bf0;
   --shadow: 0 1px 2px rgba(0,0,0,.35); --shadow-pop: 0 12px 32px rgba(0,0,0,.5);
   --term-bg: #090c10; --term-line: #1c232c; --bar-bg: #242a33;
   color-scheme: dark;
@@ -307,9 +309,11 @@ a.nrlink:hover { text-decoration: none; filter: brightness(.95); }
 .btn.primary.del { background: var(--err); border-color: var(--err); color: #ffffff; }
 .trash[disabled] { opacity: .4; cursor: default; }
 #appList tr.r-moved > td { background: var(--ok-bg); }
-#appList tr.r-moved > td:first-child { box-shadow: inset 3px 0 0 var(--ok); }
 #appList tr.r-off > td { background: var(--err-bg); }
-#appList tr.r-off > td:first-child { box-shadow: inset 3px 0 0 var(--err); }
+#appList tr[style] > td:first-child { box-shadow: inset 5px 0 0 var(--stc); }
+#appList tr[style]:not(.r-moved):not(.r-off) > td { background: color-mix(in srgb, var(--stc) 8%, var(--surface)); }
+#appList .appstat.st { border-color: color-mix(in srgb, var(--stc) 55%, var(--line-2)); background: color-mix(in srgb, var(--stc) 14%, var(--surface)); color: var(--ink); font-weight: 600; }
+.kcard[style] { box-shadow: inset 4px 0 0 var(--stc), var(--shadow); }
 .kcard.r-moved { background: var(--ok-bg); border-color: color-mix(in srgb, var(--ok) 45%, var(--line)); }
 .kcard.r-off { background: var(--err-bg); border-color: color-mix(in srgb, var(--err) 45%, var(--line)); }
 #appList th { white-space: nowrap; }
@@ -1210,7 +1214,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
   }
 
   /* ---------- Bewerberliste ---------- */
-  const APP_STATI = ["Offen", "Beworben", "Gespräch", "Zusage", "Absage", "Nicht relevant"];
+  const APP_STATI = ["Offen", "Anschreiben nötig", "Beworben", "Gespräch", "Zusage", "Absage", "Nicht relevant"];
   const normUrl = (u) => String(u || "").toLowerCase().replace(/[?#].*$/, "").replace(/\/+$/, "");
   const normCT = (c, t) => (String(c || "") + "|" + String(t || "")).toLowerCase().replace(/[^a-z0-9|äöüß]+/g, " ").trim();
   function appOnList(h) {
@@ -1325,9 +1329,9 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     box.innerHTML = `<div class="tablewrap"><table>
       <colgroup>${((w) => { const sum = w.reduce((a, b) => a + b, 0); return w.map((x) => `<col style="width:${((100 * x) / sum).toFixed(2)}%">`).join(""); })(colW())}</colgroup>
       <thead><tr>${COLS.map((c, i) => `<th${c.tip ? ` title="${esc(c.tip)}"` : ""}${c.key ? ` class="sortable${c.key === so ? " on" : ""}" data-asort="${c.key}" aria-sort="${c.key === so ? (aDesc(so) ? "descending" : "ascending") : "none"}"` : ""}>${esc(c.label)}${c.key === so ? `<span class="sarr">${aDesc(so) ? "▼" : "▲"}</span>` : ""}${i < COLS.length - 1 ? `<span class="col-rz" data-colrz="${i}" title="Breite ziehen · Doppelklick: Standard"></span>` : ""}</th>`).join("")}</tr></thead>
-      <tbody>${rows.map(([id, a]) => `<tr${rowMark(infoOf(a))}>
+      <tbody>${rows.map(([id, a]) => `<tr${rowMark(infoOf(a))}${stStyle(a.status)}>
         <td class="num">${a.url ? `<a class="nrlink" href="${esc(infoOf(a).moved || a.url)}" target="_blank" rel="noopener" title="Anzeige öffnen">${esc(a.nr || "↗")}</a>` : esc(a.nr || "")}</td>
-        <td><select class="appstat" data-appstatus="${esc(id)}" aria-label="Status"${S.canWrite ? "" : " disabled"}>${APP_STATI.concat(APP_STATI.includes(a.status) ? [] : [a.status]).map((x) => `<option${x === a.status ? " selected" : ""}>${esc(x)}</option>`).join("")}</select></td>
+        <td><select class="appstat${ST_COLOR[a.status] ? " st" : ""}" data-appstatus="${esc(id)}" aria-label="Status"${S.canWrite ? "" : " disabled"}>${APP_STATI.concat(APP_STATI.includes(a.status) ? [] : [a.status]).map((x) => `<option${x === a.status ? " selected" : ""}>${esc(x)}</option>`).join("")}</select></td>
         <td>${rateOf(a.url) ? prioBadge(rateOf(a.url)) : '<span class="prio p-none">–</span>'}</td>
         <td class="name"><input class="appcom" data-appcompany="${esc(id)}" value="${esc(a.company || "")}" aria-label="Unternehmen"${S.canWrite ? "" : " disabled"}></td>
         <td><input class="appcom" data-apptitle="${esc(id)}" value="${esc(a.title || "")}" aria-label="Job-Titel"${S.canWrite ? "" : " disabled"}>${dupOf(a) ? `<span class="badge dup" title="Gleicher Link wie Nr. ${esc(dupOf(a).join(", "))}">gleicher Link wie Nr. ${esc(dupOf(a).join(", "))}</span>` : ""}</td>
@@ -1338,7 +1342,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
   }
 
   // Spalten der Bewerberliste: Breite per Ziehen am rechten Rand, gemerkt im Browser
-  const COLS = [{ label: "Nr.", w: 60, key: "nr" }, { label: "Status", w: 128, key: "status" }, { label: "Prio", w: 52, key: "prio", tip: "KI-Bewertung nach deinem Profil" }, { label: "Unternehmen", w: 150, key: "firma" },
+  const COLS = [{ label: "Nr.", w: 60, key: "nr" }, { label: "Status", w: 168, key: "status" }, { label: "Prio", w: 52, key: "prio", tip: "KI-Bewertung nach deinem Profil" }, { label: "Unternehmen", w: 150, key: "firma" },
     { label: "Job-Titel", w: 250, key: "titel" }, { label: "Online", w: 74, key: "online", tip: "Wann die Anzeige veröffentlicht wurde" }, { label: "Start", w: 104, key: "start", tip: "Startdatum laut Anzeige" }, { label: "Kommentar", w: 200, key: "kommentar" }, { label: "", w: 40 }];
   // Sortierrichtung: Klick auf die aktive Spaltenüberschrift dreht sie um; Prio, Online und „Neueste“ starten absteigend
   const A_DESC_DEFAULT = new Set(["prio", "online", "neu"]);
@@ -1355,7 +1359,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
   }
   function colW() {
     let w = null; try { w = JSON.parse(localStorage.getItem("radar.appCols2") || "null"); } catch (e) { w = S.appCols; }
-    return COLS.map((c, i) => Math.max(i === 0 ? c.w : 28, (Array.isArray(w) && w[i]) || c.w));   // Nr. bleibt breit genug für den Sortierpfeil
+    return COLS.map((c, i) => Math.max(i <= 1 ? c.w : 28, (Array.isArray(w) && w[i]) || c.w));   // Nr. und Status bleiben breit genug für Pfeil bzw. „Anschreiben nötig“
   }
   function setColW(i, px) {
     const w = colW(); w[i] = Math.max(28, Math.round(px)); S.appCols = w;
@@ -1366,7 +1370,9 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
   const rowMark = (i) => i.moved ? ' class="r-moved" data-full="Neu ausgeschrieben – Nr. öffnet die neue Anzeige"'
     : i.off ? ` class="r-off" data-full="${esc("Offline seit " + fmtDate(i.off))}"` : "";
   const PIPE = ["Offen", "Beworben", "Gespräch", "Zusage"];
-  const ST_COLOR = { Offen: "var(--line-2)", Beworben: "color-mix(in srgb, var(--accent) 45%, var(--surface))", "Gespräch": "var(--accent)", Zusage: "var(--ok)", Absage: "var(--err)", "Nicht relevant": "var(--ink-3)" };
+  // Statusfarbe: Streifen links in der Zeile, getöntes Status-Feld, Rand der Board-Karte (Offen bleibt neutral)
+  const ST_COLOR = { "Anschreiben nötig": "var(--orange)", Beworben: "var(--accent)", "Gespräch": "var(--violet)", Zusage: "var(--ok)", Absage: "var(--err)", "Nicht relevant": "var(--ink-3)" };
+  const stStyle = (st) => ST_COLOR[st] ? ` style="--stc:${ST_COLOR[st]}"` : "";
   const daysSince = (iso) => iso ? Math.floor((Date.now() - new Date(iso)) / 864e5) : null;
   // Pipeline: wie viele Bewerbungen welche Stufe erreicht haben (aktueller Status + Verlauf), dazu Absagen und Hinweise
   function renderPipe(all, infoOf) {
@@ -1382,7 +1388,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     const active = all.filter(([, a]) => a.status !== "Nicht relevant").length;
     const r = PIPE.map((st) => (st === "Offen" ? active : reached(st)));
     const stages = PIPE.map((st, i) => `<div class="stage s-${esc(st)}" data-stage="${i}"><div class="l">${i === 0 ? "Auf der Liste" : esc(st === "Gespräch" ? "Einladung / Gespräch" : st)}</div><div class="n" data-n="${r[i]}">${S.pipePrev ? S.pipePrev[i] : r[i]}</div>
-      <div class="cv">${i === 0 ? `davon offen: ${cnt.Offen || 0}` : `<b>${r[i - 1] ? Math.round((100 * r[i]) / r[i - 1]) : 0} %</b> von ${esc(i === 1 ? "Liste" : PIPE[i - 1] === "Gespräch" ? "Gesprächen" : PIPE[i - 1])}`}</div></div>`).join("");
+      <div class="cv">${i === 0 ? `davon offen: ${(cnt.Offen || 0) + (cnt["Anschreiben nötig"] || 0)}${cnt["Anschreiben nötig"] ? ` · Anschreiben: ${cnt["Anschreiben nötig"]}` : ""}` : `<b>${r[i - 1] ? Math.round((100 * r[i]) / r[i - 1]) : 0} %</b> von ${esc(i === 1 ? "Liste" : PIPE[i - 1] === "Gespräch" ? "Gesprächen" : PIPE[i - 1])}`}</div></div>`).join("");
     box.innerHTML = `<div class="pipe"><div class="pipe-head"><h3>Bewerbungs-Pipeline</h3></div>
       <div class="flow">${stages}</div></div>`;
     animatePipe(r);
@@ -1409,7 +1415,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
       const items = rows.filter(([, a]) => (a.status || "Offen") === st);
       return `<div class="kcol" data-kcol="${esc(st)}"><div class="khead"><span>${esc(st)}</span><span class="badge">${items.length}</span></div>${items.map(([id, a]) => {
         const rt = rateOf(a.url), i = infoOf(a), d = daysSince(a.status_at);
-        return `<div class="kcard${i.moved ? " r-moved" : i.off ? " r-off" : ""}" draggable="${S.canWrite}" data-kcard="${esc(id)}" title="${esc((i.moved ? "Neu ausgeschrieben · " : i.off ? "Offline seit " + fmtDate(i.off) + " · " : "") + (rt ? rateTip(rt) : ""))}"><div class="kt">${esc(a.title || "")}</div><div class="kc">${esc(a.company || "")}</div>
+        return `<div class="kcard${i.moved ? " r-moved" : i.off ? " r-off" : ""}"${stStyle(a.status)} draggable="${S.canWrite}" data-kcard="${esc(id)}" title="${esc((i.moved ? "Neu ausgeschrieben · " : i.off ? "Offline seit " + fmtDate(i.off) + " · " : "") + (rt ? rateTip(rt) : ""))}"><div class="kt">${esc(a.title || "")}</div><div class="kc">${esc(a.company || "")}</div>
           <div class="km">${prioBadge(rt)}${i.sd ? `<span>Start ${esc(i.sd)}</span>` : ""}${d != null ? `<span>seit ${d} T.</span>` : ""}${a.url ? `<a href="${esc(i.moved || a.url)}" target="_blank" rel="noopener">öffnen</a>` : ""}</div></div>`;
       }).join("")}</div>`;
     }).join("")}</div>`;
@@ -1697,7 +1703,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
   });
   document.addEventListener("change", (ev) => {
     const t = ev.target;
-    if (t.dataset?.appstatus) setStatus(t.dataset.appstatus, t.value);
+    if (t.dataset?.appstatus) { setStatus(t.dataset.appstatus, t.value); t.blur(); }   // blur, damit Zeile und Farbe sofort neu gezeichnet werden
     else if (t.dataset?.appcomment) updApp(t.dataset.appcomment, { comment: t.value.trim() });
     else if (t.dataset?.appcompany && t.value.trim()) updApp(t.dataset.appcompany, { company: t.value.trim() });
     else if (t.dataset?.apptitle && t.value.trim()) updApp(t.dataset.apptitle, { title: t.value.trim() });
