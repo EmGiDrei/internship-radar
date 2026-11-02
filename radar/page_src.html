@@ -1329,7 +1329,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     box.innerHTML = `<div class="tablewrap"><table>
       <colgroup>${((w) => { const sum = w.reduce((a, b) => a + b, 0); return w.map((x) => `<col style="width:${((100 * x) / sum).toFixed(2)}%">`).join(""); })(colW())}</colgroup>
       <thead><tr>${COLS.map((c, i) => `<th${c.tip ? ` title="${esc(c.tip)}"` : ""}${c.key ? ` class="sortable${c.key === so ? " on" : ""}" data-asort="${c.key}" aria-sort="${c.key === so ? (aDesc(so) ? "descending" : "ascending") : "none"}"` : ""}>${esc(c.label)}${c.key === so ? `<span class="sarr">${aDesc(so) ? "▼" : "▲"}</span>` : ""}${i < COLS.length - 1 ? `<span class="col-rz" data-colrz="${i}" title="Breite ziehen · Doppelklick: Standard"></span>` : ""}</th>`).join("")}</tr></thead>
-      <tbody>${rows.map(([id, a]) => `<tr${rowMark(infoOf(a))}${stStyle(a.status)}>
+      <tbody>${rows.map(([id, a]) => `<tr${rowMark(infoOf(a), a.status)}${stStyle(a.status)}>
         <td class="num">${a.url ? `<a class="nrlink" href="${esc(infoOf(a).moved || a.url)}" target="_blank" rel="noopener" title="Anzeige öffnen">${esc(a.nr || "↗")}</a>` : esc(a.nr || "")}</td>
         <td><select class="appstat${ST_COLOR[a.status] ? " st" : ""}" data-appstatus="${esc(id)}" aria-label="Status"${S.canWrite ? "" : " disabled"}>${APP_STATI.concat(APP_STATI.includes(a.status) ? [] : [a.status]).map((x) => `<option${x === a.status ? " selected" : ""}>${esc(x)}</option>`).join("")}</select></td>
         <td>${rateOf(a.url) ? prioBadge(rateOf(a.url)) : '<span class="prio p-none">–</span>'}</td>
@@ -1367,8 +1367,9 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     return w;
   }
   // Grün = neu ausgeschrieben (Nr. öffnet die neue Anzeige), rot = offline
-  const rowMark = (i) => i.moved ? ' class="r-moved" data-full="Neu ausgeschrieben – Nr. öffnet die neue Anzeige"'
-    : i.off ? ` class="r-off" data-full="${esc("Offline seit " + fmtDate(i.off))}"` : "";
+  // Hat die Stelle einen farbigen Status, gilt nur die Statusfarbe; der Hinweis bleibt als Tooltip
+  const rowMark = (i, st) => { const c = ST_COLOR[st] ? "" : i.moved ? ' class="r-moved"' : i.off ? ' class="r-off"' : "";
+    return i.moved ? c + ' data-full="Neu ausgeschrieben – Nr. öffnet die neue Anzeige"' : i.off ? c + ` data-full="${esc("Offline seit " + fmtDate(i.off))}"` : ""; };
   const PIPE = ["Offen", "Beworben", "Gespräch", "Zusage"];
   // Statusfarbe: Streifen links in der Zeile, getöntes Status-Feld, Rand der Board-Karte (Offen bleibt neutral)
   const ST_COLOR = { "Anschreiben nötig": "var(--orange)", Beworben: "var(--accent)", "Gespräch": "var(--violet)", Zusage: "var(--ok)", Absage: "var(--err)", "Nicht relevant": "var(--ink-3)" };
@@ -1415,7 +1416,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
       const items = rows.filter(([, a]) => (a.status || "Offen") === st);
       return `<div class="kcol" data-kcol="${esc(st)}"><div class="khead"><span>${esc(st)}</span><span class="badge">${items.length}</span></div>${items.map(([id, a]) => {
         const rt = rateOf(a.url), i = infoOf(a), d = daysSince(a.status_at);
-        return `<div class="kcard${i.moved ? " r-moved" : i.off ? " r-off" : ""}"${stStyle(a.status)} draggable="${S.canWrite}" data-kcard="${esc(id)}" title="${esc((i.moved ? "Neu ausgeschrieben · " : i.off ? "Offline seit " + fmtDate(i.off) + " · " : "") + (rt ? rateTip(rt) : ""))}"><div class="kt">${esc(a.title || "")}</div><div class="kc">${esc(a.company || "")}</div>
+        return `<div class="kcard${ST_COLOR[a.status] ? "" : i.moved ? " r-moved" : i.off ? " r-off" : ""}"${stStyle(a.status)} draggable="${S.canWrite}" data-kcard="${esc(id)}" title="${esc((i.moved ? "Neu ausgeschrieben · " : i.off ? "Offline seit " + fmtDate(i.off) + " · " : "") + (rt ? rateTip(rt) : ""))}"><div class="kt">${esc(a.title || "")}</div><div class="kc">${esc(a.company || "")}</div>
           <div class="km">${prioBadge(rt)}${i.sd ? `<span>Start ${esc(i.sd)}</span>` : ""}${d != null ? `<span>seit ${d} T.</span>` : ""}${a.url ? `<a href="${esc(i.moved || a.url)}" target="_blank" rel="noopener">öffnen</a>` : ""}</div></div>`;
       }).join("")}</div>`;
     }).join("")}</div>`;
