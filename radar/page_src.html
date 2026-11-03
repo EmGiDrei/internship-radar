@@ -300,6 +300,7 @@ td .srcb { margin-top: 4px; }
 #appList td { overflow: hidden; }
 #appList .appcom { min-width: 0; text-overflow: ellipsis; }
 textarea.appnote { display: block; resize: none; overflow: hidden; line-height: 1.4; white-space: pre-wrap; overflow-wrap: anywhere; min-height: 28px; }
+textarea.appnote:not(:focus) { max-height: 47px; }   /* höchstens zwei Zeilen; ganzer Text beim Hovern bzw. beim Bearbeiten */
 .col-rz { position: absolute; top: 0; right: 0; width: 8px; height: 100%; cursor: col-resize; touch-action: none; }
 .col-rz::after { content: ""; position: absolute; top: 25%; bottom: 25%; right: 3px; width: 2px; border-radius: 2px; background: var(--line-2); }
 .col-rz:hover::after, .col-rz.on::after { background: var(--accent); top: 0; bottom: 0; }
@@ -1733,15 +1734,16 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
   $("#scanBtn").addEventListener("click", startScan);
   // Volltext beim Überfahren: Felder der Bewerberliste, deren Inhalt abgeschnitten ist
   const tip = $("#tip");
-  const fullText = (el) => el.matches?.("input.appcom") ? el.value : el.dataset.full || el.textContent.trim();
+  const fullText = (el) => el.matches?.(".appcom") ? el.value : el.dataset.full || el.textContent.trim();
   const mctx = document.createElement("canvas").getContext("2d");
   function overflows(el) {
+    if (el.tagName === "TEXTAREA") return el.scrollHeight > el.clientHeight + 1;
     const cs = getComputedStyle(el), txt = fullText(el);
     mctx.font = `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
     const avail = el.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
     return mctx.measureText(txt).width > avail + 1 || el.scrollWidth > el.clientWidth + 1;
   }
-  const HOVER = "input.appcom, [data-full], td[data-fit]";
+  const HOVER = ".appcom, [data-full], td[data-fit]";
   document.addEventListener("mouseover", (ev) => {
     const el = ev.target.closest?.(HOVER);
     const txt = el && document.activeElement !== el ? fullText(el) : "";
