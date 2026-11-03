@@ -299,6 +299,7 @@ td .srcb { margin-top: 4px; }
 #appList th { position: relative; overflow: hidden; text-overflow: ellipsis; }
 #appList td { overflow: hidden; }
 #appList .appcom { min-width: 0; text-overflow: ellipsis; }
+textarea.appnote { display: block; resize: none; overflow: hidden; line-height: 1.4; white-space: pre-wrap; overflow-wrap: anywhere; min-height: 28px; }
 .col-rz { position: absolute; top: 0; right: 0; width: 8px; height: 100%; cursor: col-resize; touch-action: none; }
 .col-rz::after { content: ""; position: absolute; top: 25%; bottom: 25%; right: 3px; width: 2px; border-radius: 2px; background: var(--line-2); }
 .col-rz:hover::after, .col-rz.on::after { background: var(--accent); top: 0; bottom: 0; }
@@ -1322,7 +1323,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     document.querySelectorAll("[data-appview]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.appview === S.appView)));
     if (!rows.length && all.length) { box.innerHTML = `<div class="list"><div class="empty"><strong>Nichts passt zu den Filtern</strong>Suche oder Filter zurücksetzen.</div></div>`; return; }
     if (!all.length) { box.innerHTML = `<div class="list"><div class="empty"><strong>Noch nichts auf der Liste</strong>Im Tab „Praktika“ bei einer Stelle auf „+ Bewerberliste“ klicken.</div></div>`; return; }
-    const active = document.activeElement; if (active && box.contains(active) && /INPUT|SELECT/.test(active.tagName)) return;
+    const active = document.activeElement; if (active && box.contains(active) && /INPUT|SELECT|TEXTAREA/.test(active.tagName)) return;
     const done = all.filter(([, a]) => ["Beworben", "Gespräch", "Zusage"].includes(a.status)).length;
     const dups = all.filter(([, a]) => dupOf(a)).length;
     if (S.appView === "board") { box.innerHTML = boardHtml(rows, infoOf); return; }
@@ -1336,9 +1337,10 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
         <td class="name"><input class="appcom" data-appcompany="${esc(id)}" value="${esc(a.company || "")}" aria-label="Unternehmen"${S.canWrite ? "" : " disabled"}></td>
         <td><input class="appcom" data-apptitle="${esc(id)}" value="${esc(a.title || "")}" aria-label="Job-Titel"${S.canWrite ? "" : " disabled"}>${dupOf(a) ? `<span class="badge dup" title="Gleicher Link wie Nr. ${esc(dupOf(a).join(", "))}">gleicher Link wie Nr. ${esc(dupOf(a).join(", "))}</span>` : ""}</td>
         ${((i) => `<td class="when">${i.pd ? esc(fmtDate(i.pd)) : "–"}</td><td class="sd"${i.sd ? ` data-fit="1"` : ""}>${i.sd ? esc(i.sd) : '<span class="when">–</span>'}</td>`)(infoOf(a))}
-        <td><input class="appcom" data-appcomment="${esc(id)}" value="${esc(a.comment || "")}" placeholder="Notiz …" aria-label="Kommentar"${S.canWrite ? "" : " disabled"}></td>
+        <td><textarea class="appcom appnote" data-appcomment="${esc(id)}" rows="1" placeholder="Notiz …" aria-label="Kommentar (Umschalt+Enter oder Alt+Enter: neue Zeile)"${S.canWrite ? "" : " disabled"}>${esc(a.comment || "")}</textarea></td>
         <td><button class="trash" type="button" data-delapp="${esc(id)}" title="In den Papierkorb" aria-label="In den Papierkorb"${S.canWrite ? "" : " disabled"}><svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><path d="M2.5 4h11M6.5 4V2.5h3V4M4 4l.7 9.2c.05.7.6 1.3 1.3 1.3h4c.7 0 1.25-.6 1.3-1.3L12 4M6.8 7v5M9.2 7v5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button></td>
       </tr>`).join("")}</tbody></table></div>`;
+    box.querySelectorAll("textarea.appnote").forEach(fitNote);
   }
 
   // Spalten der Bewerberliste: Breite per Ziehen am rechten Rand, gemerkt im Browser
@@ -1671,7 +1673,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     if (t.dataset.alertx) { dismissAlert(t.dataset.alertx); return; }
     if (t.id === "alertBtn") { const p = $("#alertPop"); closePops("alert"); p.hidden = !p.hidden; t.setAttribute("aria-expanded", String(!p.hidden)); return; }
     if (t.dataset.tab || t.dataset.go) closePops();
-    if (t.dataset.tab) { S.tab = t.dataset.tab; try { localStorage.setItem("radar.tab", S.tab); } catch (e) {} schedule(); }
+    if (t.dataset.tab) { S.tab = t.dataset.tab; try { localStorage.setItem("radar.tab", S.tab); } catch (e) {} schedule(); setTimeout(() => document.querySelectorAll("textarea.appnote").forEach(fitNote), 60); }
     else if (t.dataset.go) { S.tab = t.dataset.go; schedule(); }
     else if (t.id === "cancelRun") { S.cancelArm = true; S.cancelMsg = ""; renderLive(); }
     else if (t.id === "cancelNo") { S.cancelArm = false; renderLive(); }
@@ -1702,6 +1704,9 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     else if (t.id === "schedBtn") loadSchedule();
     else if (t.id === "syncBtn") syncApproved();
   });
+  // Kommentarfeld wächst mit dem Text (eine Zeile je Mail-Eintrag bzw. Notiz)
+  function fitNote(t) { if (!t.offsetParent) return; t.style.height = "auto"; t.style.height = t.scrollHeight + 2 + "px"; }
+  document.addEventListener("input", (ev) => { if (ev.target.matches?.("textarea.appnote")) fitNote(ev.target); });
   document.addEventListener("change", (ev) => {
     const t = ev.target;
     if (t.dataset?.appstatus) { setStatus(t.dataset.appstatus, t.value); t.blur(); }   // blur, damit Zeile und Farbe sofort neu gezeichnet werden
@@ -1770,7 +1775,12 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
   document.addEventListener("dblclick", (ev) => { const h = ev.target.closest?.("[data-colrz]"); if (h) { S.appCols = null; try { localStorage.removeItem("radar.appCols2"); } catch (e) {} schedule(); } });
   document.addEventListener("keydown", (ev) => {
     const t = ev.target;
-    if (t.classList?.contains("appcom") && (ev.key === "Enter" || ev.key === "Escape")) { ev.preventDefault(); if (ev.key === "Escape") t.value = t.defaultValue; t.blur(); schedule(); }
+    if (!t.classList?.contains("appcom")) return;
+    if (ev.key === "Enter" && t.tagName === "TEXTAREA" && (ev.shiftKey || ev.altKey)) {   // Kommentar: neue Zeile wie in Excel
+      if (ev.altKey) { ev.preventDefault(); t.setRangeText("\n", t.selectionStart, t.selectionEnd, "end"); fitNote(t); }
+      return;
+    }
+    if (ev.key === "Enter" || ev.key === "Escape") { ev.preventDefault(); if (ev.key === "Escape") { t.value = t.defaultValue; if (t.tagName === "TEXTAREA") fitNote(t); } t.blur(); schedule(); }
   });
   let dragId = null;
   document.addEventListener("dragstart", (ev) => { const c = ev.target.closest?.("[data-kcard]"); if (c) { dragId = c.dataset.kcard; ev.dataTransfer.effectAllowed = "move"; ev.dataTransfer.setData("text/plain", dragId); } });
