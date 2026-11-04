@@ -137,6 +137,14 @@ def a_personio(org, tld):
         root = ET.fromstring(txt.encode('utf-8'))
         jobs = [(p.findtext('name') or '', p.findtext('office') or '', f'https://{org}.jobs.personio.{t}/job/{p.findtext("id")}', pdate(p.findtext('createdAt'))) for p in root.iter('position')]
         return jobs, len(jobs)
+    for t in [tld] + [x for x in ('de', 'com') if x != tld]:   # XML-Export abgeschaltet → Stellenliste aus der Personio-Seite lesen
+        try: base, txt = get(f'https://{org}.jobs.personio.{t}/')
+        except HttpErr: continue
+        jobs, seen = [], set()
+        for u, tx in links(base, txt):
+            if re.search(r'\.jobs\.personio\.(de|com)/job/\d+', u) and u.split('?')[0] not in seen:
+                seen.add(u.split('?')[0]); jobs.append((tx, '', u.split('?')[0]))
+        if jobs: return jobs, len(jobs)
     raise last or HttpErr('Personio nicht gefunden')
 def a_ashby(org):
     d = getjson(f'https://api.ashbyhq.com/posting-api/job-board/{org}')
