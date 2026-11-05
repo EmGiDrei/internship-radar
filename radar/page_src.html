@@ -355,8 +355,9 @@ dialog.iv .dlg { gap: 16px; padding: 22px 24px; }
 .iv-tag { margin: 6px 0 0; color: var(--ink-2); font-size: 14px; line-height: 1.5; }
 .iv-meta { display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 13px; color: var(--ink-2); padding: 10px 12px; background: var(--surface-2); border-radius: 10px; }
 .iv-meta b { color: var(--ink-3); font-weight: 600; margin-right: 4px; }
+.iv-meta a.li { margin-left: 6px; font-weight: 600; color: #0a66c2; }
 .iv-set { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 13px; color: var(--ink-2); }
-.iv-set label { display: flex; gap: 8px; align-items: center; }
+.iv-set label { display: flex; gap: 8px; align-items: center; white-space: nowrap; }
 .iv-facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
 .iv-facts div { border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; display: grid; gap: 2px; align-content: start; }
 .iv-facts span { font-size: 11px; color: var(--ink-3); text-transform: uppercase; letter-spacing: .05em; font-weight: 600; }
@@ -1374,7 +1375,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     const next = all.filter(([, iv]) => iv.start && new Date(iv.start).getTime() + (iv.dur_min || 30) * 6e4 >= now && iv.status !== "abgesagt").sort((a, b) => a[1].start.localeCompare(b[1].start));
     const past = all.filter(([, iv]) => iv.start && new Date(iv.start).getTime() + (iv.dur_min || 30) * 6e4 < now).sort((a, b) => b[1].start.localeCompare(a[1].start)).slice(0, 5);
     const card = ([id, iv], extra = "") => `<div class="iv-card" data-iv="${esc(id)}" role="button" tabindex="0"><div class="iv-top"><strong>${esc(iv.company)}</strong><span class="iv-kind">${esc(iv.kind || "Gespräch")}</span></div>
-      <div class="iv-when">${esc(ivWhen(iv))}${iv.with ? ` · mit ${esc(iv.with)}` : ""}</div>${extra}<div class="iv-more">One-Pager öffnen →</div></div>`;
+      <div class="iv-when">${esc(ivWhen(iv))}${iv.with ? ` · mit ${esc(iv.with)}` : ""}${iv.with ? " " + liLink(iv) : ""}</div>${extra}<div class="iv-more">One-Pager öffnen →</div></div>`;
     const book = ([id, iv]) => card([id, iv], `<div class="iv-book">${iv.booking_url ? `<a class="btn small primary" href="${esc(iv.booking_url)}" target="_blank" rel="noopener">Termin buchen ↗</a>` : ""}<span class="iv-hint">Gebucht? Zeit im One-Pager eintragen – oder der Mail-Abgleich trägt sie ein.</span></div>`);
     $("#calSide").innerHTML = `<div class="cal-sec"><h4>Nächste Termine</h4>${next.length ? next.map((x) => card(x)).join("") : '<div class="iv-empty">Keine anstehenden Gespräche.</div>'}</div>`
       + (open.length ? `<div class="cal-sec"><h4>Eingeladen – noch zu buchen</h4>${open.map(book).join("")}</div>` : "")
@@ -1386,8 +1387,8 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     const li = (x) => `<li>${esc(x)}</li>`;
     const local = iv.start ? (() => { const d = new Date(iv.start); return new Date(d.getTime() - d.getTimezoneOffset() * 6e4).toISOString().slice(0, 16); })() : "";
     $("#ivBody").innerHTML = `<div class="iv-hd"><div><div class="iv-kicker">${esc(iv.kind || "Gespräch")} · ${esc(iv.title || app?.title || "")}</div><h2 id="ivTitle">${esc(iv.company)}</h2>${op.tagline ? `<p class="iv-tag">${esc(op.tagline)}</p>` : ""}</div><button class="ibtn" type="button" id="ivClose" aria-label="Schließen">✕</button></div>
-      <div class="iv-meta"><span><b>Wann</b> ${esc(ivWhen(iv))}${iv.dur_min ? ` · ${esc(iv.dur_min)} Min.` : ""}</span>${iv.with ? `<span><b>Mit</b> ${esc(iv.with)}</span>` : ""}${iv.booking_url && !iv.start ? `<a href="${esc(iv.booking_url)}" target="_blank" rel="noopener">Termin buchen ↗</a>` : ""}${iv.join_url ? `<a href="${esc(iv.join_url)}" target="_blank" rel="noopener">Call beitreten ↗</a>` : ""}${app?.url ? `<a href="${esc(app.url)}" target="_blank" rel="noopener">Stellenanzeige ↗</a>` : ""}</div>
-      ${S.canWrite ? `<div class="iv-set"><label>Termin <input type="datetime-local" class="field" id="ivStart" value="${esc(local)}"></label><button class="btn small" type="button" data-ivsave="${esc(id)}">Speichern</button></div>` : ""}
+      <div class="iv-meta"><span><b>Wann</b> ${esc(ivWhen(iv))}${iv.dur_min ? ` · ${esc(iv.dur_min)} Min.` : ""}</span>${iv.with ? `<span><b>Mit</b> ${esc(iv.with)} ${liLink(iv)}</span>` : ""}${iv.booking_url && !iv.start ? `<a href="${esc(iv.booking_url)}" target="_blank" rel="noopener">Termin buchen ↗</a>` : ""}${iv.join_url ? `<a href="${esc(iv.join_url)}" target="_blank" rel="noopener">Call beitreten ↗</a>` : ""}${app?.url ? `<a href="${esc(app.url)}" target="_blank" rel="noopener">Stellenanzeige ↗</a>` : ""}</div>
+      ${S.canWrite ? `<div class="iv-set"><label>Termin <input type="datetime-local" class="field" id="ivStart" value="${esc(local)}"></label>${iv.with ? `<label>LinkedIn-Profil <input type="url" class="field" id="ivLi" placeholder="https://www.linkedin.com/in/…" value="${esc(iv.li || "")}"></label>` : ""}<button class="btn small" type="button" data-ivsave="${esc(id)}">Speichern</button></div>` : ""}
       ${(op.facts || []).length ? `<div class="iv-facts">${op.facts.map(([k, v]) => `<div><span>${esc(k)}</span><b>${esc(v)}</b></div>`).join("")}</div>` : ""}
       ${(op.sections || []).map((sc) => `<div class="iv-sec"><h3>${esc(sc.h)}</h3><ul>${(sc.items || []).map(li).join("")}</ul></div>`).join("")}
       ${(op.questions || []).length ? `<div class="iv-sec q"><h3>Gute Fragen fürs Gespräch</h3><ul>${op.questions.map(li).join("")}</ul></div>` : ""}
@@ -1395,10 +1396,18 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
       ${(op.sources || []).length ? `<div class="iv-src">Quellen: ${op.sources.map((x) => `<a href="${esc(x.u)}" target="_blank" rel="noopener">${esc(x.t)}</a>`).join(" · ")}${op.at ? ` · Stand ${esc(fmtDate(op.at))}` : ""}</div>` : '<div class="iv-src">One-Pager wird beim nächsten Mail-Abgleich erstellt.</div>'}`;
     if (!$("#ivDlg").open) $("#ivDlg").showModal();
   }
+  // LinkedIn: gespeichertes Profil, sonst die Personensuche mit Name + Firma (öffnet im eingeloggten Browser)
+  const liLink = (iv) => {
+    const name = String(iv.with || "").replace(/\(.*?\)/g, "").split(/,| und | & /)[0].trim();
+    if (iv.li) return `<a class="li" href="${esc(iv.li)}" target="_blank" rel="noopener">LinkedIn ↗</a>`;
+    if (!name || /team|hiring|recruiting/i.test(name)) return "";
+    return `<a class="li" href="https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(name + " " + iv.company)}" target="_blank" rel="noopener" title="LinkedIn-Suche nach ${esc(name)} (${esc(iv.company)})">auf LinkedIn suchen ↗</a>`;
+  };
   async function saveIvTime(id) {
     const v = $("#ivStart").value; if (!S.db) return;
     const start = v ? new Date(v).toISOString() : null;
-    await S.db.doc("interviews/" + id).update({ start, status: start ? "gebucht" : "einladung" });
+    const li = ($("#ivLi")?.value || "").trim();
+    await S.db.doc("interviews/" + id).update({ start, status: start ? "gebucht" : "einladung", ...($("#ivLi") ? { li: /^https?:\/\/([a-z]+\.)?linkedin\.com\//i.test(li) ? li : "" } : {}) });
     openIv(id);
   }
   function renderTrash() {
