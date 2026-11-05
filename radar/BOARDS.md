@@ -85,3 +85,9 @@ Claude vergibt `fit`, `imp` (Impact), `su` (Startup-Stärke), je 0–100, plus `
 Statuswechsel im Artefakt schreiben `status_at` und `hist[<Status>]` in `applications/<id>`. Die Pipeline zählt je Stufe, wie viele Bewerbungen sie erreicht haben (aktueller Status oder Verlauf). Board-Ansicht mit Drag & Drop.
 
 `config/main.trigger_id` muss auf die aktive Aufgabe „Praktikums-Radar Scan“ zeigen (`trig_012zMiJBTYKuXzEPAmn85Ko5`, täglich 06:55 Europe/Paris). Die alten, deaktivierten Aufgaben laufen in einer Umgebung ohne Netzwerkzugriff.
+
+## Termine (Kalender + One-Pager)
+
+Reiter „Termine“ im Artefakt: Monatsansicht plus Liste „Nächste Termine“ / „Eingeladen – noch zu buchen“ / „Vorbei“. Daten: Collection `interviews`, je Gespräch ein Dokument `<firma>-<runde>` = `{company, title, app_id, kind, status: einladung|gebucht|abgesagt, start (ISO|null), dur_min, with, booking_url, join_url, mail_at, source, onepager}`.
+`onepager` = `{tagline, facts: [[k, v]], sections: [{h, items}], questions, pitch, sources: [{t, u}], at}`; ein Klick auf einen Eintrag öffnet ihn. Datum/Uhrzeit lassen sich im One-Pager setzen (falls die Buchungsbestätigung nicht in Gmail landet).
+Gepflegt vom Mail-Abgleich (geplante Aufgabe „Bewerbungs-Mails abgleichen“, 07:12/12:12/19:12): Einladungen und Terminbestätigungen → Eintrag, fehlender One-Pager → Web-Recherche (höchstens 5 Suchen).

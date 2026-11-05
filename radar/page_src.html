@@ -319,6 +319,52 @@ a.nrlink:hover { text-decoration: none; filter: brightness(.95); }
 .kcard.r-moved { background: var(--ok-bg); border-color: color-mix(in srgb, var(--ok) 45%, var(--line)); }
 .kcard.r-off { background: var(--err-bg); border-color: color-mix(in srgb, var(--err) 45%, var(--line)); }
 #appList th { white-space: nowrap; }
+.tabs .tab .tcount { min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px; background: var(--accent); color: var(--accent-ink); font-size: 11.5px; font-weight: 700; display: inline-grid; place-items: center; }
+.cal-wrap { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(260px, 1fr); gap: 16px; align-items: start; }
+@media (max-width: 860px) { .cal-wrap { grid-template-columns: 1fr; } }
+.cal-card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px; box-shadow: var(--shadow); }
+.cal-head { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.cal-head h3 { margin: 0; font-size: 16px; font-weight: 700; flex: 1; text-align: center; text-transform: capitalize; }
+.cal-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+.cal-dow { font-size: 11px; font-weight: 600; color: var(--ink-3); text-transform: uppercase; letter-spacing: .05em; padding: 2px 6px; }
+.cal-day { min-height: 84px; border: 1px solid var(--line); border-radius: 8px; padding: 4px; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.cal-day.out { opacity: .45; }
+.cal-day.today { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.cal-day .dn { font-size: 12px; font-weight: 600; color: var(--ink-2); padding: 0 2px; }
+.cal-day.today .dn { color: var(--accent); }
+.cal-ev { border: 0; text-align: left; font: inherit; font-size: 11.5px; line-height: 1.3; padding: 3px 5px; border-radius: 5px; background: color-mix(in srgb, var(--violet) 16%, var(--surface)); color: var(--ink); cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; box-shadow: inset 3px 0 0 var(--violet); }
+.cal-ev:hover { background: color-mix(in srgb, var(--violet) 26%, var(--surface)); }
+@media (max-width: 600px) { .cal-day { min-height: 56px; } .cal-ev b { display: none; } }
+.cal-side { display: grid; gap: 16px; }
+.cal-sec h4 { margin: 0 0 8px; font-size: 12px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: .05em; }
+.cal-sec { display: grid; gap: 8px; }
+.iv-card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; cursor: pointer; box-shadow: inset 4px 0 0 var(--violet), var(--shadow); display: grid; gap: 4px; }
+.iv-card:hover { border-color: color-mix(in srgb, var(--violet) 50%, var(--line)); }
+.iv-top { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+.iv-kind { font-size: 11.5px; color: var(--violet); font-weight: 600; }
+.iv-when { font-size: 13px; color: var(--ink-2); }
+.iv-more { font-size: 12px; color: var(--accent); font-weight: 600; }
+.iv-book { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 4px; }
+.iv-hint { font-size: 11.5px; color: var(--ink-3); }
+.iv-empty { font-size: 13px; color: var(--ink-3); padding: 10px 0; }
+dialog.iv { width: min(760px, calc(100vw - 24px)); max-height: calc(100vh - 40px); }
+dialog.iv .dlg { gap: 16px; padding: 22px 24px; }
+.iv-hd { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
+.iv-hd h2 { font-size: 22px; }
+.iv-kicker { font-size: 12px; font-weight: 600; color: var(--violet); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 4px; }
+.iv-tag { margin: 6px 0 0; color: var(--ink-2); font-size: 14px; line-height: 1.5; }
+.iv-meta { display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 13px; color: var(--ink-2); padding: 10px 12px; background: var(--surface-2); border-radius: 10px; }
+.iv-meta b { color: var(--ink-3); font-weight: 600; margin-right: 4px; }
+.iv-set { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 13px; color: var(--ink-2); }
+.iv-set label { display: flex; gap: 8px; align-items: center; }
+.iv-facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
+.iv-facts div { border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; display: grid; gap: 2px; align-content: start; }
+.iv-facts span { font-size: 11px; color: var(--ink-3); text-transform: uppercase; letter-spacing: .05em; font-weight: 600; }
+.iv-facts b { font-size: 13.5px; font-weight: 600; line-height: 1.35; }
+.iv-sec h3 { margin: 0 0 6px; font-size: 14px; font-weight: 700; }
+.iv-sec ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; font-size: 13.5px; line-height: 1.5; color: var(--ink); }
+.iv-sec.q { background: color-mix(in srgb, var(--accent) 7%, var(--surface)); border-radius: 10px; padding: 12px 14px; }
+.iv-src { font-size: 11.5px; color: var(--ink-3); line-height: 1.6; }
 #appList th.sortable { cursor: pointer; user-select: none; }
 #appList th.sortable:hover, #appList th.on { color: var(--ink); }
 #appList th .sarr { font-size: 9px; margin-left: 3px; color: var(--accent); }
@@ -502,6 +548,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
   <nav class="tabs" role="tablist" aria-label="Ansicht">
     <button class="tab" role="tab" id="tab-praktika" data-tab="praktika" aria-selected="true"><svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M7 5.5V4.2c0-.7.5-1.2 1.2-1.2h3.6c.7 0 1.2.5 1.2 1.2v1.3M3.5 5.5h13c.6 0 1 .4 1 1v8.3c0 .7-.5 1.2-1.2 1.2H3.7c-.7 0-1.2-.5-1.2-1.2V6.5c0-.6.4-1 1-1zM2.5 10h15" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Praktika</span></button>
     <button class="tab" role="tab" id="tab-bewerbungen" data-tab="bewerbungen" aria-selected="false"><svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M7 3h6v2.5H7zM5.5 4H4.7c-.7 0-1.2.5-1.2 1.2v10.6c0 .7.5 1.2 1.2 1.2h10.6c.7 0 1.2-.5 1.2-1.2V5.2c0-.7-.5-1.2-1.2-1.2h-.8M7 10.5l2 2 4-4.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Bewerberliste</span></button>
+    <button class="tab" role="tab" id="tab-termine" data-tab="termine" aria-selected="false"><svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M4.7 4h10.6c.7 0 1.2.5 1.2 1.2v10.6c0 .7-.5 1.2-1.2 1.2H4.7c-.7 0-1.2-.5-1.2-1.2V5.2c0-.7.5-1.2 1.2-1.2zM3.5 8h13M7 2.5V5.5M13 2.5V5.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Termine</span><span class="tcount" id="c-termine" hidden></span></button>
   </nav>
 
   <section class="panel" id="p-praktika">
@@ -565,6 +612,16 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
       </div>
     </div>
     <div id="appList"></div>
+  </section>
+
+  <section class="panel" id="p-termine" hidden>
+    <div class="cal-wrap">
+      <div class="cal-card">
+        <div class="cal-head"><button class="ibtn" type="button" id="calPrev" aria-label="Vorheriger Monat">‹</button><h3 id="calTitle"></h3><button class="ibtn" type="button" id="calNext" aria-label="Nächster Monat">›</button><button class="btn small" type="button" id="calToday">Heute</button></div>
+        <div class="cal-grid" id="calGrid"></div>
+      </div>
+      <div class="cal-side" id="calSide"></div>
+    </div>
   </section>
 
   <section class="panel" id="p-startups" hidden>
@@ -651,6 +708,10 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
   </form>
 </dialog>
 
+<dialog id="ivDlg" class="iv" aria-labelledby="ivTitle">
+  <div class="dlg" id="ivBody"></div>
+</dialog>
+
 <dialog id="cfDlg" aria-labelledby="cfTitle">
   <div class="dlg">
     <h2 id="cfTitle">Stelle löschen?</h2>
@@ -712,7 +773,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     db: null, mcp: null, user: null, canWrite: true,
     startups: new Map(), apps: new Map(), trash: new Map(), scan: null, boards: null, cands: null, details: null, ratings: null, profile: null, runs: [], config: null,
     loaded: { startups: false, scan: false },
-    tab: "praktika", kind: "Praktikum", limit: 150, editing: null, sched: null, schedMsg: "", busy: false,
+    tab: "praktika", kind: "Praktikum", ivs: new Map(), calM: null, limit: 150, editing: null, sched: null, schedMsg: "", busy: false,
   };
   try { const t = localStorage.getItem("radar.tab"); if (t) S.tab = t; } catch (e) {}
   S.appView = "liste"; try { if (localStorage.getItem("radar.appView") === "board") S.appView = "board"; } catch (e) {}
@@ -981,6 +1042,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     renderHeader(); renderLive(); renderAlerts(); renderTabs();
     if (S.tab === "praktika") renderHits();
     if (S.tab === "bewerbungen") renderApps();
+    if (S.tab === "termine") renderCal();
     if (S.tab === "startups") renderStartups();
     if (S.tab === "kandidaten") renderCands();
     if (S.tab === "fehler") renderErrors();
@@ -1043,13 +1105,15 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     pop.innerHTML = msgs.map((m) => `<div class="msg">${m}</div>`).join("");
   }
   function renderTabs() {
-    for (const t of ["praktika", "bewerbungen", "startups", "kandidaten", "fehler", "laeufe", "profil", "papierkorb", "info"]) {
+    for (const t of ["praktika", "bewerbungen", "termine", "startups", "kandidaten", "fehler", "laeufe", "profil", "papierkorb", "info"]) {
       $("#tab-" + t).setAttribute("aria-selected", String(S.tab === t));
       $("#p-" + t).hidden = S.tab !== t;
     }
     const hits = (S.hm || []).filter((h) => h.fit).length;
     const errs = Object.entries(S.scan?.results || {}).filter(([id, r]) => r.s === "err" && S.startups.get(id)?.active).length;
     $("#c-startups").textContent = S.startups.size || "";
+    const upcoming = [...(S.ivs || new Map()).values()].filter((iv) => iv.status !== "abgesagt" && (!iv.start || new Date(iv.start).getTime() > Date.now() - 36e5)).length;
+    $("#c-termine").textContent = upcoming || ""; $("#c-termine").hidden = !upcoming;
     $("#c-fehler").textContent = errs || ""; $("#c-laeufe").textContent = S.runs.length || "";
     $("#c-profil").textContent = S.db && S.profileLoaded && !S.profile?.cv ? "!" : "";
     $("#c-papierkorb").textContent = S.trash.size || "";
@@ -1282,6 +1346,60 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     $("#aFiltMenu").innerHTML = `<div class="mh">Status</div>` + opts.map(([v, l]) => `<button class="mi" role="menuitemradio" aria-checked="${st.value === v}" data-ast="${esc(v)}">${esc(l)}${st.value === v ? "<span>✓</span>" : ""}</button>`).join("");
     $("#aSortMenu").innerHTML = `<div class="mh">Sortieren nach</div>` + [...so.options].map((o) => `<button class="mi" role="menuitemradio" aria-checked="${so.value === o.value}" data-aso="${esc(o.value)}">${esc(o.textContent)}${so.value === o.value ? "<span>✓</span>" : ""}</button>`).join("");
     $("#aFiltDot").hidden = !st.value; $("#aSortDot").hidden = so.value === "nr";
+  }
+  // ---------------------------------------------------------------- Termine: Kalender aus Collection interviews, Klick öffnet den One-Pager
+  // interviews/<id> = {company, title, app_id, kind, status: einladung|gebucht|vorbei|abgesagt, start (ISO) | null, dur_min, with, booking_url, mail_at, onepager}
+  const calMonth = () => S.calM || new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+  const dayKey = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  const ivTime = (iv) => iv.start ? new Date(iv.start).toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" }) : "";
+  const ivWhen = (iv) => iv.start ? new Date(iv.start).toLocaleString("de-DE", { weekday: "short", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) + " Uhr" : "Termin noch nicht gebucht";
+  function renderCal() {
+    const all = [...(S.ivs || new Map()).entries()];
+    const m = calMonth(), first = new Date(m), today = dayKey(new Date());
+    $("#calTitle").textContent = m.toLocaleDateString("de-DE", { month: "long", year: "numeric" });
+    const start = new Date(first); start.setDate(1 - ((first.getDay() + 6) % 7));   // Montag vor dem Monatsersten
+    const byDay = {};
+    for (const [id, iv] of all) if (iv.start && iv.status !== "abgesagt") (byDay[dayKey(new Date(iv.start))] ||= []).push([id, iv]);
+    let cells = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"].map((d) => `<div class="cal-dow">${d}</div>`).join("");
+    for (let i = 0; i < 42; i++) {
+      const d = new Date(start); d.setDate(start.getDate() + i); const k = dayKey(d);
+      if (i >= 35 && d.getMonth() !== m.getMonth()) break;
+      const items = (byDay[k] || []).sort((a, b) => a[1].start.localeCompare(b[1].start));
+      cells += `<div class="cal-day${d.getMonth() !== m.getMonth() ? " out" : ""}${k === today ? " today" : ""}"><span class="dn">${d.getDate()}</span>${items.map(([id, iv]) =>
+        `<button type="button" class="cal-ev" data-iv="${esc(id)}" title="${esc(iv.company + " · " + (iv.kind || "Gespräch"))}"><b>${esc(ivTime(iv))}</b> ${esc(iv.company)}</button>`).join("")}</div>`;
+    }
+    $("#calGrid").innerHTML = cells;
+    const now = Date.now();
+    const open = all.filter(([, iv]) => !iv.start && iv.status !== "abgesagt");
+    const next = all.filter(([, iv]) => iv.start && new Date(iv.start).getTime() + (iv.dur_min || 30) * 6e4 >= now && iv.status !== "abgesagt").sort((a, b) => a[1].start.localeCompare(b[1].start));
+    const past = all.filter(([, iv]) => iv.start && new Date(iv.start).getTime() + (iv.dur_min || 30) * 6e4 < now).sort((a, b) => b[1].start.localeCompare(a[1].start)).slice(0, 5);
+    const card = ([id, iv], extra = "") => `<div class="iv-card" data-iv="${esc(id)}" role="button" tabindex="0"><div class="iv-top"><strong>${esc(iv.company)}</strong><span class="iv-kind">${esc(iv.kind || "Gespräch")}</span></div>
+      <div class="iv-when">${esc(ivWhen(iv))}${iv.with ? ` · mit ${esc(iv.with)}` : ""}</div>${extra}<div class="iv-more">One-Pager öffnen →</div></div>`;
+    const book = ([id, iv]) => card([id, iv], `<div class="iv-book">${iv.booking_url ? `<a class="btn small primary" href="${esc(iv.booking_url)}" target="_blank" rel="noopener">Termin buchen ↗</a>` : ""}<span class="iv-hint">Gebucht? Zeit im One-Pager eintragen – oder der Mail-Abgleich trägt sie ein.</span></div>`);
+    $("#calSide").innerHTML = `<div class="cal-sec"><h4>Nächste Termine</h4>${next.length ? next.map((x) => card(x)).join("") : '<div class="iv-empty">Keine anstehenden Gespräche.</div>'}</div>`
+      + (open.length ? `<div class="cal-sec"><h4>Eingeladen – noch zu buchen</h4>${open.map(book).join("")}</div>` : "")
+      + (past.length ? `<div class="cal-sec"><h4>Vorbei</h4>${past.map((x) => card(x)).join("")}</div>` : "");
+  }
+  function openIv(id) {
+    const iv = S.ivs?.get(id); if (!iv) return;
+    const op = iv.onepager || {}, app = iv.app_id ? S.apps.get(iv.app_id) : null;
+    const li = (x) => `<li>${esc(x)}</li>`;
+    const local = iv.start ? (() => { const d = new Date(iv.start); return new Date(d.getTime() - d.getTimezoneOffset() * 6e4).toISOString().slice(0, 16); })() : "";
+    $("#ivBody").innerHTML = `<div class="iv-hd"><div><div class="iv-kicker">${esc(iv.kind || "Gespräch")} · ${esc(iv.title || app?.title || "")}</div><h2 id="ivTitle">${esc(iv.company)}</h2>${op.tagline ? `<p class="iv-tag">${esc(op.tagline)}</p>` : ""}</div><button class="ibtn" type="button" id="ivClose" aria-label="Schließen">✕</button></div>
+      <div class="iv-meta"><span><b>Wann</b> ${esc(ivWhen(iv))}${iv.dur_min ? ` · ${esc(iv.dur_min)} Min.` : ""}</span>${iv.with ? `<span><b>Mit</b> ${esc(iv.with)}</span>` : ""}${iv.booking_url && !iv.start ? `<a href="${esc(iv.booking_url)}" target="_blank" rel="noopener">Termin buchen ↗</a>` : ""}${iv.join_url ? `<a href="${esc(iv.join_url)}" target="_blank" rel="noopener">Call beitreten ↗</a>` : ""}${app?.url ? `<a href="${esc(app.url)}" target="_blank" rel="noopener">Stellenanzeige ↗</a>` : ""}</div>
+      ${S.canWrite ? `<div class="iv-set"><label>Termin <input type="datetime-local" class="field" id="ivStart" value="${esc(local)}"></label><button class="btn small" type="button" data-ivsave="${esc(id)}">Speichern</button></div>` : ""}
+      ${(op.facts || []).length ? `<div class="iv-facts">${op.facts.map(([k, v]) => `<div><span>${esc(k)}</span><b>${esc(v)}</b></div>`).join("")}</div>` : ""}
+      ${(op.sections || []).map((sc) => `<div class="iv-sec"><h3>${esc(sc.h)}</h3><ul>${(sc.items || []).map(li).join("")}</ul></div>`).join("")}
+      ${(op.questions || []).length ? `<div class="iv-sec q"><h3>Gute Fragen fürs Gespräch</h3><ul>${op.questions.map(li).join("")}</ul></div>` : ""}
+      ${(op.pitch || []).length ? `<div class="iv-sec"><h3>Dein Bezug</h3><ul>${op.pitch.map(li).join("")}</ul></div>` : ""}
+      ${(op.sources || []).length ? `<div class="iv-src">Quellen: ${op.sources.map((x) => `<a href="${esc(x.u)}" target="_blank" rel="noopener">${esc(x.t)}</a>`).join(" · ")}${op.at ? ` · Stand ${esc(fmtDate(op.at))}` : ""}</div>` : '<div class="iv-src">One-Pager wird beim nächsten Mail-Abgleich erstellt.</div>'}`;
+    if (!$("#ivDlg").open) $("#ivDlg").showModal();
+  }
+  async function saveIvTime(id) {
+    const v = $("#ivStart").value; if (!S.db) return;
+    const start = v ? new Date(v).toISOString() : null;
+    await S.db.doc("interviews/" + id).update({ start, status: start ? "gebucht" : "einladung" });
+    openIv(id);
   }
   function renderTrash() {
     const box = $("#trashList"), items = [...S.trash.entries()].sort((x, y) => String(y[1].deleted_at).localeCompare(String(x[1].deleted_at)));
@@ -1660,6 +1778,9 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     const pb = ev.target.closest?.("button.prio[data-rate]");
     if (pb) { ev.preventDefault(); showRate(pb); return; }
     if (!ev.target.closest(".ppop")) $("#ppop").hidden = true;
+    const ivEl = ev.target.closest?.("[data-iv]");   // Kalender-Eintrag → One-Pager
+    if (ivEl && !ev.target.closest("a, input, button:not([data-iv])")) { openIv(ivEl.dataset.iv); return; }
+    if (ev.target.id === "ivDlg") { $("#ivDlg").close(); return; }   // Klick auf den Hintergrund schließt
     const th = ev.target.closest?.("th[data-asort]");   // Klick auf Spaltenüberschrift sortiert (nicht beim Breite-Ziehen)
     if (th && !ev.target.closest("[data-colrz]") && Date.now() - (S.rzAt || 0) > 400) { const k = th.dataset.asort, so = $("#aso");
       S.aDir = { [k]: so.value === k ? !aDesc(k) : A_DESC_DEFAULT.has(k) }; so.value = k; schedule(); return; }
@@ -1694,6 +1815,10 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     else if (t.dataset.delapp) delApp(t.dataset.delapp);
     else if (t.dataset.restore) restoreApp(t.dataset.restore);
     else if (t.dataset.purge) purgeApp(t.dataset.purge);
+    else if (t.id === "calPrev" || t.id === "calNext") { const m = calMonth(); S.calM = new Date(m.getFullYear(), m.getMonth() + (t.id === "calNext" ? 1 : -1), 1); schedule(); }
+    else if (t.id === "calToday") { S.calM = null; schedule(); }
+    else if (t.id === "ivClose") $("#ivDlg").close();
+    else if (t.dataset.ivsave) saveIvTime(t.dataset.ivsave);
     else if (t.id === "cfNo") { delPending = null; $("#cfDlg").close(); }
     else if (t.id === "cfYes") { const id = delPending; delPending = null; $("#cfDlg").close(); if (id) moveToTrash(id); }
     else if (t.dataset.edit) openEdit(t.dataset.edit);
@@ -1836,6 +1961,10 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     db.collection("trash").limit(500).onSnapshot((snap) => {
       const m = new Map(); for (const d of snap.docs) m.set(d.id, d.data());
       S.trash = m; schedule();
+    }, onErr);
+    db.collection("interviews").limit(300).onSnapshot((snap) => {
+      const m = new Map(); for (const d of snap.docs) m.set(d.id, d.data());
+      S.ivs = m; schedule();
     }, onErr);
     db.collection("applications").limit(500).onSnapshot((snap) => {
       const m = new Map(); for (const d of snap.docs) m.set(d.id, d.data());
