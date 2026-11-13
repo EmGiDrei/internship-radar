@@ -1,4 +1,4 @@
-// Demo runtime for the Praktikums-Radar app.
+// Demo runtime for the Internship Radar app.
 // The real app runs as a claude.ai artifact and talks to `window.claude` (artifact database, MCP connector to
 // Claude Code Remote for starting / cancelling the scheduled scan). This file provides the same surface in the
 // browser, backed by fictional sample data (window.__DEMO_DATA) and localStorage, so the UI can be explored
@@ -130,7 +130,7 @@
       if (name === "get_trigger") return { payload: { trigger: { id: args.trigger_id, last_run: running ? { session_id: "cse_" + running.id, fired_at: new Date().toISOString() } : {} } } };
       if (name === "list_triggers") {
         const next = new Date(); next.setDate(next.getDate() + (next.getHours() >= 7 ? 1 : 0)); next.setHours(6, 55, 0, 0);
-        return { payload: { data: [{ id: "demo-trigger", name: "Praktikums-Radar Scan", enabled: true, next_run_at: next.toISOString(), last_run: { status: "ROUTINE_RUN_STATUS_SUCCEEDED", fired_at: store.scans?.latest?.started_at } }] } };
+        return { payload: { data: [{ id: "demo-trigger", name: "Internship Radar Scan", enabled: true, next_run_at: next.toISOString(), last_run: { status: "ROUTINE_RUN_STATUS_SUCCEEDED", fired_at: store.scans?.latest?.started_at } }] } };
       }
       return { payload: { ok: true } };
     },

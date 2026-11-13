@@ -15,7 +15,7 @@ mock = (ROOT / 'demo' / 'mock-runtime.js').read_text()
 banner = """
 <div id="demo-bar" role="note">
   <span><b>Live demo</b><i> · fictional companies and data · UI in German</i></span>
-  <a href="https://github.com/EmGiDrei/praktikums-radar">GitHub</a>
+  <a href="https://github.com/EmGiDrei/internship-radar">GitHub</a>
   <button type="button" onclick="radarDemoReset()">Reset</button>
 </div>
 <style>
@@ -31,7 +31,7 @@ banner = """
 
 head = ('<!doctype html>\n<html lang="de">\n<head>\n<meta charset="utf-8">\n'
         '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
-        '<meta name="description" content="Praktikums-Radar – live demo with fictional data">\n'
+        '<meta name="description" content="Internship Radar – live demo with fictional data">\n'
         '<style>body{margin:0;padding:0}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>\n'
         '<script>window.__DEMO_DATA = ' + json.dumps(data, ensure_ascii=False, separators=(',', ':')).replace('</', '<\\/') + ';</script>\n'
         '<script>\n' + mock + '</script>\n</head>\n<body>\n')

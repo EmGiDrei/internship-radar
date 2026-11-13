@@ -1,10 +1,10 @@
-# Praktikums-Radar
+# Internship Radar
 
 **An AI-assisted internship pipeline that finds, ranks and tracks startup roles end to end.** It scans 800+ startup career pages every morning, rates every new posting against my CV with an LLM, syncs application status from my inbox, and writes a one-pager briefing as soon as an interview invite arrives.
 
 I built it for my own search for a Founder's Associate / Venture Development internship, and I use it every day.
 
-**[▶ Open the live demo](https://emgidrei.github.io/praktikums-radar/)**: the real app with fictional companies and data, no login needed. Press *Jetzt scannen* to watch a simulated scan run.
+**[▶ Open the live demo](https://emgidrei.github.io/internship-radar/)**: the real app with fictional companies and data, no login needed. Press the blue scan button in the top right to watch a simulated scan run.
 
 ![A scan run with live progress](docs/img/scan.gif)
 
@@ -24,7 +24,7 @@ The roles I'm looking for (Founder's Associate, Chief of Staff, Venture Developm
 - **Direct reads from applicant tracking systems.** Native adapters cover Personio (XML feed, with an HTML fallback when the feed is disabled), Ashby, Greenhouse (US/EU), Lever (US/EU), Workable, Recruitee, SmartRecruiters, Join (paginated Next.js state), Teamtailor (RSS) and Y Combinator company pages. A generic HTML link extractor handles everything else. No LLM call per page: the scan is deterministic Python and finishes in about 20 minutes.
 - **Job boards and VC portfolios.** Y Combinator Jobs, Getro-powered VC portfolio boards, Berlin Startup Jobs and the Arbeitnow API, filtered to internship-type roles in Germany, Paris and Lille.
 - **A startup base that grows itself.** Companies discovered on those boards whose ATS can be read are proposed as *candidates*. One click adds them to the daily scan. Startups without a known careers page are resolved automatically by `scanner/discover.py`, which guesses the website, finds the ATS link and verifies that the board really belongs to that company.
-- **A keyword classifier before any AI.** Role type (internship, working student, founder's office, venture development, …), topic tags (Strategy, Automation, BizDev & Growth, …) and hard exclusions (engineering, HR, pure sales, …) decide what counts as *passend*.
+- **A keyword classifier before any AI.** Role type (internship, working student, founder's office, venture development, …), topic tags (Strategy, Automation, BizDev & Growth, …) and hard exclusions (engineering, HR, pure sales, …) decide what counts as *relevant*.
 - **Responsible scraping.** At most 4 parallel requests per host, `Crawl-delay` from robots.txt honoured on the job boards, nothing behind a login, and no LinkedIn, Indeed or Wellfound scraping.
 
 ### 2. Rank: an LLM rating of every new posting against my profile
@@ -33,9 +33,9 @@ The roles I'm looking for (Founder's Associate, Chief of Staff, Venture Developm
 - Only new postings are rated, so the cost stays flat as the database grows. When I edit my profile, the application list is rated again.
 
 ### 3. Track: an application list that maintains itself
-- **Pipeline and Kanban board.** Statuses run from *Offen* through *Unbedingt bewerben*, *Anschreiben nötig*, *Beworben*, *Gespräch*, *2./3. Interview* to *Zusage*, *Absage* or *Nicht relevant*. Each row and card is colour-coded by status, and the funnel shows conversion between stages.
+- **Pipeline and Kanban board.** Statuses run from *open* through *must apply*, *cover letter needed*, *applied*, *interview*, *2nd/3rd interview* to *offer*, *rejected* or *not relevant*. Each row and card is colour-coded by status, and the funnel shows conversion between stages.
 - **Posting health.** Each morning every application link is re-checked: the start date is extracted from free text (DE/EN/FR), along with an *online since* date. A posting is marked *offline* when its board was fully read and the job is gone. A *re-posted* job (same role, new ID) is detected and linked to the new ad.
-- **Inbox sync three times a day.** A scheduled Claude agent reads Gmail, matches each mail to the right application (ATS sender domains, multiple roles at the same company, stealth companies) and moves the status forward: confirmation → *Beworben*, invite → *Gespräch*, rejection → *Absage*. It appends one dated line per mail to the notes field, never overwrites, and keeps a processed-message log so nothing is counted twice.
+- **Inbox sync three times a day.** A scheduled Claude agent reads Gmail, matches each mail to the right application (ATS sender domains, multiple roles at the same company, stealth companies) and moves the status forward: confirmation → *applied*, invite → *interview*, rejection → *rejected*. It appends one dated line per mail to the notes field, never overwrites, and keeps a processed-message log so nothing is counted twice.
 
 ### 4. Prepare: interview calendar and automatic one-pagers
 - When the inbox sync detects an **interview invite**, it creates a calendar entry with the booking link, the interviewer and, if it appears in the signature, their LinkedIn profile. The entry becomes *booked* once a confirmation with date and time arrives.
@@ -60,7 +60,7 @@ Live progress panel with a terminal-style log and a hard cancel that stops the c
 |---|---|---|
 | ![Live scan](docs/img/scan-live.png) | ![Dark mode](docs/img/bewerberliste-dark.png) | ![Mobile](docs/img/mobile.png) |
 
-*Screenshots are taken from the demo with fictional data. The UI is in German.*
+*Screenshots are taken from the demo with fictional data. The UI is in German; feature names in this README are translated.*
 
 ## How it works
 
@@ -124,7 +124,3 @@ RADAR_ARTIFACT_URL=https://claude.ai/artifact/... python3 agents/build_prompt.py
 ## Built with Claude Code
 
 I built this with Claude Code as my pair programmer, over about 40 iterations across a month of daily use. My part was the product: deciding what to automate and what not to, the rating and status rules, the data model, the trade-offs such as dropping the per-page LLM crawl, and constant iteration from real use. Each feature came from a concrete annoyance in my own application process: postings that went offline unnoticed, untracked emails, unprepared first calls.
-
-## License
-
-[MIT](LICENSE)
