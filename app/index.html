@@ -1,0 +1,2001 @@
+<title>Praktikums-Radar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: schlanke SaaS-App – App-Leiste, KPI-Zeile, Reiter, darunter dichte Listen/Tabellen. Eine Akzentfarbe (Blau), Semantikfarben nur für Status. */
+:root {
+  --bg: #f7f8fa;
+  --surface: #ffffff;
+  --surface-2: #f3f4f7;
+  --line: #e6e8ec;
+  --line-2: #d6dae1;
+  --ink: #111827;
+  --ink-2: #4b5563;
+  --ink-3: #8b93a1;
+  --accent: #2f62f5;
+  --accent-ink: #ffffff;
+  --accent-soft: #ecf1ff;
+  --new: #b45309;
+  --new-bg: #fff4e2;
+  --ok: #15803d;
+  --ok-bg: #e8f6ee;
+  --err: #c0362c;
+  --err-bg: #fdeeec;
+  --warn: #b7791f;
+  --orange: #e8730c;
+  --violet: #7c4ddb;
+  --muted-bg: #f1f2f5;
+  --shadow: 0 1px 2px rgba(16, 24, 40, .05);
+  --shadow-pop: 0 12px 32px rgba(16, 24, 40, .14);
+  --f-display: "Montserrat", "Helvetica Neue", Arial, sans-serif;
+  --f-body: "Montserrat", "Helvetica Neue", Arial, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --term-bg: #0d1117; --term-ink: #d6dde6; --term-dim: #6e7781; --term-ok: #56d364; --term-run: #79c0ff; --term-err: #ff7b72; --term-info: #e3b341;
+  --term-line: #1f2630; --bar-bg: #e9ecf1;
+  --r: 8px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0d1015; --surface: #14181f; --surface-2: #1a1f27; --line: #242a33; --line-2: #313844;
+    --ink: #eceff3; --ink-2: #a3acb9; --ink-3: #6f7886;
+    --accent: #6c8fff; --accent-ink: #0b1020; --accent-soft: #1a2342;
+    --new: #f2b24c; --new-bg: #33260e; --ok: #4cc38a; --ok-bg: #11291c;
+    --err: #f2857a; --err-bg: #351614; --warn: #e0a84a; --muted-bg: #1b2028; --orange: #f59a4a; --violet: #a98bf0;
+    --shadow: 0 1px 2px rgba(0,0,0,.35); --shadow-pop: 0 12px 32px rgba(0,0,0,.5);
+    --term-bg: #090c10; --term-line: #1c232c; --bar-bg: #242a33;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0d1015; --surface: #14181f; --surface-2: #1a1f27; --line: #242a33; --line-2: #313844;
+  --ink: #eceff3; --ink-2: #a3acb9; --ink-3: #6f7886;
+  --accent: #6c8fff; --accent-ink: #0b1020; --accent-soft: #1a2342;
+  --new: #f2b24c; --new-bg: #33260e; --ok: #4cc38a; --ok-bg: #11291c;
+  --err: #f2857a; --err-bg: #351614; --warn: #e0a84a; --muted-bg: #1b2028; --orange: #f59a4a; --violet: #a98bf0;
+  --shadow: 0 1px 2px rgba(0,0,0,.35); --shadow-pop: 0 12px 32px rgba(0,0,0,.5);
+  --term-bg: #090c10; --term-line: #1c232c; --bar-bg: #242a33;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased; font-feature-settings: "tnum" 0; }
+.wrap { max-width: 1160px; margin: 0 auto; padding-inline: 24px; padding-block: 20px 56px; }
+@media (max-width: 520px) { .wrap { padding-inline: 16px; } }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+button, input, select, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+
+/* App-Leiste */
+.top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 16px; padding-bottom: 18px; border-bottom: 1px solid var(--line); }
+.brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.scope { width: 32px; height: 32px; border-radius: 9px; flex: none; position: relative; background: var(--accent); }
+.scope::before { content: ""; position: absolute; inset: 9px; border-radius: 50%; border: 2px solid var(--accent-ink); opacity: .9; }
+.scope::after { content: ""; position: absolute; left: 50%; top: 50%; width: 4px; height: 4px; margin: -2px 0 0 -2px; border-radius: 50%; background: var(--accent-ink); }
+.scope.on::before { animation: pulse 1.6s ease-out infinite; }
+@keyframes pulse { 0% { transform: scale(.6); opacity: 1; } 100% { transform: scale(1.35); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .scope.on::before { animation: none; } }
+h1 { font-family: var(--f-display); font-weight: 700; font-size: 18px; letter-spacing: -0.01em; margin: 0; line-height: 1.2; }
+.sub { color: var(--ink-3); font-size: 12.5px; margin-top: 2px; }
+.sub b { font-weight: 600; color: var(--ink-2); }
+.actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.btn { border: 1px solid var(--line-2); background: var(--surface); padding: 7px 14px; border-radius: var(--r); cursor: pointer; font-weight: 500; font-size: 13px; line-height: 1.3; box-shadow: var(--shadow); transition: background .12s, border-color .12s; }
+.btn:hover { background: var(--surface-2); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
+.btn.primary:hover { filter: brightness(1.07); background: var(--accent); }
+.btn.primary[disabled] { background: var(--muted-bg); color: var(--ink-3); border-color: var(--line-2); opacity: 1; box-shadow: none; filter: none; cursor: not-allowed; }
+.btn.danger { color: var(--err); }
+.btn.danger:hover { background: var(--err-bg); border-color: color-mix(in srgb, var(--err) 35%, var(--line-2)); }
+.btn.small { padding: 4px 10px; font-size: 12.5px; }
+.btn[disabled] { opacity: .5; cursor: default; filter: none; }
+.scanstate { font-size: 12.5px; color: var(--ink-3); max-width: 320px; text-align: right; }
+
+/* KPIs */
+.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 20px; }
+.stats .stat { padding: 16px 20px; }
+.stats .stat .n { font-size: 34px; font-weight: 700; }
+.stats .stat .l { font-size: 13px; font-weight: 600; color: var(--ink-2); }
+@media (max-width: 520px) { .stats .stat { padding: 12px 14px; } .stats .stat .n { font-size: 26px; } }
+.stat .hint { color: var(--ink-3); font-size: 11.5px; }
+.stat { display: flex; flex-direction: column-reverse; justify-content: flex-end; gap: 4px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 16px; box-shadow: var(--shadow); }
+.stat .n { font-weight: 600; font-size: 24px; letter-spacing: -0.02em; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.stat .l { color: var(--ink-3); font-size: 12px; font-weight: 500; }
+.stat.new .n { color: var(--new); }
+.stat.wait .n { color: var(--accent); }
+.stat .of { color: var(--ink-3); font-size: 12px; }
+
+.banner { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between;
+  background: var(--err-bg); color: var(--ink-2); border-radius: var(--r); padding: 8px 8px 8px 14px; font-size: 13px; }
+.banner b { color: var(--err); font-weight: 600; }
+.notice { margin-top: 12px; background: var(--surface); border: 1px dashed var(--line-2); border-radius: var(--r); padding: 12px 14px; color: var(--ink-2); font-size: 13px; }
+
+/* Reiter */
+.tabs { display: flex; gap: 2px; margin-top: 24px; border-bottom: 1px solid var(--line); }
+.moremenu { position: relative; }
+#moreBtn[aria-selected="true"] { border-color: var(--accent); color: var(--accent); }
+.menu { position: absolute; right: 0; top: calc(100% + 6px); z-index: 20; min-width: 230px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow-pop); padding: 6px; display: grid; gap: 2px; }
+.mi { display: flex; justify-content: space-between; align-items: center; gap: 12px; border: 0; background: none; text-align: left; padding: 8px 10px; border-radius: 6px; font-size: 13px; color: var(--ink-2); cursor: pointer; }
+.mi:hover { background: var(--surface-2); color: var(--ink); }
+.mi[aria-selected="true"] { color: var(--accent); font-weight: 600; background: var(--accent-soft); }
+.mi .c { font-size: 11px; font-weight: 600; color: var(--ink-3); background: var(--muted-bg); border-radius: 999px; padding: 1px 7px; }
+.mi .c:empty { display: none; }
+.titlerow { display: flex; align-items: center; gap: 8px; }
+.alertwrap { position: relative; display: inline-flex; }
+.alertdot { width: 20px; height: 20px; border-radius: 50%; border: 0; background: var(--err); color: #ffffff; font-size: 12px; font-weight: 700; line-height: 1; cursor: pointer; display: inline-grid; place-items: center; padding: 0; }
+.alertdot:hover { filter: brightness(1.08); }
+.pop { position: absolute; left: 0; top: calc(100% + 8px); z-index: 30; width: min(340px, calc(100vw - 32px)); background: var(--surface); border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow-pop); padding: 12px; display: grid; gap: 10px; font-size: 13px; color: var(--ink-2); }
+.pop .msg { line-height: 1.45; position: relative; padding-right: 22px; }
+.msg-x { position: absolute; top: -2px; right: -4px; border: 0; background: none; color: var(--ink-3); font-size: 13px; cursor: pointer; padding: 2px 4px; border-radius: 4px; }
+.msg-x:hover { color: var(--ink); background: var(--surface-2); }
+.pop .msg > div { margin-top: 8px; }
+.pop .msg b { color: var(--ink); font-weight: 600; }
+.pop .msg + .msg { border-top: 1px solid var(--line); padding-top: 10px; }
+.tab { border: 0; background: none; padding: 10px 12px; cursor: pointer; color: var(--ink-3); font-weight: 500; font-size: 13.5px; border-bottom: 2px solid transparent; margin-bottom: -1px; white-space: nowrap; }
+.tab:hover { color: var(--ink); }
+.tab[aria-selected="true"] { color: var(--ink); font-weight: 600; border-bottom-color: var(--accent); }
+.tab .c { font-size: 11px; font-weight: 600; color: var(--ink-3); background: var(--muted-bg); border-radius: 999px; padding: 1px 7px; margin-left: 6px; font-variant-numeric: tabular-nums; }
+.tab .c:empty { display: none; }
+
+.panel { padding-top: 16px; }
+.toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 12px; }
+.toolbar .grow { flex: 1 1 220px; min-width: 0; }
+.field { border: 1px solid var(--line-2); background: var(--surface); border-radius: var(--r); padding: 7px 11px; width: 100%; font-size: 13px; box-shadow: var(--shadow); }
+.field:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+select.field { width: auto; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { border: 1px solid var(--line-2); background: var(--surface); border-radius: 999px; padding: 4px 12px; cursor: pointer; font-size: 12.5px; font-weight: 500; color: var(--ink-2); }
+.chip:hover { background: var(--surface-2); }
+.chip[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); border-color: color-mix(in srgb, var(--accent) 40%, var(--line-2)); }
+.check { display: inline-flex; gap: 6px; align-items: center; font-size: 12.5px; color: var(--ink-2); cursor: pointer; }
+.check input { accent-color: var(--accent); }
+
+/* Listen */
+.list { display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; box-shadow: var(--shadow); }
+.row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 16px; padding: 12px 16px; border-top: 1px solid var(--line); align-items: center; }
+.row:first-child { border-top: 0; }
+.lead { font-size: 13px; color: var(--ink-2); margin: 0 0 10px; }
+.lead b { color: var(--ink); font-weight: 700; }
+.grp { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 9px 16px; background: var(--surface-2); border-top: 1px solid var(--line); font-size: 12.5px; color: var(--ink-3); }
+.grp:first-child { border-top: 0; }
+.grp b { color: var(--ink); font-weight: 600; }
+.grp + .row { border-top: 0; }
+.grp-n { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.row:hover { background: color-mix(in srgb, var(--surface-2) 60%, var(--surface)); }
+.row .title { font-weight: 600; font-size: 14px; line-height: 1.4; overflow-wrap: anywhere; }
+.row .title a { color: var(--ink); }
+.row .title a:hover { color: var(--accent); text-decoration: none; }
+.row .meta { color: var(--ink-3); font-size: 12.5px; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; margin-top: 3px; }
+.row .meta .co { color: var(--ink-2); font-weight: 600; }
+.row .side { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; text-align: right; }
+.when { font-size: 12px; color: var(--ink-3); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.badges { display: flex; flex-wrap: wrap; gap: 4px; justify-content: flex-end; }
+.badge { font-size: 11.5px; font-weight: 600; padding: 2px 8px; border-radius: 6px; background: var(--muted-bg); color: var(--ink-2); white-space: nowrap; }
+.badge.k-Praktikum { background: var(--accent-soft); color: var(--accent); }
+.badge.k-Founders { background: var(--surface-2); color: var(--ink); }
+.badge.new { background: var(--new-bg); color: var(--new); }
+.badge.mine { background: transparent; box-shadow: inset 0 0 0 1px var(--line-2); color: var(--ink-2); }
+@media (max-width: 620px) {
+  .row { grid-template-columns: minmax(0, 1fr); }
+  .row .side { flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: space-between; text-align: left; }
+  .scanstate { text-align: left; }
+}
+
+/* Tabellen */
+.tablewrap { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow-x: auto; box-shadow: var(--shadow); }
+table { border-collapse: collapse; width: 100%; min-width: 760px; }
+th, td { text-align: left; padding: 9px 12px; border-top: 1px solid var(--line); vertical-align: middle; font-size: 13px; }
+thead th { border-top: 0; font-size: 11px; font-weight: 600; color: var(--ink-3); text-transform: uppercase; letter-spacing: .05em; background: var(--surface-2); position: sticky; top: 0; }
+tbody tr:hover td { background: color-mix(in srgb, var(--surface-2) 60%, var(--surface)); }
+td.name { font-weight: 600; max-width: 240px; overflow-wrap: anywhere; }
+td.name .note { display: block; font-weight: 400; font-size: 12px; color: var(--ink-3); }
+td.num { font-variant-numeric: tabular-nums; }
+.ats { font-size: 12px; color: var(--ink-2); }
+.pill { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; padding: 2px 9px; border-radius: 999px; white-space: nowrap; }
+.pill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.pill.ok { background: var(--ok-bg); color: var(--ok); }
+.pill.err { background: var(--err-bg); color: var(--err); }
+.pill.idle { background: var(--muted-bg); color: var(--ink-3); }
+.switch { position: relative; width: 34px; height: 20px; border-radius: 999px; border: 0; background: var(--line-2); cursor: pointer; flex: none; }
+.switch::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #ffffff; transition: transform .15s; box-shadow: 0 1px 2px rgba(0,0,0,.25); }
+.switch[aria-checked="true"] { background: var(--accent); }
+.switch[aria-checked="true"]::after { transform: translateX(14px); }
+.switch[disabled] { opacity: .5; cursor: default; }
+.more { display: flex; justify-content: center; padding: 12px; }
+
+/* Fehler + Läufe */
+.errrow .e { color: var(--err); font-size: 12.5px; overflow-wrap: anywhere; }
+.src { font-family: var(--f-mono); font-size: 11.5px; color: var(--ink-3); overflow-wrap: anywhere; }
+.runs td { white-space: nowrap; }
+.sched { display: grid; gap: 10px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin-bottom: 14px; box-shadow: var(--shadow); }
+.sched .kv { display: flex; flex-wrap: wrap; gap: 4px 20px; color: var(--ink-3); font-size: 13px; }
+.sched .kv b { color: var(--ink); font-weight: 600; }
+
+.empty { padding: 40px 20px; text-align: center; color: var(--ink-3); font-size: 13px; }
+.empty strong { display: block; font-size: 15px; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
+
+.how.card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px 20px; box-shadow: var(--shadow); max-width: 820px; color: var(--ink-2); font-size: 13.5px; line-height: 1.6; }
+.how h2 { margin: 0 0 8px; font-size: 16px; font-weight: 700; color: var(--ink); }
+.how ol { padding-left: 20px; margin: 0; display: grid; gap: 6px; }
+details.how summary { cursor: pointer; color: var(--ink-2); font-weight: 500; }
+details.how ol { padding-left: 20px; max-width: 72ch; }
+
+/* Dialog */
+dialog { border: 1px solid var(--line); border-radius: 12px; padding: 0; width: min(560px, calc(100vw - 32px)); background: var(--surface); color: var(--ink); box-shadow: var(--shadow-pop); }
+dialog::backdrop { background: rgba(10, 14, 20, .45); }
+.dlg { padding: 20px; display: grid; gap: 14px; }
+.dlg h2 { font-size: 17px; font-weight: 700; margin: 0; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 520px) { .grid2 { grid-template-columns: 1fr; } }
+label.f { display: grid; gap: 5px; font-size: 12px; font-weight: 600; color: var(--ink-2); }
+label.f span.h { font-weight: 400; color: var(--ink-3); }
+.dlg .row-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: space-between; align-items: center; margin-top: 4px; }
+.dlg .msg { font-size: 12.5px; color: var(--err); min-height: 1em; }
+
+.meta .topics { color: var(--accent); font-weight: 500; }
+.meta .via { color: var(--ink-3); font-size: 12px; }
+details.filters { margin: 0 0 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; box-shadow: var(--shadow); }
+details.filters > summary { cursor: pointer; font-weight: 600; font-size: 13px; }
+details.filters > summary .sub { display: inline; font-weight: 400; }
+details.filters .fbody { display: grid; gap: 12px; padding-top: 12px; }
+details.filters textarea { resize: vertical; min-height: 84px; }
+.row.dim { opacity: .45; }
+.row.dim:hover { opacity: .75; }
+.side .acts { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.btn.hidebtn { color: var(--ink-3); box-shadow: none; }
+.vsep { width: 1px; height: 22px; background: var(--line-2); }
+.chip.tgl { display: inline-flex; align-items: center; gap: 6px; }
+.chip.tgl::before { content: ""; width: 14px; height: 14px; border-radius: 4px; border: 1.5px solid var(--line-2); box-sizing: border-box; background: var(--surface); }
+.chip.tgl[aria-pressed="true"]::before { border-color: var(--accent); background: var(--accent) center / 10px no-repeat url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath d='M2 5.2 4.2 7.4 8 3' fill='none' stroke='white' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); }
+.grp .info { display: inline-grid; place-items: center; width: 16px; height: 16px; margin-left: 8px; border-radius: 50%; background: var(--line-2); color: var(--ink-2); font-size: 10.5px; font-weight: 700; cursor: help; vertical-align: 1px; }
+.grp .info:hover, .grp .info:focus { background: var(--accent); color: var(--accent-ink); outline: none; }
+.pipe-head h3 { display: inline-flex; align-items: center; gap: 8px; }
+.ibar { display: inline-flex; align-items: center; gap: 6px; }
+.ipop { position: relative; }
+.ipop .menu { left: auto; right: 0; min-width: 190px; }
+.ibtn { position: relative; display: inline-grid; place-items: center; width: 36px; height: 36px; border: 1px solid var(--line-2); background: var(--surface); color: var(--ink-2); border-radius: var(--r); cursor: pointer; box-shadow: var(--shadow); padding: 0; }
+.ibtn:hover { background: var(--surface-2); color: var(--ink); }
+.ibtn[aria-expanded="true"], .ibtn[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); border-color: color-mix(in srgb, var(--accent) 40%, var(--line-2)); }
+.iseg { display: inline-flex; }
+.iseg .ibtn { border-radius: 0; box-shadow: none; }
+.iseg .ibtn:first-child { border-radius: var(--r) 0 0 var(--r); }
+.iseg .ibtn + .ibtn { border-left: 0; border-radius: 0 var(--r) var(--r) 0; }
+.isep { width: 1px; height: 22px; background: var(--line-2); margin: 0 2px; }
+.mh { font-size: 11px; font-weight: 600; color: var(--ink-3); text-transform: uppercase; letter-spacing: .05em; padding: 4px 10px 2px; }
+.mi[aria-checked="true"] { color: var(--accent); font-weight: 600; }
+.btn.dots { position: relative; padding: 4px 12px; font-size: 18px; line-height: 1.2; letter-spacing: .05em; }
+.btn.dots[aria-expanded="true"] { background: var(--accent-soft); color: var(--accent); border-color: color-mix(in srgb, var(--accent) 40%, var(--line-2)); }
+.ddot { position: absolute; top: -3px; right: -3px; width: 9px; height: 9px; border-radius: 50%; background: var(--accent); border: 2px solid var(--bg); }
+#fpanel { margin-bottom: 4px; }
+.fgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; }
+.fgrid select.field { width: 100%; }
+.fcount:not(:empty) { margin-left: 6px; font-size: 11px; font-weight: 600; color: var(--accent); background: var(--accent-soft); border-radius: 999px; padding: 1px 8px; }
+#fmore, #fbox { display: inline-block; vertical-align: top; margin-right: 8px; }
+#fmore[open], #fbox[open] { display: block; margin-right: 0; }
+.flabel { font-size: 12px; font-weight: 600; color: var(--ink-2); }
+.fhelp, .fwords { font-size: 12px; color: var(--ink-3); }
+.fwords summary { cursor: pointer; }
+.fwords p { margin: 6px 0; overflow-wrap: anywhere; }
+.factions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.tip { position: fixed; z-index: 50; background: var(--ink); color: var(--bg); font-size: 12.5px; line-height: 1.45; padding: 8px 10px; border-radius: 8px; box-shadow: var(--shadow-pop); white-space: pre-wrap; overflow-wrap: anywhere; pointer-events: none; }
+.toast { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 9px 16px; border-radius: var(--r); font-size: 13px; font-weight: 500; box-shadow: var(--shadow-pop); max-width: calc(100vw - 32px); }
+.appstat { border: 1px solid var(--line-2); background: var(--surface); color: var(--ink); border-radius: 6px; padding: 4px 6px; font: inherit; font-size: 12.5px; }
+.appcom { width: 100%; min-width: 160px; border: 1px solid transparent; background: transparent; color: var(--ink); border-radius: 6px; padding: 4px 6px; font: inherit; font-size: 13px; }
+.appcom:hover, .appcom:focus { border-color: var(--line-2); background: var(--surface); outline: none; }
+.badge.dup { background: color-mix(in srgb, var(--warn) 15%, var(--surface)); color: var(--warn); display: block; width: fit-content; margin-top: 4px; }
+.btn.onlist { color: var(--ink-3); box-shadow: none; }
+.side .addapp { margin-top: 2px; }
+.srcb { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 500; color: var(--ink-2); background: var(--muted-bg); border-radius: 6px; padding: 1px 7px; white-space: nowrap; }
+.srcb b { font-weight: 600; color: var(--ink-3); }
+.srcb.ext { background: var(--accent-soft); color: var(--accent); }
+.srcb.ext b { color: color-mix(in srgb, var(--accent) 70%, var(--ink-3)); }
+td .srcb { margin-top: 4px; }
+.cand .titles { color: var(--ink-3); font-size: 12.5px; margin-top: 2px; overflow-wrap: anywhere; }
+.cand .acts { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
+.badge.react { background: var(--accent-soft); color: var(--accent); }
+#appList table { table-layout: fixed; width: 100%; min-width: 0; }
+#appList th, #appList td { padding: 8px 8px; }
+#appList .appstat { width: 100%; padding: 4px 4px; }
+#appList td.sd, #appList td.when { white-space: nowrap; text-overflow: ellipsis; }
+#appList th { position: relative; overflow: hidden; text-overflow: ellipsis; }
+#appList td { overflow: hidden; }
+#appList .appcom { min-width: 0; text-overflow: ellipsis; }
+textarea.appnote { display: block; resize: none; overflow: hidden; line-height: 1.4; white-space: pre-wrap; overflow-wrap: anywhere; min-height: 28px; }
+textarea.appnote:not(:focus) { max-height: 47px; }   /* höchstens zwei Zeilen; ganzer Text beim Hovern bzw. beim Bearbeiten */
+.col-rz { position: absolute; top: 0; right: 0; width: 8px; height: 100%; cursor: col-resize; touch-action: none; }
+.col-rz::after { content: ""; position: absolute; top: 25%; bottom: 25%; right: 3px; width: 2px; border-radius: 2px; background: var(--line-2); }
+.col-rz:hover::after, .col-rz.on::after { background: var(--accent); top: 0; bottom: 0; }
+a.nrlink { display: inline-block; min-width: 28px; padding: 3px 7px; border-radius: 6px; font-weight: 600; color: var(--accent); background: var(--accent-soft); text-align: center; }
+a.nrlink:hover { text-decoration: none; filter: brightness(.95); }
+.trash { display: inline-flex; align-items: center; gap: 6px; border: 0; background: none; color: var(--err); padding: 5px 6px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; }
+.trash:hover { background: var(--err-bg); }
+.btn.primary.del { background: var(--err); border-color: var(--err); color: #ffffff; }
+.trash[disabled] { opacity: .4; cursor: default; }
+#appList tr.r-moved > td { background: var(--ok-bg); }
+#appList tr.r-off > td { background: var(--err-bg); }
+#appList tr[style] > td:first-child { box-shadow: inset 5px 0 0 var(--stc); }
+#appList tr[style]:not(.r-moved):not(.r-off) > td { background: color-mix(in srgb, var(--stc) 8%, var(--surface)); }
+#appList .appstat.st { border-color: color-mix(in srgb, var(--stc) 55%, var(--line-2)); background: color-mix(in srgb, var(--stc) 14%, var(--surface)); color: var(--ink); font-weight: 600; }
+.kcard[style] { box-shadow: inset 4px 0 0 var(--stc), var(--shadow); }
+.kcard.r-moved { background: var(--ok-bg); border-color: color-mix(in srgb, var(--ok) 45%, var(--line)); }
+.kcard.r-off { background: var(--err-bg); border-color: color-mix(in srgb, var(--err) 45%, var(--line)); }
+#appList th { white-space: nowrap; }
+.tabs .tab .tcount { min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px; background: var(--accent); color: var(--accent-ink); font-size: 11.5px; font-weight: 700; display: inline-grid; place-items: center; }
+.cal-wrap { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(260px, 1fr); gap: 16px; align-items: start; }
+@media (max-width: 860px) { .cal-wrap { grid-template-columns: 1fr; } }
+.cal-card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px; box-shadow: var(--shadow); }
+.cal-head { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.cal-head h3 { margin: 0; font-size: 16px; font-weight: 700; flex: 1; text-align: center; text-transform: capitalize; }
+.cal-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+.cal-dow { font-size: 11px; font-weight: 600; color: var(--ink-3); text-transform: uppercase; letter-spacing: .05em; padding: 2px 6px; }
+.cal-day { min-height: 84px; border: 1px solid var(--line); border-radius: 8px; padding: 4px; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.cal-day.out { opacity: .45; }
+.cal-day.today { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.cal-day .dn { font-size: 12px; font-weight: 600; color: var(--ink-2); padding: 0 2px; }
+.cal-day.today .dn { color: var(--accent); }
+.cal-ev { border: 0; text-align: left; font: inherit; font-size: 11.5px; line-height: 1.3; padding: 3px 5px; border-radius: 5px; background: color-mix(in srgb, var(--violet) 16%, var(--surface)); color: var(--ink); cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; box-shadow: inset 3px 0 0 var(--violet); }
+.cal-ev:hover { background: color-mix(in srgb, var(--violet) 26%, var(--surface)); }
+@media (max-width: 600px) { .cal-day { min-height: 56px; } .cal-ev b { display: none; } }
+.cal-side { display: grid; gap: 16px; }
+.cal-sec h4 { margin: 0 0 8px; font-size: 12px; font-weight: 700; color: var(--ink-3); text-transform: uppercase; letter-spacing: .05em; }
+.cal-sec { display: grid; gap: 8px; }
+.iv-card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; cursor: pointer; box-shadow: inset 4px 0 0 var(--violet), var(--shadow); display: grid; gap: 4px; }
+.iv-card:hover { border-color: color-mix(in srgb, var(--violet) 50%, var(--line)); }
+.iv-top { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+.iv-kind { font-size: 11.5px; color: var(--violet); font-weight: 600; }
+.iv-when { font-size: 13px; color: var(--ink-2); }
+.iv-more { font-size: 12px; color: var(--accent); font-weight: 600; }
+.iv-book { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 4px; }
+.iv-hint { font-size: 11.5px; color: var(--ink-3); }
+.iv-empty { font-size: 13px; color: var(--ink-3); padding: 10px 0; }
+dialog.iv { width: min(760px, calc(100vw - 24px)); max-height: calc(100vh - 40px); }
+dialog.iv .dlg { gap: 16px; padding: 22px 24px; }
+.iv-hd { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
+.iv-hd h2 { font-size: 22px; }
+.iv-kicker { font-size: 12px; font-weight: 600; color: var(--violet); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 4px; }
+.iv-tag { margin: 6px 0 0; color: var(--ink-2); font-size: 14px; line-height: 1.5; }
+.iv-meta { display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 13px; color: var(--ink-2); padding: 10px 12px; background: var(--surface-2); border-radius: 10px; }
+.iv-meta b { color: var(--ink-3); font-weight: 600; margin-right: 4px; }
+.iv-meta a.li { margin-left: 6px; font-weight: 600; color: #0a66c2; }
+.iv-set { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 13px; color: var(--ink-2); }
+.iv-set label { display: flex; gap: 8px; align-items: center; white-space: nowrap; }
+.iv-facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
+.iv-facts div { border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; display: grid; gap: 2px; align-content: start; }
+.iv-facts span { font-size: 11px; color: var(--ink-3); text-transform: uppercase; letter-spacing: .05em; font-weight: 600; }
+.iv-facts b { font-size: 13.5px; font-weight: 600; line-height: 1.35; }
+.iv-sec h3 { margin: 0 0 6px; font-size: 14px; font-weight: 700; }
+.iv-sec ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; font-size: 13.5px; line-height: 1.5; color: var(--ink); }
+.iv-sec.q { background: color-mix(in srgb, var(--accent) 7%, var(--surface)); border-radius: 10px; padding: 12px 14px; }
+.iv-src { font-size: 11.5px; color: var(--ink-3); line-height: 1.6; }
+#appList th.sortable { cursor: pointer; user-select: none; }
+#appList th.sortable:hover, #appList th.on { color: var(--ink); }
+#appList th .sarr { font-size: 9px; margin-left: 3px; color: var(--accent); }
+td.sd { font-size: 13px; }
+
+/* KI-Prio */
+.prio { display: inline-grid; place-items: center; min-width: 26px; height: 22px; padding: 0 6px; border-radius: 6px; font-size: 12px; font-weight: 700; letter-spacing: .02em; cursor: help; }
+.prio.p-A { background: var(--accent); color: var(--accent-ink); }
+.prio.p-B { background: var(--accent-soft); color: var(--accent); }
+.prio.p-C { background: var(--muted-bg); color: var(--ink-2); }
+.prio.p-D { background: transparent; color: var(--ink-3); box-shadow: inset 0 0 0 1px var(--line-2); }
+.prio.p-none { background: transparent; color: var(--ink-3); font-weight: 500; cursor: default; }
+button.prio { border: 0; font-family: inherit; cursor: pointer; }
+button.prio:hover { filter: brightness(.94); }
+.ppop { position: fixed; z-index: 60; width: 280px; max-width: calc(100vw - 32px); background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow-pop); padding: 12px 14px; font-size: 13px; display: grid; gap: 7px; }
+.ppop .ph { display: flex; align-items: center; gap: 8px; }
+.ppop .ph strong { font-size: 15px; }
+.ppop .pw { color: var(--ink-3); font-size: 12px; }
+.ppop .pb { display: grid; grid-template-columns: 58px 1fr 28px; align-items: center; gap: 8px; font-size: 12px; color: var(--ink-2); }
+.ppop .pb i { height: 6px; border-radius: 3px; background: var(--muted-bg); overflow: hidden; }
+.ppop .pb b { display: block; height: 100%; background: var(--accent); border-radius: 3px; }
+.ppop .pb em { font-style: normal; text-align: right; font-weight: 600; color: var(--ink); }
+.ppop p { margin: 2px 0 0; color: var(--ink-2); line-height: 1.45; }
+.rate { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; margin-top: 6px; font-size: 12px; color: var(--ink-3); }
+.rate .sc { font-variant-numeric: tabular-nums; }
+.rate .sc b { color: var(--ink-2); font-weight: 600; }
+.rate .why { color: var(--ink-2); flex-basis: 100%; }
+td .why { display: block; font-size: 11.5px; color: var(--ink-3); max-width: 260px; margin-top: 3px; }
+
+/* Offline */
+.badge.off { background: var(--err-bg); color: var(--err); display: inline-block; margin-top: 4px; }
+a.badge.moved { background: var(--new-bg); color: var(--new); display: inline-block; margin-top: 4px; }
+
+/* Bewerbungs-Pipeline */
+.pipe { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; box-shadow: var(--shadow); margin-bottom: 14px; display: grid; gap: 14px; }
+.pipe-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 12px; }
+.pipe-head h3 { margin: 0; font-size: 14px; font-weight: 700; }
+.flow { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(96px, 1fr); gap: 0; overflow-x: auto; }
+.flow .stage { padding: 16px 8px 16px 20px; }
+.flow .stage:first-child { padding-left: 12px; }
+.flow .stage .n { font-size: 26px; }
+.flow .stage .l, .flow .stage .cv { overflow-wrap: anywhere; }
+.stage[data-stage="3"] { background: color-mix(in srgb, #0891b2 16%, var(--surface-2)); }
+.stage[data-stage="4"] { background: color-mix(in srgb, #ca8a04 16%, var(--surface-2)); }
+.stage { position: relative; padding: 20px 16px 20px 22px; background: var(--surface-2); min-width: 0;
+  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%, 12px 50%); }
+.stage:first-child { clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%); border-radius: 8px 0 0 8px; padding-left: 14px; }
+.stage:last-child { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 12px 50%); border-radius: 0 8px 8px 0; }
+.stage + .stage { margin-left: -6px; }
+.stage .n { font-size: 30px; font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; line-height: 1.15; }
+.stage .l { font-size: 12px; color: var(--ink-3); font-weight: 500; }
+.stage .cv { font-size: 11.5px; color: var(--ink-3); margin-top: 2px; }
+.stage .cv b { color: var(--accent); font-weight: 600; }
+.stage.s-Beworben { background: color-mix(in srgb, var(--accent) 10%, var(--surface-2)); }
+.stage.s-Gespräch { background: color-mix(in srgb, var(--accent) 20%, var(--surface-2)); }
+.stage.s-Zusage { background: var(--ok-bg); }
+.stage.s-Zusage .n { color: var(--ok); }
+.stage .l { font-size: 12.5px; }
+.stage .cv { margin-top: 4px; }
+.stage.up { animation: stUp 1.2s ease; }
+.stage.down { animation: stDown 1.2s ease; }
+.stage.up .n { animation: nPop .6s ease; }
+.stage.down .n { animation: nPop .6s ease; }
+@keyframes stUp { 0% { filter: none; } 25% { filter: brightness(.92) saturate(1.6); } 100% { filter: none; } }
+@keyframes stDown { 0% { filter: none; } 25% { filter: brightness(1.06) grayscale(.5); } 100% { filter: none; } }
+@keyframes nPop { 0% { transform: scale(1); } 35% { transform: scale(1.18); } 100% { transform: scale(1); } }
+.stage .n { display: inline-block; transform-origin: left center; }
+@media (prefers-reduced-motion: reduce) { .stage.up, .stage.down, .stage.up .n, .stage.down .n { animation: none; } }
+.dist { display: flex; height: 8px; border-radius: 999px; overflow: hidden; background: var(--bar-bg); }
+.dist span { display: block; height: 100%; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12px; color: var(--ink-2); }
+.legend i { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 6px; vertical-align: 0; }
+.alerts { display: flex; flex-wrap: wrap; gap: 6px; }
+.alerts .badge { font-weight: 500; }
+@media (max-width: 620px) { .flow { grid-auto-columns: minmax(84px, 1fr); } .flow .stage { padding: 12px 6px 12px 16px; } .flow .stage .n { font-size: 22px; } .flow .stage .l { font-size: 11.5px; } .flow .stage .cv { font-size: 10.5px; } }
+.seg { display: inline-flex; border: 1px solid var(--line-2); border-radius: var(--r); overflow: hidden; box-shadow: var(--shadow); }
+.seg button { border: 0; background: var(--surface); padding: 6px 12px; font-size: 12.5px; font-weight: 500; color: var(--ink-2); cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--line-2); }
+.seg button[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+
+/* Board */
+.kb { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(220px, 1fr); gap: 10px; overflow-x: auto; padding-bottom: 6px; }
+.kcol { background: var(--surface-2); border-radius: 10px; padding: 8px; display: flex; flex-direction: column; gap: 6px; min-height: 120px; }
+.kcol.drop { outline: 2px dashed var(--accent); outline-offset: -2px; }
+.khead { display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: 600; color: var(--ink-2); padding: 2px 4px 4px; }
+.kcard { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; box-shadow: var(--shadow); cursor: grab; display: grid; gap: 3px; }
+.kcard:active { cursor: grabbing; }
+.kcard .kt { font-size: 12.5px; font-weight: 600; overflow-wrap: anywhere; }
+.kcard .kc { font-size: 12px; color: var(--ink-2); }
+.kcard .km { display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: center; font-size: 11.5px; color: var(--ink-3); }
+
+/* Profil */
+.prof { display: grid; gap: 14px; max-width: 860px; }
+.prof textarea { min-height: 220px; resize: vertical; font-size: 13px; line-height: 1.5; }
+.prof .hint { font-size: 12.5px; color: var(--ink-3); }
+.prof .card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; box-shadow: var(--shadow); display: grid; gap: 12px; }
+
+/* Live-Fortschritt eines Laufs: Ladebalken nach Phasen + Konsole */
+.live { margin-top: 20px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px 16px; display: grid; gap: 12px; box-shadow: var(--shadow); }
+.live .lhead { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; }
+.live .lstate { font-weight: 700; font-size: 14px; display: inline-flex; align-items: center; gap: 8px; }
+.live .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 60%, transparent); animation: ping 1.6s ease-out infinite; }
+.live.done .dot { background: var(--ok); animation: none; }
+.live.failed .dot { background: var(--err); animation: none; }
+@keyframes ping { 70% { box-shadow: 0 0 0 7px transparent; } 100% { box-shadow: 0 0 0 0 transparent; } }
+.live .lmeta { color: var(--ink-3); font-size: 12.5px; }
+.live .lcancel { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.live .lclock { margin-left: auto; font-family: var(--f-mono); font-size: 12px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.bar { position: relative; height: 8px; border-radius: 999px; background: var(--bar-bg); overflow: hidden; }
+.bar .fill { position: absolute; inset: 0 auto 0 0; border-radius: inherit; background-color: var(--accent); transition: width .9s ease;
+  background-image: linear-gradient(90deg, transparent, color-mix(in srgb, var(--accent-ink) 35%, transparent), transparent); background-size: 200px 100%; background-repeat: no-repeat; animation: shine 1.6s linear infinite; }
+.live.done .bar .fill { background-color: var(--ok); background-image: none; animation: none; }
+.live.failed .bar .fill { background-color: var(--err); background-image: none; animation: none; }
+.bar.indet .fill { width: 30% !important; animation: indet 1.6s ease-in-out infinite; background-image: none; }
+.bar .tick { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--surface); }
+@keyframes shine { from { background-position: -200px 0; } to { background-position: calc(100% + 200px) 0; } }
+@keyframes indet { 0% { left: -30%; } 100% { left: 100%; } }
+.lpct { font-size: 12.5px; font-weight: 600; color: var(--ink-2); font-variant-numeric: tabular-nums; min-width: 44px; text-align: right; }
+.lbarrow { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: center; }
+.steps { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 0; padding: 0; list-style: none; font-size: 12.5px; color: var(--ink-3); }
+.steps li { display: inline-flex; align-items: center; gap: 6px; }
+.steps .ic { width: 15px; height: 15px; border-radius: 50%; border: 1.5px solid currentColor; display: inline-grid; place-items: center; font-size: 9px; line-height: 1; flex: none; }
+.steps .s-done { color: var(--ink-2); }
+.steps .s-done .ic { background: var(--ok); color: #ffffff; border-color: var(--ok); }
+.steps .s-act { color: var(--ink); font-weight: 600; }
+.steps .s-act .ic { border-color: var(--accent); border-top-color: transparent; animation: spin .8s linear infinite; }
+.steps .s-err { color: var(--err); font-weight: 600; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.term { background: var(--term-bg); color: var(--term-ink); border: 1px solid var(--term-line); border-radius: var(--r); font-family: var(--f-mono); font-size: 12px; line-height: 1.7;
+  padding: 10px 14px; max-height: 240px; overflow: auto; min-width: 0; }
+.term .tl { display: grid; grid-template-columns: auto auto minmax(0, 1fr); gap: 0 10px; }
+.term .tt { color: var(--term-dim); font-variant-numeric: tabular-nums; }
+.term .tm { overflow-wrap: anywhere; }
+.term .k-ok .tk { color: var(--term-ok); } .term .k-run .tk, .term .k-run .tm { color: var(--term-run); }
+.term .k-err .tk, .term .k-err .tm { color: var(--term-err); } .term .k-info .tk { color: var(--term-info); }
+.term .k-cmd { color: var(--term-dim); }
+.term .k-cmd .tm::before { content: "$ "; color: var(--term-ok); }
+.term .cur { display: inline-block; width: .55em; height: 1.05em; vertical-align: -0.18em; background: var(--term-run); margin-left: 4px; animation: blink 1s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+.live details > summary { cursor: pointer; font-size: 12.5px; color: var(--ink-3); }
+.live details[open] > summary { margin-bottom: 8px; }
+tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: normal; }
+@media (prefers-reduced-motion: reduce) {
+  .live .dot, .bar .fill, .bar.indet .fill, .steps .s-act .ic, .term .cur { animation: none; }
+  .bar.indet .fill { left: 0; width: 100% !important; opacity: .5; }
+}
+/* Hauptumschalter Praktika / Bewerberliste: großer Segment-Schalter */
+.tabs { margin-top: 22px; padding: 5px; gap: 5px; background: var(--surface-2); border: 1px solid var(--line); border-bottom: 1px solid var(--line); border-radius: 14px; }
+.tabs .tab { flex: 1 1 0; display: inline-flex; align-items: center; justify-content: center; gap: 10px; padding: 13px 12px; margin: 0; border: 0; border-radius: 10px;
+  font-size: 15px; font-weight: 600; color: var(--ink-3); transition: background .15s, color .15s, box-shadow .15s; }
+.tabs .tab:hover { color: var(--ink); background: color-mix(in srgb, var(--surface) 55%, transparent); }
+.tabs .tab[aria-selected="true"] { background: var(--surface); color: var(--accent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 30%, transparent), 0 1px 2px rgba(16, 24, 40, .08), 0 4px 12px rgba(16, 24, 40, .08); border-bottom: 0; }
+.tabs .tab svg { flex: none; }
+@media (max-width: 520px) { .tabs .tab { padding: 11px 4px; font-size: 13px; gap: 5px; min-width: 0; } .tabs .tab svg { width: 16px; height: 16px; } .tabs .tab .tcount { min-width: 18px; height: 18px; padding: 0 5px; font-size: 11px; } }
+@media (max-width: 380px) { .tabs .tab svg { display: none; } }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <div class="scope" id="scope" aria-hidden="true"></div>
+      <div style="min-width:0">
+        <div class="titlerow"><h1>Praktikums-Radar</h1>
+          <span class="alertwrap"><button class="alertdot" id="alertBtn" type="button" aria-haspopup="dialog" aria-expanded="false" aria-label="Hinweise anzeigen" hidden>!</button>
+          <div class="pop" id="alertPop" role="dialog" aria-label="Hinweise" hidden></div></span></div>
+      </div>
+    </div>
+    <div class="actions">
+      <div class="scanstate" id="scanstate" role="status"></div>
+      <button class="btn primary" id="scanBtn" type="button">Jetzt scannen</button>
+      <div class="moremenu">
+        <button class="btn" id="moreBtn" type="button" aria-haspopup="menu" aria-expanded="false"><span id="moreLbl">Mehr</span> <span aria-hidden="true">▾</span></button>
+        <div class="menu" id="moreMenu" role="menu" hidden>
+          <button class="mi" role="menuitem" id="tab-startups" data-tab="startups">Startups<span class="c" id="c-startups"></span></button>
+          <button class="mi" role="menuitem" id="tab-kandidaten" data-tab="kandidaten">Kandidaten<span class="c" id="c-kandidaten"></span></button>
+          <button class="mi" role="menuitem" id="tab-fehler" data-tab="fehler">Fehler<span class="c" id="c-fehler"></span></button>
+          <button class="mi" role="menuitem" id="tab-laeufe" data-tab="laeufe">Läufe<span class="c" id="c-laeufe"></span></button>
+          <button class="mi" role="menuitem" id="tab-profil" data-tab="profil">Profil (für KI-Bewertung)<span class="c" id="c-profil"></span></button>
+          <button class="mi" role="menuitem" id="tab-papierkorb" data-tab="papierkorb">Papierkorb<span class="c" id="c-papierkorb"></span></button>
+          <button class="mi" role="menuitem" id="tab-info" data-tab="info">So funktioniert der Radar</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <section class="live" id="live" hidden aria-live="polite" aria-label="Fortschritt des Scans"></section>
+
+  <nav class="tabs" role="tablist" aria-label="Ansicht">
+    <button class="tab" role="tab" id="tab-praktika" data-tab="praktika" aria-selected="true"><svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M7 5.5V4.2c0-.7.5-1.2 1.2-1.2h3.6c.7 0 1.2.5 1.2 1.2v1.3M3.5 5.5h13c.6 0 1 .4 1 1v8.3c0 .7-.5 1.2-1.2 1.2H3.7c-.7 0-1.2-.5-1.2-1.2V6.5c0-.6.4-1 1-1zM2.5 10h15" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Praktika</span></button>
+    <button class="tab" role="tab" id="tab-bewerbungen" data-tab="bewerbungen" aria-selected="false"><svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M7 3h6v2.5H7zM5.5 4H4.7c-.7 0-1.2.5-1.2 1.2v10.6c0 .7.5 1.2 1.2 1.2h10.6c.7 0 1.2-.5 1.2-1.2V5.2c0-.7-.5-1.2-1.2-1.2h-.8M7 10.5l2 2 4-4.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Bewerberliste</span></button>
+    <button class="tab" role="tab" id="tab-termine" data-tab="termine" aria-selected="false"><svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M4.7 4h10.6c.7 0 1.2.5 1.2 1.2v10.6c0 .7-.5 1.2-1.2 1.2H4.7c-.7 0-1.2-.5-1.2-1.2V5.2c0-.7.5-1.2 1.2-1.2zM3.5 8h13M7 2.5V5.5M13 2.5V5.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Termine</span><span class="tcount" id="c-termine" hidden></span></button>
+  </nav>
+
+  <section class="panel" id="p-praktika">
+    <div class="toolbar">
+      <div class="grow"><input class="field" id="q" type="search" placeholder="Suche nach Rolle, Firma oder Ort" aria-label="Suche"></div>
+      <div class="chips" id="kinds"></div>
+      <span class="vsep" aria-hidden="true"></span>
+      <div class="chips">
+        <button class="chip tgl" type="button" data-toggle="onlyFit" aria-pressed="true" title="Nur Stellen, die zu deinen Themen passen">Passend</button>
+        <button class="chip tgl" type="button" data-toggle="onlyNew" aria-pressed="true" title="Nur Stellen aus dem letzten Lauf">Neu</button>
+      </div>
+      <input type="checkbox" id="onlyFit" checked hidden><input type="checkbox" id="onlyNew" checked hidden>
+      <button class="btn dots" id="fToggle" type="button" aria-expanded="false" aria-controls="fpanel" title="Weitere Filter und Themen">⋯<span class="ddot" id="fDot" hidden></span></button>
+    </div>
+    <div id="fpanel" hidden>
+    <details class="filters" id="fmore">
+      <summary>Weitere Filter <span class="fcount" id="fcount"></span></summary>
+      <div class="fbody">
+        <div class="fgrid">
+          <label class="f">Stellenart<select class="field" id="kindSel"></select></label>
+          <label class="f">Stadt<select class="field" id="city"><option value="">Alle Städte</option></select></label>
+          <label class="f">Quelle<select class="field" id="srcSel"><option value="">Alle Quellen</option><option value="liste">Startup-Liste</option><option value="boards">Jobbörsen</option></select></label>
+          <label class="f">Prio<select class="field" id="prioSel"><option value="">Alle Prios</option><option value="A">nur Prio A</option><option value="AB">Prio A + B</option><option value="ABC">Prio A – C</option></select></label>
+          <label class="f">Sortierung<select class="field" id="sortSel"><option value="prio">Nach Prio</option><option value="neu">Neueste zuerst</option></select></label>
+        </div>
+        <div class="factions"><label class="check"><input type="checkbox" id="onlyMine"> nur meine Liste</label><button class="btn small" type="button" id="fClear">Zurücksetzen</button></div>
+      </div>
+    </details>
+    <details class="filters" id="fbox">
+      <summary>Themen &amp; Suchwörter <span class="sub" id="fsum"></span></summary>
+      <div class="fbody">
+        <div class="flabel">Themen, die als passend zählen</div>
+        <div class="chips" id="ftopics"></div>
+        <div class="grid2">
+          <label class="f">Eigene Suchwörter <span class="h">eine pro Zeile – zählen immer als passend</span><textarea class="field" id="fExtra" rows="4" placeholder="z. B. sustainability"></textarea></label>
+          <label class="f">Ausschließen <span class="h">eine pro Zeile – Stellen mit diesen Wörtern verschwinden</span><textarea class="field" id="fExcl" rows="4" placeholder="z. B. sales"></textarea></label>
+        </div>
+        <div class="fhelp">Gesucht wird nur im Stellentitel, per Wortliste – keine KI. Wörter ab 4 Zeichen zählen auch als Wortteil („strateg“ findet Strategy und Strategie), kürzere nur als ganzes Wort.</div>
+        <details class="fwords"><summary>Welche Wörter zählen?</summary><div id="fwords"></div></details>
+        <div class="factions"><button class="btn small primary" type="button" id="fSave">Filter speichern</button><button class="btn small" type="button" id="fReset">Standard wiederherstellen</button><span class="sub" id="fMsg"></span></div>
+      </div>
+    </details>
+    </div>
+    <div id="hitList"></div>
+  </section>
+
+  <section class="panel" id="p-bewerbungen" hidden>
+    <div id="pipe"></div>
+    <div class="toolbar">
+      <div class="grow"><input class="field" id="aq" type="search" placeholder="Suche in der Liste" aria-label="Suche in der Bewerberliste"></div>
+      <select id="ast" hidden aria-hidden="true"><option value="">Alle Status</option></select>
+      <select id="aso" hidden aria-hidden="true"><option value="nr">Nr.</option><option value="firma">Firma</option><option value="status">Status</option><option value="neu">Neueste zuerst</option><option value="prio">Prio</option><option value="titel">Job-Titel</option><option value="online">Online</option><option value="start">Start</option><option value="kommentar">Kommentar</option></select>
+      <div class="ibar">
+        <div class="ipop"><button class="ibtn" type="button" id="aFiltBtn" aria-haspopup="menu" aria-expanded="false" title="Nach Status filtern" aria-label="Nach Status filtern"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M2 3h12l-4.5 5.2V13l-3 1.2V8.2z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="ddot" id="aFiltDot" hidden></span></button>
+          <div class="menu" id="aFiltMenu" role="menu" hidden></div></div>
+        <div class="ipop"><button class="ibtn" type="button" id="aSortBtn" aria-haspopup="menu" aria-expanded="false" title="Sortieren" aria-label="Sortieren"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M5 2.5v11M2.5 11 5 13.5 7.5 11M11 13.5v-11M8.5 5 11 2.5 13.5 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="ddot" id="aSortDot" hidden></span></button>
+          <div class="menu" id="aSortMenu" role="menu" hidden></div></div>
+        <button class="ibtn" type="button" id="aAddBtn" title="Eigene Stelle hinzufügen" aria-label="Eigene Stelle hinzufügen"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M8 3v10M3 8h10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <span class="isep" aria-hidden="true"></span>
+        <div class="iseg" role="group" aria-label="Ansicht"><button class="ibtn" type="button" data-appview="liste" aria-pressed="true" title="Liste" aria-label="Liste"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M5.5 4h8M5.5 8h8M5.5 12h8M2.5 4h.01M2.5 8h.01M2.5 12h.01" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="ibtn" type="button" data-appview="board" aria-pressed="false" title="Board" aria-label="Board"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M2.5 2.5h3v11h-3zM6.5 2.5h3v7h-3zM10.5 2.5h3v9h-3z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
+      </div>
+    </div>
+    <div id="appList"></div>
+  </section>
+
+  <section class="panel" id="p-termine" hidden>
+    <div class="cal-wrap">
+      <div class="cal-card">
+        <div class="cal-head"><button class="ibtn" type="button" id="calPrev" aria-label="Vorheriger Monat">‹</button><h3 id="calTitle"></h3><button class="ibtn" type="button" id="calNext" aria-label="Nächster Monat">›</button><button class="btn small" type="button" id="calToday">Heute</button></div>
+        <div class="cal-grid" id="calGrid"></div>
+      </div>
+      <div class="cal-side" id="calSide"></div>
+    </div>
+  </section>
+
+  <section class="panel" id="p-startups" hidden>
+    <div class="toolbar">
+      <div class="grow"><input class="field" id="sq" type="search" placeholder="Startup suchen" aria-label="Startup suchen"></div>
+      <select class="field" id="sfilter" aria-label="Filter">
+        <option value="all">Alle</option>
+        <option value="active">Aktiv</option>
+        <option value="inactive">Ausgeschaltet</option>
+        <option value="err">Mit Fehler</option>
+        <option value="nosrc">Ohne Quelle</option>
+        <option value="hits">Mit Treffern</option>
+        <option value="mine">Meine Liste</option>
+        <option value="sm">Von startupmap</option>
+      </select>
+      <button class="btn" id="addBtn" type="button">+ Startup</button>
+    </div>
+    <div id="startupTable"></div>
+  </section>
+
+  <section class="panel" id="p-kandidaten" hidden>
+    <div class="toolbar">
+      <div class="grow"><input class="field" id="kq" type="search" placeholder="Kandidat suchen" aria-label="Kandidat suchen"></div>
+      <select class="field" id="kst" aria-label="Status">
+        <option value="neu">Offen</option><option value="übernommen">Übernommen</option><option value="abgelehnt">Abgelehnt</option><option value="">Alle</option>
+      </select>
+    </div>
+    <div class="sub" style="margin:0 0 10px">Firmen, die auf externen Jobbörsen (YC, VC-Portfolios, Berlin Startup Jobs) passende Stellen haben und noch nicht gescannt werden. „Übernehmen“ legt sie mit ihrem Karriere-Board als Startup an (bzw. schaltet ein ausgeschaltetes wieder ein) – ab dem nächsten Lauf wird das ganze Board gelesen.</div>
+    <div id="candList"></div>
+  </section>
+
+  <section class="panel" id="p-fehler" hidden>
+    <div id="errList"></div>
+  </section>
+
+  <section class="panel" id="p-papierkorb" hidden>
+    <div id="trashList"></div>
+  </section>
+
+  <section class="panel" id="p-info" hidden>
+    <div class="how card">
+      <h2>So funktioniert der Radar</h2>
+      <ol>
+        <li>Die Datenbank enthält alle Startups mit Scan-Quelle. Bei Firmen mit Bewerbungssystem (Personio, Greenhouse, Ashby, Join …) wird direkt dessen Stellenliste gelesen, sonst die Karriereseite.</li>
+        <li>Jeden Morgen um 06:55 läuft der Scan automatisch, „Jetzt scannen“ startet ihn sofort. Ein Lauf dauert etwa 5–10 Minuten; Fortschritt und Protokoll siehst du live, „Abbrechen“ stoppt ihn sofort.</li>
+        <li>Zusätzlich liest jeder Lauf externe Jobbörsen (YC, VC-Portfolios von Earlybird, Cherry, Speedinvest, Point Nine, Creandum, Atomico, HV Capital, Berlin Startup Jobs, Arbeitnow). Jede Stelle zeigt, woher sie kommt.</li>
+        <li>„nur passende“ filtert per Wortliste nach deinen Themen (unter ⋯ → Themen &amp; Suchwörter anpassbar). Die Prio A–D vergibt Claude anhand deines Profils (Mehr → Profil): Fit, Impact und Stärke des Startups.</li>
+        <li>Für die Bewerberliste prüft jeder Lauf Startdatum, Online-Datum und ob die Anzeige noch online ist.</li>
+        <li>Firmen, die auf Jobbörsen auftauchen, aber noch nicht gescannt werden, stehen unter Mehr → Kandidaten und lassen sich mit einem Klick übernehmen. Nicht lesbare Quellen stehen unter Mehr → Fehler.</li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="panel" id="p-profil" hidden>
+    <form class="prof" id="profForm" autocomplete="off">
+      <div class="card">
+        <label class="f">Lebenslauf <span class="h">Text aus deinem CV einfügen: Studium, Erfahrung, Projekte, Skills und Tools</span><textarea class="field" id="pCv" placeholder="z. B. B.Sc. BWL (TUM, 5. Semester) · Werkstudent Business Development bei … · Tools: HubSpot, Pipedrive, Make, Snowflake …"></textarea></label>
+        <label class="f">Was ich suche <span class="h">Rollen, Themen, Städte, Zeitraum, Dauer, No-Gos</span><textarea class="field" id="pWish" style="min-height:120px" placeholder="z. B. Founders Associate oder Strategy/BizDev in AI-Startups · Berlin oder München · Start Feb.–Apr. 2027 · 6 Monate · kein reines Sales"></textarea></label>
+        <div class="factions"><button class="btn primary" type="submit">Profil speichern</button><span class="sub" id="pMsg"></span></div>
+      </div>
+      <div class="hint" id="pInfo"></div>
+      <div class="hint">So funktioniert die Bewertung: Jeder Lauf gibt Claude bis zu 100 noch nicht bewertete Stellen mit dem Anzeigentext und deinem Profil. Zuerst kommen die Stellen deiner Bewerberliste, dann die neuesten Treffer. Claude vergibt Fit (Passung zu CV und Wünschen), Impact (spannend oder 08/15) und Startup (wie stark die Firma ist), jeweils 0–100. Daraus ergibt sich die Prio: A = unbedingt bewerben, B = gut, C = ok, D = eher nicht. Änderst du das Profil, wird schrittweise neu bewertet. Das Profil ist für alle sichtbar, mit denen du das Artefakt teilst.</div>
+    </form>
+  </section>
+
+  <section class="panel" id="p-laeufe" hidden>
+    <div class="sched" id="sched"></div>
+    <div id="runList"></div>
+  </section>
+
+</div>
+
+<dialog id="addDlg" aria-labelledby="addTitle">
+  <form class="dlg" id="appForm" autocomplete="off">
+    <h2 id="addTitle">Eigene Stelle hinzufügen</h2>
+    <div class="grid2">
+      <label class="f">Unternehmen<input class="field" id="aCompany" required></label>
+      <label class="f">Job-Titel<input class="field" id="aTitle" required></label>
+    </div>
+    <label class="f">Link <span class="h">https://…</span><input class="field" id="aUrl" type="url" placeholder="https://"></label>
+    <label class="f">Kommentar<input class="field" id="aComment"></label>
+    <div class="msg" id="aMsg" role="alert"></div>
+    <div class="row-actions"><span></span><div style="display:flex;gap:8px"><button class="btn" type="button" id="aCancel">Abbrechen</button><button class="btn primary" type="submit">Zur Liste hinzufügen</button></div></div>
+  </form>
+</dialog>
+
+<dialog id="ivDlg" class="iv" aria-labelledby="ivTitle">
+  <div class="dlg" id="ivBody"></div>
+</dialog>
+
+<dialog id="cfDlg" aria-labelledby="cfTitle">
+  <div class="dlg">
+    <h2 id="cfTitle">Stelle löschen?</h2>
+    <p id="cfText" style="margin:0;color:var(--ink-2)"></p>
+    <div class="row-actions"><span></span><div style="display:flex;gap:8px"><button class="btn" type="button" id="cfNo">Abbrechen</button><button class="btn primary del" type="button" id="cfYes">Löschen</button></div></div>
+  </div>
+</dialog>
+
+<dialog id="dlg">
+  <form class="dlg" id="dlgForm" method="dialog">
+    <h2 id="dlgTitle">Startup bearbeiten</h2>
+    <label class="f">Name<input class="field" id="fName" required></label>
+    <div class="grid2">
+      <label class="f">Stadt<input class="field" id="fCity"></label>
+      <label class="f">Typ
+        <select class="field" id="fTyp" style="width:100%">
+          <option>Startup</option><option>VC / Investor</option><option>Corporate</option><option>Venture Studio</option><option>Programm / Uni</option><option>unklar</option>
+        </select>
+      </label>
+    </div>
+    <label class="f">Karriereseite <span class="h">Link für dich zum Anklicken</span><input class="field" id="fCareer" type="url" placeholder="https://…"></label>
+    <label class="f">Scan-Quelle <span class="h">diese Adresse liest der Scan; leer = nicht scannen</span><input class="field" id="fSource" type="url" placeholder="https://…"></label>
+    <div class="grid2">
+      <label class="f">Bewerbungssystem
+        <select class="field" id="fAts" style="width:100%">
+          <option value="">–</option><option value="personio">Personio</option><option value="greenhouse">Greenhouse</option><option value="ashby">Ashby</option><option value="lever">Lever</option><option value="join">Join</option><option value="workable">Workable</option><option value="recruitee">Recruitee</option><option value="teamtailor">Teamtailor</option><option value="smartrecruiters">SmartRecruiters</option><option value="startupmap">startupmap-Profil</option><option value="web">Eigene Seite</option>
+        </select>
+      </label>
+      <label class="f">startupmap-Profil<input class="field" id="fSm" type="url" placeholder="https://startupmap.one/startup/…"></label>
+    </div>
+    <label class="f">Notiz<input class="field" id="fNote"></label>
+    <label class="check"><input type="checkbox" id="fActive"> Beim Scan berücksichtigen</label>
+    <div class="msg" id="dlgMsg" role="alert"></div>
+    <div class="row-actions">
+      <div><button class="btn danger" type="button" id="delBtn">Löschen</button></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn" type="button" id="cancelBtn">Abbrechen</button>
+        <button class="btn primary" type="submit" id="saveBtn">Speichern</button>
+      </div>
+    </div>
+  </form>
+</dialog>
+
+<div class="toast" id="toast" hidden></div>
+<div class="tip" id="tip" role="tooltip" hidden></div>
+<div class="ppop" id="ppop" role="dialog" aria-label="Prio-Details" hidden></div>
+
+<script type="text/plain" id="scan-template">(Skript-Scan: Prompt der geplanten Aufgabe wird nicht mehr aus dem Artefakt gesetzt.)</script>
+<script>
+(() => {
+  "use strict";
+  const $ = (s) => document.querySelector(s);
+  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const MCP = "Claude Code Remote";
+  const KINDS = ["Alle", "Praktikum", "Werkstudent", "Founder & CEO-Office", "Thesis"];
+  const ATS_LABEL = { personio: "Personio", greenhouse: "Greenhouse", ashby: "Ashby", lever: "Lever", join: "Join", workable: "Workable", recruitee: "Recruitee", teamtailor: "Teamtailor", smartrecruiters: "SmartRecruiters", startupmap: "startupmap", web: "Website" };
+
+  const S = {
+    db: null, mcp: null, user: null, canWrite: true,
+    startups: new Map(), apps: new Map(), trash: new Map(), scan: null, boards: null, cands: null, details: null, ratings: null, profile: null, runs: [], config: null,
+    loaded: { startups: false, scan: false },
+    tab: "praktika", kind: "Praktikum", ivs: new Map(), calM: null, limit: 150, editing: null, sched: null, schedMsg: "", busy: false,
+  };
+  try { const t = localStorage.getItem("radar.tab"); if (t) S.tab = t; } catch (e) {}
+  S.appView = "liste"; try { if (localStorage.getItem("radar.appView") === "board") S.appView = "board"; } catch (e) {}
+
+  /* ---------- Helfer ---------- */
+  /* ---------- Relevanz-Filter: Wortliste auf den Stellentitel, keine KI ---------- */
+  const FDEF = {"typ": ["/\\bintern(s|ship|ships)?\\b/", "praktik", "werkstud", "working student", "studentische", "student assistant", "/\\bhiwi\\b/", "praxissemester", "thesis", "abschlussarbeit", "masterarbeit", "bachelorarbeit"], "track": ["founder", "founding associate", "founding generalist", "gründer", "chief of staff", "entrepreneur", "eir", "ceo office", "office of the ceo", "ceo's office", "cfo office", "coo office", "cpo office", "cgo office", "assistant to the ceo", "ceo assistant", "assistenz der geschäftsführung", "assistenz geschäftsführung", "venture develop", "venture build", "venture architect", "venture associate", "venture analyst", "venture capital", "company build", "business builder"], "track_exclude": ["engineer", "co-founder", "technical founder"], "strong": ["consult", "strateg", "business development", "bizdev", "venture", "m&a", "investment", "gtm", "go-to-market", "automation", "automatisier", "product manage", "produktmanage", "chief of staff", "founder"], "topics": {"AI": ["ai", "ki", "artificial intelligence", "künstliche intelligenz", "genai", "generative", "llm", "agent", "agentic", "prompt"], "Automation": ["automation", "automatisier", "automate", "no-code", "nocode", "low-code", "workflow", "process automation", "process optimi", "process management", "process excellence", "business process", "prozessautomatisierung", "prozessoptimierung", "prozessmanagement", "digitalisierung", "digital transformation", "efficiency", "effizienz"], "Strategy": ["strateg", "consult", "beratung", "transformation", "special project", "sonderprojekt", "corporate development", "unternehmensentwicklung", "m&a", "innovation", "new business"], "BizDev & Growth": ["business development", "bizdev", "bd", "geschäftsentwicklung", "growth", "go-to-market", "go to market", "gtm", "expansion", "market entry", "markteintritt", "launch", "partner", "pricing", "revenue operations", "revops", "commercial", "sales operations", "market analysis", "marktanalyse", "market research", "marktforschung"], "Operations": ["operations", "operational", "ops", "bizops", "operativ", "project", "projekt", "program management", "programm", "pmo"], "Venture & Startup": ["venture", "investment", "investor", "private equity", "fundraising", "corporate finance", "accelerator", "ecosystem", "startup", "start-up", "gründung"], "Product": ["product", "produktmanagement", "produktmanager"], "Analytics": ["analyst", "analytics", "business intelligence", "bi", "data", "insights", "reporting", "kpi"], "Generalist": ["generalist", "allround", "rotation", "business", "general management", "start-up management", "startup management", "geschäftsführung", "ceo", "coo", "cpo", "cgo"]}, "exclude": ["development representative", "office", "quality", "annotation", "labeling", "labelling", "data collection", "data science", "lab", "cleanroom", "r&d", "engineer", "developer", "entwickler", "software", "frontend", "backend", "fullstack", "full-stack", "full stack", "devops", "firmware", "embedded", "hardware", "mechanical", "mechani", "mechatron", "elektro", "electrical", "electronic", "chemi", "labor", "laboratory", "physik", "physics", "scientist", "researcher", "cad", "qa", "quality assurance", "security", "cyber", "design", "ux", "ui", "graphic", "grafik", "video", "social media", "content", "community", "influencer", "copywrit", "redakt", "recruit", "talent", "human resources", "hr", "people & culture", "people and culture", "people operations", "people ops", "personalwesen", "legal", "jurist", "recht", "tax", "steuer", "accounting", "buchhalt", "account manag", "account executive", "sdr", "sales development", "telesales", "inside sales", "customer support", "customer service", "customer care", "kundenservice", "logistik", "warehouse", "lager", "driver", "fahrer"], "generic": ["open", "application", "applications", "initiativ", "initiativbewerbung", "unsolicited", "general", "spontaneous", "at", "for", "in", "the", "our", "and", "all", "genders", "team", "munich", "münchen", "berlin", "hamburg", "cologne", "köln", "frankfurt", "remote", "hybrid", "germany", "deutschland", "m", "w", "d", "f", "x", "gn", "div", "mwd", "fmd"], "hard": ["development representative", "sdr", "account executive", "telesales"]};
+  const FTOPICS = Object.keys(FDEF.topics);
+  function termRe(t) {
+    t = String(t || "").trim(); if (!t) return null;
+    if (t.length > 2 && t.startsWith("/") && t.endsWith("/")) return t.slice(1, -1);
+    const e = t.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    return t.length <= 3 ? "\\b" + e + "\\b" : e;
+  }
+  function listRe(lst) {
+    const parts = [];
+    for (const t of lst || []) { const p = termRe(t); if (!p) continue; try { new RegExp(p, "i"); parts.push(p); } catch (e) {} }
+    return parts.length ? new RegExp(parts.join("|"), "i") : null;
+  }
+  let FDRAFT = null, FC = null, FSIG = null;
+  function userFilter() {
+    const f = FDRAFT || S.config?.filter || {};
+    return { off_topics: f.off_topics || [], extra: f.extra || [], exclude_extra: f.exclude_extra || [] };
+  }
+  function filterCfg() {
+    const u = userFilter(), sig = JSON.stringify(u);
+    if (FC && sig === FSIG) return FC;
+    const topics = {};
+    for (const k of FTOPICS) if (!u.off_topics.includes(k)) topics[k] = listRe(FDEF.topics[k]);
+    if (u.extra.length) topics["Eigene Wörter"] = listRe(u.extra);
+    FC = { typ: listRe(FDEF.typ), track: listRe(FDEF.track), trackEx: listRe(FDEF.track_exclude),
+      strong: listRe(FDEF.strong.concat(u.extra)), hard: listRe(FDEF.hard.concat(u.exclude_extra)),
+      exclude: listRe(FDEF.exclude), topics, generic: new Set(FDEF.generic) };
+    FSIG = sig; return FC;
+  }
+  const words = (s) => String(s || "").toLowerCase().split(/[^a-z0-9äöüß]+/).filter(Boolean);
+  function classify(title, company) {
+    const C = filterCfg(), t = String(title || "").toLowerCase();
+    const test = (r) => !!(r && r.test(t));
+    const track = test(C.track) && !test(C.trackEx);
+    const typ = test(C.typ);
+    const topics = Object.keys(C.topics).filter((k) => test(C.topics[k]));
+    let generic = false;
+    if (typ) { const co = new Set(words(company)); generic = words(t.replace(new RegExp(C.typ.source, "gi"), " ")).every((w) => C.generic.has(w) || co.has(w)); }
+    const fit = !test(C.hard) && (track || generic || (typ && topics.length > 0 && (!test(C.exclude) || test(C.strong))));
+    return { fit, track, generic, topics };
+  }
+  function kindsOf(title) {
+    const s = String(title).toLowerCase(); const k = [];
+    if (/thesis|abschlussarbeit|masterarbeit|bachelorarbeit/.test(s)) k.push("Thesis");
+    if (/\bintern(s|ship|ships)?\b|praktik/.test(s)) k.push("Praktikum");
+    if (/werkstud|working student|studentische|student assistant|\bhiwi\b/.test(s)) k.push("Werkstudent");
+    const C = filterCfg(); if (C.track && C.track.test(s) && !(C.trackEx && C.trackEx.test(s))) k.push("Founder & CEO-Office");
+    if (!k.length) k.push("Sonstiges");
+    return k;
+  }
+  const CITY_RE = [["Berlin", /berlin/i], ["München", /m(ü|u)nchen|munich/i], ["Hamburg", /hamburg/i], ["Köln", /k(ö|o)ln|cologne/i], ["Frankfurt", /frankfurt/i],
+    ["Düsseldorf", /d(ü|u)sseldorf/i], ["Stuttgart", /stuttgart/i], ["Leipzig", /leipzig/i], ["Paris", /paris|île-de-france/i], ["Lille", /lille/i], ["Remote", /remote|homeoffice/i]];
+  const cityOf = (l) => { for (const [c, r] of CITY_RE) if (r.test(l || "")) return c; return ""; };
+  const isSM = (u) => /^https?:\/\/(www\.)?startupmap\.one/i.test(u || "");
+  // Woher eine Stelle stammt: Bewerbungssystem bzw. Plattform aus dem Link, sonst die Website
+  const SRC_HOSTS = [[/personio\./, "Personio"], [/ashbyhq\.com/, "Ashby"], [/greenhouse\.io/, "Greenhouse"], [/lever\.co/, "Lever"], [/workable\.com/, "Workable"],
+    [/recruitee\.com/, "Recruitee"], [/smartrecruiters\.com/, "SmartRecruiters"], [/join\.com/, "Join"], [/teamtailor\.com/, "Teamtailor"], [/ycombinator\.com/, "Y Combinator"],
+    [/berlinstartupjobs\.com/, "Berlin Startup Jobs"], [/arbeitnow\.(com|co\.uk)/, "Arbeitnow"], [/welcomekit\.co|welcometothejungle\.com/, "Welcome to the Jungle"],
+    [/bamboohr\.com/, "BambooHR"], [/rippling\.com/, "Rippling"], [/softgarden\.io/, "softgarden"], [/startupmap\.one/, "startupmap"], [/linkedin\.com/, "LinkedIn"]];
+  function sysOf(u) {
+    let host = ""; try { host = new URL(u).hostname.replace(/^www\./, ""); } catch (e) { return ""; }
+    for (const [re, name] of SRC_HOSTS) if (re.test(host)) return name;
+    return host;
+  }
+  // Ausgeblendete Stellen (prefs/hidden.by_url): bleiben sichtbar, aber ausgegraut
+  const isHidden = (h) => !!(h.u && S.hidden?.[normUrl(h.u)]);
+  async function toggleHidden(h) {
+    if (!h?.u) return;
+    const k = normUrl(h.u), m = { ...(S.hidden || {}) };
+    if (m[k]) delete m[k]; else m[k] = new Date().toISOString();
+    S.hidden = m; schedule();
+    try { await S.db.doc("prefs/hidden").set({ by_url: m, updated_at: new Date().toISOString() }); } catch (e) { toast("Konnte nicht gespeichert werden."); }
+  }
+  // KI-Bewertung aus scans/ratings (Schlüssel: normalisierter Link)
+  const rateOf = (u) => (u && S.ratings?.by_url?.[normUrl(u)]) || null;
+  const rateTip = (r) => `Prio ${r.p} · Score ${r.s} – Fit ${r.fit} · Impact ${r.imp} · Startup ${r.su}${r.why ? " – " + r.why : ""}`;
+  // Prio-Plakette: Klick öffnet die Details (Score, Fit, Impact, Startup, Begründung)
+  const prioBadge = (r) => r ? `<button type="button" class="prio p-${esc(r.p)}" data-rate="${esc(JSON.stringify({ p: r.p, s: r.s, fit: r.fit, imp: r.imp, su: r.su, why: r.why || "" }))}" aria-haspopup="dialog" aria-label="${esc(rateTip(r))}">${esc(r.p)}</button>` : "";
+  function showRate(btn) {
+    const pop = $("#ppop"), r = JSON.parse(btn.dataset.rate || "{}");
+    if (!pop.hidden && pop.dataset.for === btn.dataset.rate) { pop.hidden = true; return; }
+    const bar = (l, v) => `<div class="pb"><span>${l}</span><i><b style="width:${Math.max(0, Math.min(100, +v || 0))}%"></b></i><em>${esc(v)}</em></div>`;
+    pop.innerHTML = `<div class="ph"><span class="prio p-${esc(r.p)}">${esc(r.p)}</span><strong>Score ${esc(r.s)}</strong><span class="pw">von 100</span></div>
+      ${bar("Fit", r.fit)}${bar("Impact", r.imp)}${bar("Startup", r.su)}${r.why ? `<p>${esc(r.why)}</p>` : ""}`;
+    pop.dataset.for = btn.dataset.rate; pop.hidden = false; $("#tip").hidden = true;
+    const b = btn.getBoundingClientRect(), w = pop.offsetWidth, h = pop.offsetHeight;
+    pop.style.left = Math.max(16, Math.min(b.left, window.innerWidth - w - 16)) + "px";
+    pop.style.top = (b.bottom + 6 + h > window.innerHeight - 8 ? Math.max(8, b.top - h - 6) : b.bottom + 6) + "px";
+  }
+  const rateLine = (r) => r ? `<div class="rate"><span class="sc">Fit <b>${esc(r.fit)}</b></span><span class="sc">Impact <b>${esc(r.imp)}</b></span><span class="sc">Startup <b>${esc(r.su)}</b></span>${r.why ? `<span class="why">${esc(r.why)}</span>` : ""}</div>` : "";
+  function srcOf(h) {
+    if (h.board) return { kind: "Jobbörse", name: h.src || "Jobbörse", title: "Gefunden über eine externe Jobbörse bzw. ein VC-Portfolio" };
+    const sys = sysOf(h.u) || sysOf(h.st?.source_url) || "Website";
+    return { kind: isMine(h.st) ? "Meine Liste" : "Startup-Liste", name: sys, title: "Direkt beim Startup gelesen (" + (h.st?.source_url || "") + ")" };
+  }
+  function jobLink(h) {
+    if (h.u && /^https?:\/\//.test(h.u) && !isSM(h.u)) return { href: h.u, via: "" };
+    const c = h.st?.career_url;
+    if (c && /^https?:\/\//.test(c) && !isSM(c)) return { href: c, via: "Karriereseite" };
+    return { href: "https://www.google.com/search?q=" + encodeURIComponent(h.company + " " + h.t), via: "Websuche" };
+  }
+  const fmtDate = (iso, withTime) => {
+    if (!iso) return "–";
+    const d = new Date(iso); if (isNaN(d)) return "–";
+    const o = withTime ? { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" } : { day: "2-digit", month: "2-digit", year: "2-digit" };
+    return d.toLocaleString("de-DE", o);
+  };
+  const ago = (iso) => {
+    if (!iso) return ""; const m = Math.round((Date.now() - new Date(iso)) / 60000);
+    if (m < 1) return "gerade eben"; if (m < 60) return `vor ${m} Min.`;
+    const h = Math.round(m / 60); if (h < 36) return `vor ${h} Std.`;
+    return `vor ${Math.round(h / 24)} T.`;
+  };
+  const isMine = (st) => st && st.liste === "eigene";
+  const slug = (s) => String(s).toLowerCase().normalize("NFKD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60) || "startup";
+  let toastT;
+  function toast(msg) { const t = $("#toast"); t.textContent = msg; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => (t.hidden = true), 4200); }
+  let raf = 0;
+  function schedule() { if (!raf) raf = requestAnimationFrame(() => { raf = 0; render(); }); }
+
+  function runningRun() {
+    const r = S.runs.find((x) => x.status === "running");
+    if (r && Date.now() - new Date(r.started_at) < 3 * 3600e3) return r;
+    return null;
+  }
+  function requestedPending() {
+    const req = S.config?.last_manual_request; if (!req) return null;
+    if (S.config?.last_manual_cancel && new Date(S.config.last_manual_cancel) >= new Date(req)) return null;
+    const age = Date.now() - new Date(req);
+    if (age > 90 * 60e3) return null;
+    const started = S.runs.some((r) => new Date(r.started_at) >= new Date(req) - 60e3);
+    return started ? null : req;
+  }
+
+  /* ---------- Live-Fortschritt (runs/<Lauf-ID>: phase, pct, phase_at, log, dur – geschrieben vom Lauf nach jeder Phase) ---------- */
+  const PH = [["start", 0, "Start"], ["daten", 3, "Datenbank"], ["startups", 8, "Startups"], ["boards", 28, "Jobbörsen"], ["details", 72, "Bewerberliste"], ["bewerten", 78, "KI-Bewertung"], ["fertig", 100, "Fertig"]];
+  const PH_DEF = { start: 30, daten: 60, startups: 70, boards: 200, details: 40, bewerten: 180, fertig: 25 };   // Sekunden, falls noch kein Lauf mit Messwerten
+  const KSYM = { ok: "✓", run: "▸", err: "✗", info: "!" };
+  const hms = (iso) => { const d = new Date(iso); return isNaN(d) ? "--:--:--" : d.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit", second: "2-digit" }); };
+  const mmss = (sec) => { sec = Math.max(0, Math.round(sec)); return `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, "0")}`; };
+  function expectedDur(phase) {
+    const prev = S.runs.find((r) => r.status === "done" && r.dur && r.dur[phase] != null);
+    return Math.max(10, prev ? prev.dur[phase] : PH_DEF[phase] || 60);
+  }
+  // Fortschritt in % – innerhalb einer Phase anhand der Dauer früherer Läufe geschätzt (bleibt unter dem Phasenende)
+  function runPct(r) {
+    if (r.status === "done") return { pct: 100, est: false };
+    const i = PH.findIndex((p) => p[0] === r.phase);
+    if (i < 0) return { pct: null, est: false };
+    const lo = r.pct ?? PH[i][1], hi = PH[Math.min(i + 1, PH.length - 1)][1];
+    if (r.status === "failed" || hi <= lo) return { pct: lo, est: false };
+    const x = (Date.now() - new Date(r.phase_at || r.started_at)) / 1000 / expectedDur(r.phase);
+    const frac = x < 1 ? 0.9 * x : 0.9 + 0.08 * (1 - Math.exp(-(x - 1)));
+    return { pct: lo + (hi - lo) * frac, est: true };
+  }
+  function termHtml(r, live) {
+    const log = (r.log || []).map(([t, k, m]) => `<div class="tl k-${esc(k)}"><span class="tt">${esc(hms(t))}</span><span class="tk">${esc(KSYM[k] || "·")}</span><span class="tm">${esc(m)}</span></div>`);
+    const head = `<div class="tl k-cmd"><span class="tt">${esc(hms(r.started_at))}</span><span class="tk"></span><span class="tm">radar scan --lauf ${esc(r.run_id || "")} --modus ${esc(r.mode || "")}</span></div>`;
+    if (r.status === "failed") log.push(`<div class="tl k-err"><span class="tt">${esc(hms(r.finished_at || Date.now()))}</span><span class="tk">✗</span><span class="tm">Abgebrochen: ${esc(r.error || "unbekannter Grund")}</span></div>`);
+    if (live && log.length) log[log.length - 1] = log[log.length - 1].replace(/<\/span><\/div>$/, '<span class="cur" aria-hidden="true"></span></span></div>');
+    return head + log.join("");
+  }
+  function liveRun() {
+    const run = runningRun(); if (run) return { r: run, kind: "run" };
+    const pend = requestedPending(); if (pend) return { r: { run_id: "", mode: "manuell", started_at: pend, log: [[pend, "run", "Lauf angefordert – Cloud-Sitzung startet, Skript wird geschrieben …"]] }, kind: "pend" };
+    const last = S.runs[0];   // abgeschlossenen Lauf noch 20 Minuten zeigen
+    if (last && last.status !== "running" && !liveDismissed(last.run_id) && Date.now() - new Date(last.finished_at || last.started_at) < 20 * 60e3) return { r: last, kind: last.status === "done" ? "done" : "failed" };
+    return null;
+  }
+  let liveSig = "";
+  const liveDismissed = (id) => { try { return localStorage.getItem("radar.liveClosed") === id; } catch (e) { return S.liveClosed === id; } };
+  function renderLive() {
+    const box = $("#live"), L = S.db && liveRun();
+    if (!L) { box.hidden = true; liveSig = ""; return; }
+    const { r, kind } = L, i = PH.findIndex((p) => p[0] === r.phase);
+    const sig = JSON.stringify([kind, r.run_id, r.phase, (r.log || []).length, r.status, r.cancel_requested, S.cancelArm, S.cancelBusy, S.cancelMsg]);
+    box.hidden = false;
+    box.className = "live" + (kind === "done" ? " done" : kind === "failed" ? " failed" : "");
+    if (sig !== liveSig) {
+      liveSig = sig;
+      const title = { run: r.cancel_requested ? "Scan wird abgebrochen" : "Scan läuft", pend: "Scan angefordert", done: "Scan fertig", failed: r.status === "cancelled" ? "Scan gestoppt" : "Scan abgebrochen" }[kind];
+      const canCancel = (kind === "run" || kind === "pend") && !r.cancel_requested && S.canWrite;
+      const closeBtn = kind === "done" || kind === "failed" ? `<button class="btn small" type="button" id="liveClose" title="Fenster schließen">✕ Schließen</button>` : "";
+      const cancelUi = S.cancelBusy ? `<span class="lmeta">Breche ab …</span>`
+        : !canCancel ? (r.cancel_requested && kind === "run" ? `<span class="lmeta">Abbruch angefordert – stoppt nach der aktuellen Phase</span>` : "")
+        : S.cancelArm ? `<span class="lcancel"><span class="lmeta">Lauf wirklich abbrechen?</span><button class="btn small danger" type="button" id="cancelYes">Ja, abbrechen</button><button class="btn small" type="button" id="cancelNo">Weiterlaufen</button></span>`
+        : `<button class="btn small danger" type="button" id="cancelRun">■ Abbrechen</button>`;
+      const steps = PH.map(([k, , label], j) => {
+        const cls = kind === "done" || (i >= 0 && j < i) ? "s-done" : kind === "failed" && j === i ? "s-err" : kind === "run" && j === i ? "s-act" : "";
+        return `<li class="${cls}"><span class="ic" aria-hidden="true">${cls === "s-done" ? "✓" : cls === "s-err" ? "!" : ""}</span>${esc(label)}</li>`;
+      }).join("");
+      const ticks = PH.slice(1, -1).map(([, p]) => `<span class="tick" style="left:${p}%"></span>`).join("");
+      const term = `<div class="term" id="liveTerm" role="log">${termHtml(r, kind === "run" || kind === "pend")}</div>`;
+      box.innerHTML = `<div class="lhead"><span class="lstate"><span class="dot" aria-hidden="true"></span>${title}</span>
+          <span class="lmeta">${esc({ geplant: "geplanter Lauf", manuell: "per Knopf" }[r.mode] || r.mode || "")}${r.run_id ? " · Lauf " + esc(r.run_id) : ""}${kind === "done" ? ` · ${esc(r.hits_total ?? "–")} Treffer, ${esc(r.new_hits ?? 0)} neu` : ""}</span>
+          <span class="lclock" id="liveClock"></span>${cancelUi}${closeBtn}</div>${S.cancelMsg ? `<div class="lmeta" role="alert">${esc(S.cancelMsg)}</div>` : ""}
+        <div class="lbarrow"><div class="bar${kind === "pend" || (kind === "run" && i < 0) ? " indet" : ""}" role="progressbar" aria-valuemin="0" aria-valuemax="100" id="liveBar"><span class="fill" id="liveFill"></span>${ticks}</div><span class="lpct" id="livePct"></span></div>
+        <ul class="steps">${steps}</ul>
+        ${kind === "done" ? `<details><summary>Protokoll anzeigen</summary>${term}</details>` : term}`;
+      const t = $("#liveTerm"); if (t) t.scrollTop = t.scrollHeight;
+    }
+    tickLive(L);
+  }
+  function tickLive(L) {
+    L = L || liveRun(); if (!L || $("#live").hidden) return;
+    const { r, kind } = L, { pct, est } = kind === "pend" ? { pct: null } : runPct(r);
+    const fill = $("#liveFill"), bar = $("#liveBar");
+    if (pct != null) { fill.style.width = pct.toFixed(1) + "%"; bar.setAttribute("aria-valuenow", Math.round(pct)); }
+    $("#livePct").textContent = pct == null ? "…" : (est ? "~" : "") + Math.floor(pct) + " %";
+    const end = kind === "done" || kind === "failed" ? new Date(r.finished_at || Date.now()) : Date.now();
+    const el = (end - new Date(r.started_at)) / 1000;
+    let rest = "";
+    if (kind === "run" && pct != null && pct > 3) {
+      const i = PH.findIndex((p) => p[0] === r.phase);
+      const left = PH.slice(Math.max(i, 0), -1).reduce((a, [k]) => a + expectedDur(k), 0) - (Date.now() - new Date(r.phase_at || r.started_at)) / 1000;
+      rest = ` · noch ca. ${Math.max(1, Math.round(left / 60))} Min.`;
+    }
+    $("#liveClock").textContent = (kind === "done" ? "Dauer " : "") + mmss(el) + rest;
+  }
+
+  // Abbrechen: 1) laufende Cloud-Sitzung der geplanten Aufgabe unterbrechen (sofort),
+  // 2) sonst cancel_requested in runs/<Lauf-ID> – der Lauf prüft das bei seinem nächsten Schreibversuch und hört auf.
+  async function cancelScan() {
+    const L = liveRun(); if (!L || S.cancelBusy) return;
+    S.cancelArm = false; S.cancelBusy = true; S.cancelMsg = ""; renderLive();
+    const now = new Date().toISOString(), r = L.r;
+    let hard = false;
+    if (S.mcp && S.config?.trigger_id) {
+      const ids = [];
+      try {
+        const res = await S.mcp.callTool(MCP, "get_trigger", { trigger_id: S.config.trigger_id });
+        const lr = (res.payload?.trigger || res.payload || {}).last_run || {};
+        if (lr.session_id && new Date(lr.fired_at) >= new Date(r.started_at) - 15 * 60e3) ids.push(lr.session_id);
+      } catch (e) {}
+      const mine = S.lastSession || S.config?.last_session;
+      const manual = L.kind === "pend" || (S.config?.last_manual_request && new Date(S.config.last_manual_request) >= new Date(r.started_at) - 15 * 60e3);
+      if (mine && manual) ids.push(mine);
+      for (const id of [...new Set(ids.flatMap((x) => [x, x.replace(/^cse_/, "session_")]))]) {
+        try { await S.mcp.callTool(MCP, "interrupt_session", { session_id: id }); hard = true; break; } catch (e) {}
+      }
+    }
+    try {
+      if (L.kind === "pend") {
+        await S.db.doc("config/main").update({ last_manual_cancel: now });
+        S.cancelMsg = hard ? "" : "Die Cloud-Sitzung ließ sich nicht direkt stoppen; startet sie doch noch, kannst du den Lauf hier abbrechen.";
+      } else {
+        const log = [...(r.log || []), [now, hard ? "err" : "info", hard ? "Abgebrochen per Knopf" : "Abbruch angefordert – stoppt nach der aktuellen Phase"]];
+        await S.db.doc("runs/" + r.run_id).update(hard
+          ? { status: "cancelled", finished_at: now, error: "Vom Nutzer abgebrochen", cancel_requested: now, log }
+          : { cancel_requested: now, log });
+      }
+      toast(hard ? "Scan abgebrochen" : "Abbruch angefordert");
+    } catch (e) { S.cancelMsg = "Abbruch konnte nicht gespeichert werden: " + (e?.message || e?.code || "unbekannter Fehler"); }
+    S.cancelBusy = false; schedule();
+  }
+
+  /* ---------- Rendering ---------- */
+  function render() {
+    S.hm = hitsWithMeta();
+    renderHeader(); renderLive(); renderAlerts(); renderTabs();
+    if (S.tab === "praktika") renderHits();
+    if (S.tab === "bewerbungen") renderApps();
+    if (S.tab === "termine") renderCal();
+    if (S.tab === "startups") renderStartups();
+    if (S.tab === "kandidaten") renderCands();
+    if (S.tab === "fehler") renderErrors();
+    if (S.tab === "laeufe") renderRuns();
+    if (S.tab === "profil") renderProfile();
+    if (S.tab === "papierkorb") renderTrash();
+  }
+
+  function renderHeader() {
+    if (!S.db && S.dbMissing) S.scanMsg = "Datenbank nur in Claude verfügbar – öffne das Artefakt in claude.ai.";
+    const run = runningRun(), pend = requestedPending();
+    $("#scope").classList.toggle("on", !!(run || pend));
+    const st = $("#scanstate"), btn = $("#scanBtn");
+    // Während ein Scan angefordert ist oder läuft: Knopf ausgegraut, kein Zusatztext (Fortschritt steht im Live-Panel)
+    const active = !!(run || pend || S.busy);
+    st.textContent = active ? "" : S.scanMsg || "";
+    btn.disabled = active || !S.db;
+    btn.textContent = active ? "Scan läuft …" : "Jetzt scannen";
+  }
+
+  function hitsWithMeta() {
+    const hits = S.scan?.hits || [];
+    const start = S.scan?.started_at ? new Date(S.scan.started_at) - 60e3 : Infinity;
+    const own = hits.map((h) => {
+      const st = S.startups.get(h.id); const company = st?.name || h.id;
+      const c = classify(h.t, company);
+      return { ...h, st, company, city: st?.stadt || "", kinds: kindsOf(h.t), isNew: new Date(h.fs) >= start, fit: c.fit, topics: c.topics, generic: c.generic, rt: rateOf(h.u) };
+    });
+    // Treffer aus externen Jobbörsen (scans/boards): Firma steht im Treffer selbst (co), Quelle in src
+    const bStart = S.boards?.run_id && S.boards.run_id === S.scan?.run_id ? start : (S.boards?.finished_at ? new Date(S.boards.finished_at) - 15 * 60e3 : Infinity);
+    const ext = (S.boards?.hits || []).map((h) => {
+      const company = h.co || h.id; const c = classify(h.t, company);
+      return { ...h, st: null, company, city: cityOf(h.l), board: true, kinds: kindsOf(h.t), isNew: new Date(h.fs) >= bStart, fit: c.fit, topics: c.topics, generic: c.generic, rt: rateOf(h.u) };
+    });
+    return own.concat(ext);
+  }
+
+
+
+  // Hinweise (Fehler, abgebrochener Lauf, fehlendes Profil) nur als kleines rotes „!“ neben dem Titel
+  function dismissedAlerts() { try { return JSON.parse(localStorage.getItem("radar.alertsOff") || "[]"); } catch (e) { return S.alertsOff || []; } }
+  function dismissAlert(k) {
+    const l = [...dismissedAlerts().filter((x) => x !== k), k].slice(-30); S.alertsOff = l;
+    try { localStorage.setItem("radar.alertsOff", JSON.stringify(l)); } catch (e) {}
+    renderAlerts(); if (!$("#alertBtn").hidden) { $("#alertPop").hidden = false; $("#alertBtn").setAttribute("aria-expanded", "true"); }
+  }
+  function renderAlerts() {
+    const all = [];
+    const errs = Object.entries(S.scan?.results || {}).filter(([id, r]) => r.s === "err" && S.startups.get(id)?.active).length;
+    const lastRun = S.runs[0];
+    if (S.loaded.scan && !S.scan) all.push(["noscan", `<b>Noch kein Scan gelaufen.</b> Starte den ersten mit „Jetzt scannen“.`]);
+    if (lastRun && lastRun.status === "failed") all.push(["fail:" + lastRun.run_id, `<b>Letzter Scan abgebrochen</b> (${esc(fmtDate(lastRun.started_at, true))}): ${esc(lastRun.error || "unbekannter Grund")}<div><button class="btn small" type="button" data-go="laeufe">Läufe ansehen</button></div>`]);
+    if (errs) all.push(["errs:" + errs + ":" + (S.scan?.run_id || ""), `<b>${errs} Karriereseiten</b> konnten beim letzten Lauf nicht gelesen werden.<div><button class="btn small" type="button" data-go="fehler">Fehler ansehen</button></div>`]);
+    if (S.loaded.scan && S.profileLoaded && !S.profile?.cv) all.push(["noprofile", `<b>Kein Profil hinterlegt</b> – ohne Lebenslauf gibt es keine KI-Bewertung.<div><button class="btn small" type="button" data-go="profil">Profil öffnen</button></div>`]);
+    const gone = dismissedAlerts();
+    const msgs = all.filter(([k]) => !gone.includes(k)).map(([k, m]) => `<button class="msg-x" type="button" data-alertx="${esc(k)}" aria-label="Meldung ausblenden" title="Ausblenden">✕</button>${m}`);
+    const btn = $("#alertBtn"), pop = $("#alertPop");
+    btn.hidden = !msgs.length; btn.title = msgs.length + (msgs.length === 1 ? " Hinweis" : " Hinweise");
+    if (!msgs.length) { pop.hidden = true; btn.setAttribute("aria-expanded", "false"); }
+    pop.innerHTML = msgs.map((m) => `<div class="msg">${m}</div>`).join("");
+  }
+  function renderTabs() {
+    for (const t of ["praktika", "bewerbungen", "termine", "startups", "kandidaten", "fehler", "laeufe", "profil", "papierkorb", "info"]) {
+      $("#tab-" + t).setAttribute("aria-selected", String(S.tab === t));
+      $("#p-" + t).hidden = S.tab !== t;
+    }
+    const hits = (S.hm || []).filter((h) => h.fit).length;
+    const errs = Object.entries(S.scan?.results || {}).filter(([id, r]) => r.s === "err" && S.startups.get(id)?.active).length;
+    $("#c-startups").textContent = S.startups.size || "";
+    const upcoming = [...(S.ivs || new Map()).values()].filter((iv) => iv.status !== "abgesagt" && (!iv.start || new Date(iv.start).getTime() > Date.now() - 36e5)).length;
+    $("#c-termine").textContent = upcoming || ""; $("#c-termine").hidden = !upcoming;
+    $("#c-fehler").textContent = errs || ""; $("#c-laeufe").textContent = S.runs.length || "";
+    $("#c-profil").textContent = S.db && S.profileLoaded && !S.profile?.cv ? "!" : "";
+    $("#c-papierkorb").textContent = S.trash.size || "";
+    const sec = ["startups", "kandidaten", "fehler", "laeufe", "profil", "papierkorb", "info"].includes(S.tab);
+    $("#moreBtn").setAttribute("aria-selected", String(sec));
+    $("#moreLbl").textContent = sec ? { startups: "Startups", kandidaten: "Kandidaten", fehler: "Fehler", laeufe: "Läufe", profil: "Profil", papierkorb: "Papierkorb", info: "So funktioniert’s" }[S.tab] : "Mehr";
+    $("#c-kandidaten").textContent = Object.values(S.cands?.candidates || {}).filter((c) => (c.status || "neu") === "neu").length || "";
+  }
+
+  function renderHits() {
+    const chips = $("#kinds");
+    if (!chips.childElementCount) {
+      chips.innerHTML = ["Alle", "Praktikum"].map((k) => `<button class="chip" type="button" data-kind="${esc(k)}" aria-pressed="false">${esc(k)}</button>`).join("");
+      $("#kindSel").innerHTML = KINDS.map((k) => `<option>${esc(k)}</option>`).join("");
+    }
+    $("#kindSel").value = S.kind;
+    document.querySelectorAll("[data-toggle]").forEach((b) => b.setAttribute("aria-pressed", String($("#" + b.dataset.toggle).checked)));
+    const extra = [S.kind !== "Alle" && S.kind !== "Praktikum", $("#city").value, $("#srcSel").value, $("#prioSel").value, $("#sortSel").value !== "prio", $("#onlyMine").checked].filter(Boolean).length;
+    $("#fcount").textContent = extra ? extra + " aktiv" : "";
+    $("#fDot").hidden = !extra;
+    chips.querySelectorAll(".chip").forEach((c) => c.setAttribute("aria-pressed", String(c.dataset.kind === S.kind)));
+    renderFilterBox();
+    const all = S.hm || [];
+    const citySel = $("#city"); const cur = citySel.value;
+    const cities = [...new Set(all.map((h) => h.city).filter(Boolean))].sort((a, b) => a.localeCompare(b, "de"));
+    const want = ['<option value="">Alle Städte</option>', ...cities.map((c) => `<option${c === cur ? " selected" : ""}>${esc(c)}</option>`)].join("");
+    if (citySel.dataset.sig !== cities.join("|")) { citySel.innerHTML = want; citySel.dataset.sig = cities.join("|"); citySel.value = cur; }
+    const q = $("#q").value.trim().toLowerCase(), onlyFit = $("#onlyFit").checked, onlyNew = $("#onlyNew").checked, onlyMine = $("#onlyMine").checked, city = citySel.value, srcF = $("#srcSel").value;
+    const prioF = $("#prioSel").value, sortBy = $("#sortSel").value;
+    let list = all.filter((h) =>
+      (!prioF || (h.rt && prioF.includes(h.rt.p))) &&
+      (!onlyFit || h.fit || (h.rt && "AB".includes(h.rt.p))) &&
+      (!srcF || (srcF === "boards") === !!h.board) &&
+      (S.kind === "Alle" || h.kinds.includes(S.kind)) &&
+      (!onlyNew || h.isNew) && (!onlyMine || isMine(h.st)) && (!city || h.city === city) &&
+      (!q || (h.t + " " + h.company + " " + h.l).toLowerCase().includes(q)));
+    const byNew = (a, b) => (b.isNew - a.isNew) || (new Date(b.fs) - new Date(a.fs)) || a.company.localeCompare(b.company, "de");
+    const cmp = sortBy === "prio" ? (a, b) => ((b.rt?.s ?? -1) - (a.rt?.s ?? -1)) || byNew(a, b) : byNew;
+    // Läufe trennen: Stellen nach „zuerst gesehen“ gruppieren (Zeitpunkte, die weniger als 30 Min. auseinanderliegen, gehören zu einem Lauf)
+    const times = [...new Set(list.map((h) => +new Date(h.fs)))].sort((a, b) => b - a), grpOf = new Map(), grps = [];
+    for (const t of times) { if (!grps.length || grps[grps.length - 1].start - t > 30 * 60e3) grps.push({ start: t, n: 0 }); grpOf.set(t, grps.length - 1); }
+    for (const h of list) { h.g = grpOf.get(+new Date(h.fs)); grps[h.g].n++; }
+    list.sort((a, b) => (a.g - b.g) || cmp(a, b));
+    const box = $("#hitList");
+    if (!S.db) { box.innerHTML = `<div class="list"><div class="empty"><strong>Noch keine Daten</strong>Die Trefferliste erscheint, sobald die Datenbank geladen ist.</div></div>`; return; }
+    if (!all.length) { box.innerHTML = `<div class="list"><div class="empty"><strong>Noch keine Treffer</strong>${S.scan ? "Der letzte Lauf hat keine passenden Stellen gefunden." : "Nach dem ersten Scan stehen hier alle Praktika, Werkstudenten- und Founders-Associate-Stellen."}</div></div>`; return; }
+    if (!list.length && onlyNew && !q) { box.innerHTML = `<div class="list"><div class="empty"><strong>Keine neuen Stellen im letzten Lauf</strong>Schalte „nur neue“ aus, um alle Stellen zu sehen.</div></div>`; return; }
+    if (!list.length) { box.innerHTML = `<div class="list"><div class="empty"><strong>Nichts passt zu den Filtern</strong>${onlyFit ? "Unter „Filter anpassen“ mehr Themen zulassen oder „nur passende“ ausschalten." : "Setze Suche oder Filter zurück."}</div></div>`; return; }
+    S.shownHits = list.slice(0, 400);
+    const lead = "";
+    const grpHead = (h, i) => {
+      if (i > 0 && S.shownHits[i - 1].g === h.g) return "";
+      const g = grps[h.g], when = fmtDate(new Date(g.start).toISOString(), true);
+      const label = h.isNew ? "Neu im letzten Lauf" : h.g === grps.length - 1 && grps.length > 1 ? "Erster Scan" : "Lauf";
+      const cnt = `${g.n} ${g.n === 1 ? "Stelle" : "Stellen"}`;
+      return `<div class="grp"><span><b>${esc(label)}</b><span class="info" data-full="${esc(`${cnt}  |  ${when}`)}" tabindex="0" aria-label="${esc(`${cnt}, ${when}`)}">!</span></span></div>`;
+    };
+    box.innerHTML = lead + `<div class="list">${S.shownHits.map((h, i) => {
+      const lk = jobLink(h);
+      const onl = appOnList(h);
+      const kb = h.kinds.filter((k) => k !== "Sonstiges").map((k) => `<span class="badge ${k === "Praktikum" ? "k-Praktikum" : k === "Founder & CEO-Office" ? "k-Founders" : ""}">${esc(k)}</span>`).join("") + (h.generic ? `<span class="badge">Allgemein</span>` : "");
+      return `${grpHead(h, i)}<div class="row${isHidden(h) ? " dim" : ""}">
+        <div style="min-width:0">
+          <div class="title"><a href="${esc(lk.href)}" target="_blank" rel="noopener">${esc(h.t)}</a></div>
+          <div class="meta"><span class="co">${esc(h.company)}</span>${h.l ? `<span>${esc(h.l)}</span>` : ""}${h.topics.length ? `<span class="topics">${esc(h.topics.slice(0, 3).join(" · "))}</span>` : ""}${((q) => `<span class="srcb${h.board ? " ext" : ""}" title="${esc(q.title)}"><b>${esc(q.kind)}</b> · ${esc(q.name)}</span>`)(srcOf(h))}${lk.via ? `<span class="via">Link: ${esc(lk.via)}</span>` : ""}</div>${rateLine(h.rt)}
+        </div>
+        <div class="side"><div class="badges">${prioBadge(h.rt)}${h.isNew ? '<span class="badge new">neu</span>' : ""}${kb}</div><span class="when" title="Zuerst gesehen: ${esc(fmtDate(h.fs))}${h.pd ? " · online seit " + esc(fmtDate(h.pd)) : ""}">${h.pd ? "online " + esc(fmtDate(h.pd)) : "seit " + esc(fmtDate(h.fs))}</span><div class="acts"><button class="btn small hidebtn" type="button" data-hide="${i}"${S.canWrite ? "" : " disabled"} title="${isHidden(h) ? "Wieder normal anzeigen" : "Ausgrauen – bleibt in der Liste"}">${isHidden(h) ? "Einblenden" : "Ausblenden"}</button><button class="btn small addapp${onl ? " onlist" : ""}" type="button" data-addapp="${i}"${onl || !S.canWrite ? " disabled" : ""}>${onl ? "✓ auf der Liste" : "+ Bewerberliste"}</button></div></div>
+      </div>`;
+    }).join("")}</div>`;
+  }
+
+  function statusOf(id, st) {
+    if (!st.source_url) return `<span class="pill idle">keine Quelle</span>`;
+    if (!st.active) return `<span class="pill idle">aus</span>`;
+    const r = S.scan?.results?.[id];
+    if (!r) return `<span class="pill idle">ungeprüft</span>`;
+    if (r.s === "err") return `<span class="pill err" title="${esc(r.e)}">Fehler</span>`;
+    return `<span class="pill ok">ok${r.n != null ? " · " + esc(r.n) + " Stellen" : ""}</span>`;
+  }
+
+  function renderStartups() {
+    const box = $("#startupTable");
+    if (!S.db) { box.innerHTML = `<div class="list"><div class="empty"><strong>Datenbank nicht verfügbar</strong>Öffne das Artefakt in Claude, um Startups zu bearbeiten.</div></div>`; return; }
+    if (!S.loaded.startups) { box.innerHTML = `<div class="list"><div class="empty">Lade Startups …</div></div>`; return; }
+    const q = $("#sq").value.trim().toLowerCase(), f = $("#sfilter").value;
+    const res = S.scan?.results || {};
+    let rows = [...S.startups.entries()].filter(([id, s]) => {
+      if (q && !(`${s.name} ${s.stadt} ${s.note} ${s.source_url}`.toLowerCase().includes(q))) return false;
+      if (f === "active") return s.active && s.source_url;
+      if (f === "inactive") return !s.active;
+      if (f === "err") return res[id]?.s === "err";
+      if (f === "nosrc") return !s.source_url;
+      if (f === "hits") return (res[id]?.h || 0) > 0;
+      if (f === "mine") return isMine(s);
+      if (f === "sm") return s.liste !== "eigene";
+      return true;
+    });
+    rows.sort((a, b) => (isMine(b[1]) - isMine(a[1])) || a[1].name.localeCompare(b[1].name, "de"));
+    if (!rows.length) { box.innerHTML = `<div class="list"><div class="empty"><strong>Keine Startups gefunden</strong>Andere Suche oder Filter probieren.</div></div>`; return; }
+    const shown = rows.slice(0, S.limit);
+    box.innerHTML = `<div class="tablewrap"><table>
+      <thead><tr><th>Startup</th><th>Stadt</th><th>Quelle</th><th>Status</th><th>Treffer</th><th>Scan</th><th></th></tr></thead>
+      <tbody>${shown.map(([id, s]) => `<tr>
+        <td class="name">${s.career_url ? `<a href="${esc(s.career_url)}" target="_blank" rel="noopener">${esc(s.name)}</a>` : esc(s.name)}${s.note ? `<span class="note">${esc(s.note)}</span>` : ""}</td>
+        <td>${esc(s.stadt || "–")}</td>
+        <td><span class="ats">${esc(ATS_LABEL[s.ats] || "–")}</span></td>
+        <td>${statusOf(id, s)}</td>
+        <td class="num">${esc(res[id]?.h || 0)}</td>
+        <td><button class="switch" type="button" role="switch" aria-label="${esc(s.name)} scannen" aria-checked="${s.active ? "true" : "false"}" data-toggle="${esc(id)}"${!S.canWrite || !s.source_url ? " disabled" : ""}></button></td>
+        <td><button class="btn small" type="button" data-edit="${esc(id)}"${S.canWrite ? "" : " disabled"}>Bearbeiten</button></td>
+      </tr>`).join("")}</tbody></table></div>
+      ${rows.length > shown.length ? `<div class="more"><button class="btn" type="button" id="moreBtn">Weitere ${Math.min(150, rows.length - shown.length)} von ${rows.length - shown.length} anzeigen</button></div>` : ""}`;
+  }
+
+  /* ---------- Kandidaten aus Jobbörsen ---------- */
+  const ATS_FROM = { ycco: "web", bsjco: "web" };
+  function renderCands() {
+    const box = $("#candList");
+    if (!S.db) { box.innerHTML = `<div class="list"><div class="empty"><strong>Datenbank nicht verfügbar</strong>Öffne das Artefakt in Claude.</div></div>`; return; }
+    const all = Object.entries(S.cands?.candidates || {});
+    if (!all.length) { box.innerHTML = `<div class="list"><div class="empty"><strong>Noch keine Kandidaten</strong>Sie entstehen beim nächsten Lauf aus den Jobbörsen.</div></div>`; return; }
+    const q = $("#kq").value.trim().toLowerCase(), stF = $("#kst").value;
+    const rows = all.filter(([, c]) => (!stF || (c.status || "neu") === stF || (stF === "übernommen" && c.status === "übernehmen")) &&
+      (!q || (c.name + " " + (c.titles || []).join(" ") + " " + (c.src || []).join(" ")).toLowerCase().includes(q)))
+      .sort((a, b) => (!!b[1].in_startups - !!a[1].in_startups) || (b[1].n || 0) - (a[1].n || 0) || a[1].name.localeCompare(b[1].name, "de"));
+    if (!rows.length) { box.innerHTML = `<div class="list"><div class="empty"><strong>Keine Kandidaten in dieser Ansicht</strong>Status oder Suche ändern.</div></div>`; return; }
+    box.innerHTML = `<div class="list">${rows.map(([k, c]) => {
+      const st = c.status || "neu";
+      return `<div class="row cand">
+        <div style="min-width:0">
+          <div class="title"><a href="${esc(c.board)}" target="_blank" rel="noopener">${esc(c.name)}</a></div>
+          <div class="meta"><span>${esc((c.src || []).join(", "))}</span><span class="ats">${esc(c.ats || "")}</span>${c.in_startups ? `<span class="badge react" title="Steht ausgeschaltet in der Startup-Liste">ausgeschaltet in Liste</span>` : ""}</div>
+          <div class="titles">${esc((c.titles || []).join(" · "))}${c.n > (c.titles || []).length ? ` · +${c.n - c.titles.length}` : ""}</div>
+        </div>
+        <div class="side"><span class="when">seit ${esc(fmtDate(c.fs))}</span><div class="acts">${st === "neu"
+          ? `<button class="btn small primary" type="button" data-cadopt="${esc(k)}"${S.canWrite ? "" : " disabled"}>${c.in_startups ? "Wieder einschalten" : "Übernehmen"}</button><button class="btn small" type="button" data-crej="${esc(k)}"${S.canWrite ? "" : " disabled"}>Ablehnen</button>`
+          : `<span class="badge">${esc(st)}</span><button class="btn small" type="button" data-creset="${esc(k)}"${S.canWrite ? "" : " disabled"}>Zurücksetzen</button>`}</div></div>
+      </div>`;
+    }).join("")}</div>`;
+  }
+  async function setCandStatus(k, status) {
+    const map = { ...(S.cands?.candidates || {}) }; if (!map[k]) return;
+    map[k] = { ...map[k], status };
+    await S.db.doc("scans/candidates").update({ candidates: map });
+  }
+  async function adoptCand(k) {
+    const c = S.cands?.candidates?.[k]; if (!c || !S.db) return;
+    const ats = ATS_FROM[c.ats] || c.ats || "web", note = "über " + (c.src || []).join(", ");
+    try {
+      const ex = c.in_startups && S.startups.get(c.in_startups);
+      if (ex) {
+        await S.db.doc("startups/" + c.in_startups).update({ active: true, source_url: c.board, career_url: c.board, ats, inactive_reason: "", note: (ex.note ? ex.note + " · " : "") + "Quelle " + note });
+      } else {
+        let id = slug(c.name), n = 2; while (S.startups.has(id)) id = slug(c.name) + "-" + n++;
+        await S.db.doc("startups/" + id).set({ name: c.name, stadt: "", typ: "Startup", stage: "", liste: "jobbörse", active: true, ats, source_url: c.board, career_url: c.board, sm_url: "", li_url: "", note, added: new Date().toISOString() });
+      }
+      await setCandStatus(k, "übernommen");
+      toast(`${c.name} wird ab dem nächsten Lauf gescannt`);
+    } catch (e) { toast(e?.code === "invalid_argument" ? "Keine Schreibrechte." : "Konnte nicht gespeichert werden."); }
+  }
+  async function candStatus(k, status, msg) {
+    try { await setCandStatus(k, status); if (msg) toast(msg); }
+    catch (e) { toast("Konnte nicht gespeichert werden."); }
+  }
+
+  /* ---------- Bewerberliste ---------- */
+  const APP_STATI = ["Offen", "Unbedingt bewerben", "Anschreiben nötig", "Beworben", "Gespräch", "2. Interview", "3. Interview", "Zusage", "Absage", "Nicht relevant"];
+  const normUrl = (u) => String(u || "").toLowerCase().replace(/[?#].*$/, "").replace(/\/+$/, "");
+  const normCT = (c, t) => (String(c || "") + "|" + String(t || "")).toLowerCase().replace(/[^a-z0-9|äöüß]+/g, " ").trim();
+  function appOnList(h) {
+    const u = normUrl(h.u), ct = normCT(h.company, h.t);
+    for (const a of S.apps.values()) if ((u && normUrl(a.url) === u) || normCT(a.company, a.title) === ct) return true;
+    return false;
+  }
+  async function addApp(h) {
+    if (!S.db || appOnList(h)) return;
+    const lk = jobLink(h);
+    const nr = Math.max(0, ...[...S.apps.values()].map((a) => a.nr || 0)) + 1;
+    let id = "r-" + slug(h.company + " " + h.t), n = 2; while (S.apps.has(id)) id = "r-" + slug(h.company + " " + h.t) + "-" + n++;
+    const doc = { nr, status: "Offen", company: h.company, title: h.t, comment: "", url: lk.href, added: new Date().toISOString(), source: "radar" };
+    S.apps.set(id, doc); schedule();
+    try { await S.db.doc("applications/" + id).set(doc); toast("Auf die Bewerberliste gesetzt"); }
+    catch (e) { S.apps.delete(id); schedule(); toast(e?.code === "invalid_argument" ? "Keine Schreibrechte." : "Konnte nicht gespeichert werden."); }
+  }
+  async function updApp(id, patch) {
+    const a = S.apps.get(id); if (!a) return;
+    try { await S.db.doc("applications/" + id).update(patch); }
+    catch (e) { toast("Konnte nicht gespeichert werden."); }
+  }
+  function setStatus(id, status) {
+    const a = S.apps.get(id); if (!a || a.status === status) return;
+    const now = new Date().toISOString(), hist = { ...(a.hist || {}) }, j = PIPE.indexOf(status);
+    // Zurück auf eine frühere Stufe (z. B. aus Versehen „Beworben“): spätere Stufen und Absage aus dem Verlauf streichen
+    if (j >= 0) for (const k of Object.keys(hist)) { const i = PIPE.indexOf(k); if (i > j || (i < 0 && k !== status)) delete hist[k]; }
+    hist[status] = now;
+    S.db.doc("applications/" + id).set({ ...a, status, status_at: now, hist }).catch(() => toast("Konnte nicht gespeichert werden."));
+  }
+  // Löschen: erst nachfragen, dann in den Papierkorb (Collection trash) verschieben – wiederherstellbar unter Mehr → Papierkorb
+  let delPending = null;
+  function delApp(id) {
+    const a = S.apps.get(id); if (!a) return;
+    delPending = id;
+    $("#cfText").textContent = `„${a.title || "Ohne Titel"}“${a.company ? " bei " + a.company : ""} wirklich löschen? Die Stelle landet im Papierkorb und lässt sich dort wiederherstellen.`;
+    $("#cfDlg").showModal();
+  }
+  async function moveToTrash(id) {
+    const a = S.apps.get(id); if (!a) return;
+    try {
+      await S.db.doc("trash/" + id).set({ ...a, deleted_at: new Date().toISOString() });
+      await S.db.doc("applications/" + id).delete();
+      toast("In den Papierkorb verschoben");
+    } catch (e) { toast("Konnte nicht gelöscht werden."); }
+  }
+  async function restoreApp(id) {
+    const t = S.trash.get(id); if (!t) return;
+    const { deleted_at, ...a } = t;
+    try { await S.db.doc("applications/" + id).set(a); await S.db.doc("trash/" + id).delete(); toast("Wiederhergestellt"); }
+    catch (e) { toast("Konnte nicht wiederhergestellt werden."); }
+  }
+  let purgeArmed = null;
+  async function purgeApp(id) {
+    if (purgeArmed !== id) { purgeArmed = id; schedule(); return; }
+    purgeArmed = null;
+    try { await S.db.doc("trash/" + id).delete(); toast("Endgültig gelöscht"); } catch (e) { toast("Konnte nicht gelöscht werden."); }
+  }
+  // Werkzeugleiste der Bewerberliste: Filter- und Sortiermenü (Werte liegen in den versteckten Selects #ast / #aso)
+  function renderAppMenus() {
+    const st = $("#ast"), so = $("#aso");
+    const opts = [...st.options].map((o) => [o.value, o.value ? o.textContent : "Alle Status"]);
+    $("#aFiltMenu").innerHTML = `<div class="mh">Status</div>` + opts.map(([v, l]) => `<button class="mi" role="menuitemradio" aria-checked="${st.value === v}" data-ast="${esc(v)}">${esc(l)}${st.value === v ? "<span>✓</span>" : ""}</button>`).join("");
+    $("#aSortMenu").innerHTML = `<div class="mh">Sortieren nach</div>` + [...so.options].map((o) => `<button class="mi" role="menuitemradio" aria-checked="${so.value === o.value}" data-aso="${esc(o.value)}">${esc(o.textContent)}${so.value === o.value ? "<span>✓</span>" : ""}</button>`).join("");
+    $("#aFiltDot").hidden = !st.value; $("#aSortDot").hidden = so.value === "nr";
+  }
+  // ---------------------------------------------------------------- Termine: Kalender aus Collection interviews, Klick öffnet den One-Pager
+  // interviews/<id> = {company, title, app_id, kind, status: einladung|gebucht|vorbei|abgesagt, start (ISO) | null, dur_min, with, booking_url, mail_at, onepager}
+  const calMonth = () => S.calM || new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+  const dayKey = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  const ivTime = (iv) => iv.start ? new Date(iv.start).toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" }) : "";
+  const ivWhen = (iv) => iv.start ? new Date(iv.start).toLocaleString("de-DE", { weekday: "short", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) + " Uhr" : "Termin noch nicht gebucht";
+  function renderCal() {
+    const all = [...(S.ivs || new Map()).entries()];
+    const m = calMonth(), first = new Date(m), today = dayKey(new Date());
+    $("#calTitle").textContent = m.toLocaleDateString("de-DE", { month: "long", year: "numeric" });
+    const start = new Date(first); start.setDate(1 - ((first.getDay() + 6) % 7));   // Montag vor dem Monatsersten
+    const byDay = {};
+    for (const [id, iv] of all) if (iv.start && iv.status !== "abgesagt") (byDay[dayKey(new Date(iv.start))] ||= []).push([id, iv]);
+    let cells = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"].map((d) => `<div class="cal-dow">${d}</div>`).join("");
+    for (let i = 0; i < 42; i++) {
+      const d = new Date(start); d.setDate(start.getDate() + i); const k = dayKey(d);
+      if (i >= 35 && d.getMonth() !== m.getMonth()) break;
+      const items = (byDay[k] || []).sort((a, b) => a[1].start.localeCompare(b[1].start));
+      cells += `<div class="cal-day${d.getMonth() !== m.getMonth() ? " out" : ""}${k === today ? " today" : ""}"><span class="dn">${d.getDate()}</span>${items.map(([id, iv]) =>
+        `<button type="button" class="cal-ev" data-iv="${esc(id)}" title="${esc(iv.company + " · " + (iv.kind || "Gespräch"))}"><b>${esc(ivTime(iv))}</b> ${esc(iv.company)}</button>`).join("")}</div>`;
+    }
+    $("#calGrid").innerHTML = cells;
+    const now = Date.now();
+    const open = all.filter(([, iv]) => !iv.start && iv.status !== "abgesagt");
+    const next = all.filter(([, iv]) => iv.start && new Date(iv.start).getTime() + (iv.dur_min || 30) * 6e4 >= now && iv.status !== "abgesagt").sort((a, b) => a[1].start.localeCompare(b[1].start));
+    const past = all.filter(([, iv]) => iv.start && new Date(iv.start).getTime() + (iv.dur_min || 30) * 6e4 < now).sort((a, b) => b[1].start.localeCompare(a[1].start)).slice(0, 5);
+    const card = ([id, iv], extra = "") => `<div class="iv-card" data-iv="${esc(id)}" role="button" tabindex="0"><div class="iv-top"><strong>${esc(iv.company)}</strong><span class="iv-kind">${esc(iv.kind || "Gespräch")}</span></div>
+      <div class="iv-when">${esc(ivWhen(iv))}${iv.with ? ` · mit ${esc(iv.with)}` : ""}${iv.with ? " " + liLink(iv) : ""}</div>${extra}<div class="iv-more">One-Pager öffnen →</div></div>`;
+    const book = ([id, iv]) => card([id, iv], `<div class="iv-book">${iv.booking_url ? `<a class="btn small primary" href="${esc(iv.booking_url)}" target="_blank" rel="noopener">Termin buchen ↗</a>` : ""}<span class="iv-hint">Gebucht? Zeit im One-Pager eintragen – oder der Mail-Abgleich trägt sie ein.</span></div>`);
+    $("#calSide").innerHTML = `<div class="cal-sec"><h4>Nächste Termine</h4>${next.length ? next.map((x) => card(x)).join("") : '<div class="iv-empty">Keine anstehenden Gespräche.</div>'}</div>`
+      + (open.length ? `<div class="cal-sec"><h4>Eingeladen – noch zu buchen</h4>${open.map(book).join("")}</div>` : "")
+      + (past.length ? `<div class="cal-sec"><h4>Vorbei</h4>${past.map((x) => card(x)).join("")}</div>` : "");
+  }
+  function openIv(id) {
+    const iv = S.ivs?.get(id); if (!iv) return;
+    const op = iv.onepager || {}, app = iv.app_id ? S.apps.get(iv.app_id) : null;
+    const li = (x) => `<li>${esc(x)}</li>`;
+    const local = iv.start ? (() => { const d = new Date(iv.start); return new Date(d.getTime() - d.getTimezoneOffset() * 6e4).toISOString().slice(0, 16); })() : "";
+    $("#ivBody").innerHTML = `<div class="iv-hd"><div><div class="iv-kicker">${esc(iv.kind || "Gespräch")} · ${esc(iv.title || app?.title || "")}</div><h2 id="ivTitle">${esc(iv.company)}</h2>${op.tagline ? `<p class="iv-tag">${esc(op.tagline)}</p>` : ""}</div><button class="ibtn" type="button" id="ivClose" aria-label="Schließen">✕</button></div>
+      <div class="iv-meta"><span><b>Wann</b> ${esc(ivWhen(iv))}${iv.dur_min ? ` · ${esc(iv.dur_min)} Min.` : ""}</span>${iv.with ? `<span><b>Mit</b> ${esc(iv.with)} ${liLink(iv)}</span>` : ""}${iv.booking_url && !iv.start ? `<a href="${esc(iv.booking_url)}" target="_blank" rel="noopener">Termin buchen ↗</a>` : ""}${iv.join_url ? `<a href="${esc(iv.join_url)}" target="_blank" rel="noopener">Call beitreten ↗</a>` : ""}${app?.url ? `<a href="${esc(app.url)}" target="_blank" rel="noopener">Stellenanzeige ↗</a>` : ""}</div>
+      ${S.canWrite ? `<div class="iv-set"><label>Termin <input type="datetime-local" class="field" id="ivStart" value="${esc(local)}"></label>${iv.with ? `<label>LinkedIn-Profil <input type="url" class="field" id="ivLi" placeholder="https://www.linkedin.com/in/…" value="${esc(iv.li || "")}"></label>` : ""}<button class="btn small" type="button" data-ivsave="${esc(id)}">Speichern</button></div>` : ""}
+      ${(op.facts || []).length ? `<div class="iv-facts">${op.facts.map(([k, v]) => `<div><span>${esc(k)}</span><b>${esc(v)}</b></div>`).join("")}</div>` : ""}
+      ${(op.sections || []).map((sc) => `<div class="iv-sec"><h3>${esc(sc.h)}</h3><ul>${(sc.items || []).map(li).join("")}</ul></div>`).join("")}
+      ${(op.questions || []).length ? `<div class="iv-sec q"><h3>Gute Fragen fürs Gespräch</h3><ul>${op.questions.map(li).join("")}</ul></div>` : ""}
+      ${(op.pitch || []).length ? `<div class="iv-sec"><h3>Dein Bezug</h3><ul>${op.pitch.map(li).join("")}</ul></div>` : ""}
+      ${(op.sources || []).length ? `<div class="iv-src">Quellen: ${op.sources.map((x) => `<a href="${esc(x.u)}" target="_blank" rel="noopener">${esc(x.t)}</a>`).join(" · ")}${op.at ? ` · Stand ${esc(fmtDate(op.at))}` : ""}</div>` : '<div class="iv-src">One-Pager wird beim nächsten Mail-Abgleich erstellt.</div>'}`;
+    if (!$("#ivDlg").open) $("#ivDlg").showModal();
+  }
+  // LinkedIn: gespeichertes Profil, sonst die Personensuche mit Name + Firma (öffnet im eingeloggten Browser)
+  const liLink = (iv) => {
+    const name = String(iv.with || "").replace(/\(.*?\)/g, "").split(/,| und | & /)[0].trim();
+    if (iv.li) return `<a class="li" href="${esc(iv.li)}" target="_blank" rel="noopener">LinkedIn ↗</a>`;
+    if (!name || /team|hiring|recruiting/i.test(name)) return "";
+    return `<a class="li" href="https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(name + " " + iv.company)}" target="_blank" rel="noopener" title="LinkedIn-Suche nach ${esc(name)} (${esc(iv.company)})">auf LinkedIn suchen ↗</a>`;
+  };
+  async function saveIvTime(id) {
+    const v = $("#ivStart").value; if (!S.db) return;
+    const start = v ? new Date(v).toISOString() : null;
+    const li = ($("#ivLi")?.value || "").trim();
+    await S.db.doc("interviews/" + id).update({ start, status: start ? "gebucht" : "einladung", ...($("#ivLi") ? { li: /^https?:\/\/([a-z]+\.)?linkedin\.com\//i.test(li) ? li : "" } : {}) });
+    openIv(id);
+  }
+  function renderTrash() {
+    const box = $("#trashList"), items = [...S.trash.entries()].sort((x, y) => String(y[1].deleted_at).localeCompare(String(x[1].deleted_at)));
+    if (!items.length) { box.innerHTML = `<div class="list"><div class="empty"><strong>Papierkorb ist leer</strong>Gelöschte Stellen aus der Bewerberliste landen hier und lassen sich wiederherstellen.</div></div>`; return; }
+    box.innerHTML = `<div class="list">${items.map(([id, a]) => `<div class="row">
+      <div style="min-width:0"><div class="title">${a.url ? `<a href="${esc(a.url)}" target="_blank" rel="noopener">${esc(a.title || "Ohne Titel")}</a>` : esc(a.title || "Ohne Titel")}</div>
+        <div class="meta"><span class="co">${esc(a.company || "")}</span><span>Nr. ${esc(a.nr ?? "–")}</span><span>Status: ${esc(a.status || "Offen")}</span><span>gelöscht ${esc(fmtDate(a.deleted_at, true))}</span></div></div>
+      <div class="side" style="flex-direction:row;flex-wrap:wrap;justify-content:flex-end"><button class="btn small primary" type="button" data-restore="${esc(id)}"${S.canWrite ? "" : " disabled"}>Wiederherstellen</button>
+        <button class="btn small${purgeArmed === id ? " danger" : ""}" type="button" data-purge="${esc(id)}"${S.canWrite ? "" : " disabled"}>${purgeArmed === id ? "Wirklich endgültig?" : "Endgültig löschen"}</button></div>
+    </div>`).join("")}</div>`;
+  }
+  function renderApps() {
+    const box = $("#appList");
+    if (!S.db) { box.innerHTML = `<div class="list"><div class="empty"><strong>Datenbank nicht verfügbar</strong>Öffne das Artefakt in Claude, um die Bewerberliste zu sehen.</div></div>`; return; }
+    const all = [...S.apps.entries()];
+    const fill = (sel, first, vals) => { const cur = sel.value, sig = vals.join("|"); if (sel.dataset.sig === sig) return; sel.innerHTML = `<option value="">${first}</option>` + vals.map((v) => `<option>${esc(v)}</option>`).join(""); sel.dataset.sig = sig; sel.value = vals.includes(cur) ? cur : ""; };
+    fill($("#ast"), "Alle Status", APP_STATI.concat([...new Set(all.map(([, a]) => a.status).filter((x) => x && !APP_STATI.includes(x)))]));
+    renderAppMenus();
+    const q = $("#aq").value.trim().toLowerCase(), fst = $("#ast").value, so = $("#aso").value;
+    const stRank = (x) => { const i = APP_STATI.indexOf(x); return i < 0 ? 99 : i; };
+    let rows = all.filter(([, a]) => (!fst || a.status === fst) && (!q || ((a.company || "") + " " + (a.title || "") + " " + (a.comment || "")).toLowerCase().includes(q)));
+    const byUrl = new Map(); for (const [id, a] of all) { const u = normUrl(a.url); if (u) byUrl.set(u, [...(byUrl.get(u) || []), a.nr]); }
+    const dupOf = (a) => { const l = (byUrl.get(normUrl(a.url)) || []).filter((n) => n !== a.nr); return l.length ? l : null; };
+    // Online seit (pd) und Start (sd): aus den Scan-Treffern bzw. scans/details, über den Link zugeordnet
+    const det = S.details?.by_url || {}, pdOf = new Map();
+    for (const h of S.hm || []) if (h.pd && h.u) pdOf.set(normUrl(h.u), h.pd);
+    const infoOf = (a) => { const u = normUrl(a.url), d = det[u] || {}; return { pd: pdOf.get(u) || d.pd || "", sd: d.sd || "", off: d.off || "", moved: d.moved || "" }; };
+    // Sortierung: Schlüssel je Spalte, leere Werte immer ans Ende, bei Gleichstand nach Nr.
+    const txt = (v) => String(v || "").trim().toLowerCase();
+    const KEY = { nr: (a) => a.nr || null, firma: (a) => txt(a.company), titel: (a) => txt(a.title), kommentar: (a) => txt(a.comment),
+      status: (a) => stRank(a.status), prio: (a) => rateOf(a.url)?.s ?? null, neu: (a) => a.added || null,
+      online: (a) => infoOf(a).pd || null, start: (a) => sdKey(infoOf(a).sd) };
+    const key = KEY[so] || KEY.nr, dir = aDesc(so) ? -1 : 1, cmpNr = (x, y) => (x[1].nr || 9999) - (y[1].nr || 9999);
+    rows = rows.map((r) => [r, key(r[1])]).sort(([x, kx], [y, ky]) => {
+      const ex = kx == null || kx === "", ey = ky == null || ky === "";
+      if (ex || ey) return ex - ey || cmpNr(x, y);
+      return dir * (typeof kx === "number" && typeof ky === "number" ? kx - ky : String(kx).localeCompare(String(ky), "de", { numeric: true })) || cmpNr(x, y);
+    }).map(([r]) => r);
+    renderPipe(all, infoOf);
+    document.querySelectorAll("[data-appview]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.appview === S.appView)));
+    if (!rows.length && all.length) { box.innerHTML = `<div class="list"><div class="empty"><strong>Nichts passt zu den Filtern</strong>Suche oder Filter zurücksetzen.</div></div>`; return; }
+    if (!all.length) { box.innerHTML = `<div class="list"><div class="empty"><strong>Noch nichts auf der Liste</strong>Im Tab „Praktika“ bei einer Stelle auf „+ Bewerberliste“ klicken.</div></div>`; return; }
+    const active = document.activeElement; if (active && box.contains(active) && /INPUT|SELECT|TEXTAREA/.test(active.tagName)) return;
+    const done = all.filter(([, a]) => ["Beworben", "Gespräch", "2. Interview", "3. Interview", "Zusage"].includes(a.status)).length;
+    const dups = all.filter(([, a]) => dupOf(a)).length;
+    if (S.appView === "board") { box.innerHTML = boardHtml(rows, infoOf); return; }
+    box.innerHTML = `<div class="tablewrap"><table>
+      <colgroup>${((w) => { const sum = w.reduce((a, b) => a + b, 0); return w.map((x) => `<col style="width:${((100 * x) / sum).toFixed(2)}%">`).join(""); })(colW())}</colgroup>
+      <thead><tr>${COLS.map((c, i) => `<th${c.tip ? ` title="${esc(c.tip)}"` : ""}${c.key ? ` class="sortable${c.key === so ? " on" : ""}" data-asort="${c.key}" aria-sort="${c.key === so ? (aDesc(so) ? "descending" : "ascending") : "none"}"` : ""}>${esc(c.label)}${c.key === so ? `<span class="sarr">${aDesc(so) ? "▼" : "▲"}</span>` : ""}${i < COLS.length - 1 ? `<span class="col-rz" data-colrz="${i}" title="Breite ziehen · Doppelklick: Standard"></span>` : ""}</th>`).join("")}</tr></thead>
+      <tbody>${rows.map(([id, a]) => `<tr${rowMark(infoOf(a), a.status)}${stStyle(a.status)}>
+        <td class="num">${a.url ? `<a class="nrlink" href="${esc(infoOf(a).moved || a.url)}" target="_blank" rel="noopener" title="Anzeige öffnen">${esc(a.nr || "↗")}</a>` : esc(a.nr || "")}</td>
+        <td><select class="appstat${ST_COLOR[a.status] ? " st" : ""}" data-appstatus="${esc(id)}" aria-label="Status"${S.canWrite ? "" : " disabled"}>${APP_STATI.concat(APP_STATI.includes(a.status) ? [] : [a.status]).map((x) => `<option${x === a.status ? " selected" : ""}>${esc(x)}</option>`).join("")}</select></td>
+        <td>${rateOf(a.url) ? prioBadge(rateOf(a.url)) : '<span class="prio p-none">–</span>'}</td>
+        <td class="name"><input class="appcom" data-appcompany="${esc(id)}" value="${esc(a.company || "")}" aria-label="Unternehmen"${S.canWrite ? "" : " disabled"}></td>
+        <td><input class="appcom" data-apptitle="${esc(id)}" value="${esc(a.title || "")}" aria-label="Job-Titel"${S.canWrite ? "" : " disabled"}>${dupOf(a) ? `<span class="badge dup" title="Gleicher Link wie Nr. ${esc(dupOf(a).join(", "))}">gleicher Link wie Nr. ${esc(dupOf(a).join(", "))}</span>` : ""}</td>
+        ${((i) => `<td class="when">${i.pd ? esc(fmtDate(i.pd)) : "–"}</td><td class="sd"${i.sd ? ` data-fit="1"` : ""}>${i.sd ? esc(i.sd) : '<span class="when">–</span>'}</td>`)(infoOf(a))}
+        <td><textarea class="appcom appnote" data-appcomment="${esc(id)}" rows="1" placeholder="Notiz …" aria-label="Kommentar (Umschalt+Enter oder Alt+Enter: neue Zeile)"${S.canWrite ? "" : " disabled"}>${esc(a.comment || "")}</textarea></td>
+        <td><button class="trash" type="button" data-delapp="${esc(id)}" title="In den Papierkorb" aria-label="In den Papierkorb"${S.canWrite ? "" : " disabled"}><svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><path d="M2.5 4h11M6.5 4V2.5h3V4M4 4l.7 9.2c.05.7.6 1.3 1.3 1.3h4c.7 0 1.25-.6 1.3-1.3L12 4M6.8 7v5M9.2 7v5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button></td>
+      </tr>`).join("")}</tbody></table></div>`;
+    box.querySelectorAll("textarea.appnote").forEach(fitNote);
+  }
+
+  // Spalten der Bewerberliste: Breite per Ziehen am rechten Rand, gemerkt im Browser
+  const COLS = [{ label: "Nr.", w: 60, key: "nr" }, { label: "Status", w: 168, key: "status" }, { label: "Prio", w: 52, key: "prio", tip: "KI-Bewertung nach deinem Profil" }, { label: "Unternehmen", w: 150, key: "firma" },
+    { label: "Job-Titel", w: 250, key: "titel" }, { label: "Online", w: 74, key: "online", tip: "Wann die Anzeige veröffentlicht wurde" }, { label: "Start", w: 104, key: "start", tip: "Startdatum laut Anzeige" }, { label: "Kommentar", w: 200, key: "kommentar" }, { label: "", w: 40 }];
+  // Sortierrichtung: Klick auf die aktive Spaltenüberschrift dreht sie um; Prio, Online und „Neueste“ starten absteigend
+  const A_DESC_DEFAULT = new Set(["prio", "online", "neu"]);
+  const aDesc = (k) => S.aDir?.[k] ?? A_DESC_DEFAULT.has(k);
+  // Startdatum aus Freitext („ab sofort“, „January 2027“, „01.03.2027“) → sortierbarer Schlüssel; Unbekanntes hinten
+  const MON = ["jan", "feb", "m[äa]r", "apr", "ma[iy]", "jun", "jul", "aug", "sep", "o[ck]t", "nov", "de[cz]"];
+  function sdKey(sd) {
+    const t = String(sd || "").trim().toLowerCase(); if (!t) return null;
+    if (/sofort|asap|flexib|immediat/.test(t)) return "0000";
+    let m = t.match(/(\d{1,2})\.\s?(\d{1,2})\.\s?(20)?(\d{2})/); if (m) return `20${m[4]}-${m[2].padStart(2, "0")}`;
+    const y = (t.match(/20\d\d/) || [])[0], mi = MON.findIndex((x) => new RegExp("\\b" + x).test(t));
+    if (mi >= 0) return `${y || "2027"}-${String(mi + 1).padStart(2, "0")}`;
+    return y ? y + "-99" : "zzzz " + t;
+  }
+  function colW() {
+    let w = null; try { w = JSON.parse(localStorage.getItem("radar.appCols2") || "null"); } catch (e) { w = S.appCols; }
+    return COLS.map((c, i) => Math.max(i <= 1 ? c.w : 28, (Array.isArray(w) && w[i]) || c.w));   // Nr. und Status bleiben breit genug für Pfeil bzw. „Anschreiben nötig“
+  }
+  function setColW(i, px) {
+    const w = colW(); w[i] = Math.max(28, Math.round(px)); S.appCols = w;
+    try { localStorage.setItem("radar.appCols2", JSON.stringify(w)); } catch (e) {}
+    return w;
+  }
+  // Grün = neu ausgeschrieben (Nr. öffnet die neue Anzeige), rot = offline
+  // Hat die Stelle einen farbigen Status, gilt nur die Statusfarbe; der Hinweis bleibt als Tooltip
+  const rowMark = (i, st) => { const c = ST_COLOR[st] ? "" : i.moved ? ' class="r-moved"' : i.off ? ' class="r-off"' : "";
+    return i.moved ? c + ' data-full="Neu ausgeschrieben – Nr. öffnet die neue Anzeige"' : i.off ? c + ` data-full="${esc("Offline seit " + fmtDate(i.off))}"` : ""; };
+  const PIPE = ["Offen", "Beworben", "Gespräch", "2. Interview", "3. Interview", "Zusage"];
+  // Statusfarbe: Streifen links in der Zeile, getöntes Status-Feld, Rand der Board-Karte (Offen bleibt neutral)
+  const ST_COLOR = { "Unbedingt bewerben": "#db2777", "Anschreiben nötig": "var(--orange)", Beworben: "var(--accent)", "Gespräch": "var(--violet)", "2. Interview": "#0891b2", "3. Interview": "#ca8a04", Zusage: "var(--ok)", Absage: "var(--err)", "Nicht relevant": "var(--ink-3)" };
+  const stStyle = (st) => ST_COLOR[st] ? ` style="--stc:${ST_COLOR[st]}"` : "";
+  const daysSince = (iso) => iso ? Math.floor((Date.now() - new Date(iso)) / 864e5) : null;
+  // Pipeline: wie viele Bewerbungen welche Stufe erreicht haben (aktueller Status + Verlauf), dazu Absagen und Hinweise
+  function renderPipe(all, infoOf) {
+    const box = $("#pipe");
+    if (!all.length) { box.innerHTML = ""; return; }
+    const cnt = {}; for (const [, a] of all) cnt[a.status || "Offen"] = (cnt[a.status || "Offen"] || 0) + 1;
+    const reached = (stage) => all.filter(([, a]) => {
+      const i = PIPE.indexOf(a.status || "Offen"), j = PIPE.indexOf(stage);
+      if (i >= j) return true;
+      if (a.hist?.[stage]) return true;
+      return a.status === "Absage" && j <= 1;   // Absage ohne Verlauf: mindestens beworben
+    }).length;
+    const active = all.filter(([, a]) => a.status !== "Nicht relevant").length;
+    const r = PIPE.map((st) => (st === "Offen" ? active : reached(st)));
+    const stages = PIPE.map((st, i) => `<div class="stage s-${esc(st)}" data-stage="${i}"><div class="l">${i === 0 ? "Auf der Liste" : esc(st === "Gespräch" ? "Einladung / Gespräch" : st)}</div><div class="n" data-n="${r[i]}">${S.pipePrev ? S.pipePrev[i] : r[i]}</div>
+      <div class="cv">${i === 0 ? `davon offen: ${(cnt.Offen || 0) + (cnt["Anschreiben nötig"] || 0) + (cnt["Unbedingt bewerben"] || 0)}${cnt["Unbedingt bewerben"] ? ` · unbedingt: ${cnt["Unbedingt bewerben"]}` : ""}${cnt["Anschreiben nötig"] ? ` · Anschreiben: ${cnt["Anschreiben nötig"]}` : ""}` : `<b>${r[i - 1] ? Math.round((100 * r[i]) / r[i - 1]) : 0} %</b> von ${esc(i === 1 ? "Liste" : PIPE[i - 1] === "Gespräch" ? "Gesprächen" : PIPE[i - 1])}`}</div></div>`).join("");
+    box.innerHTML = `<div class="pipe"><div class="pipe-head"><h3>Bewerbungs-Pipeline</h3></div>
+      <div class="flow">${stages}</div></div>`;
+    animatePipe(r);
+  }
+  function animatePipe(r) {
+    const prev = S.pipePrev; S.pipePrev = r.slice();
+    if (!prev) return;
+    const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    r.forEach((v, i) => {
+      const st = document.querySelector(`.stage[data-stage="${i}"]`), el = st?.querySelector(".n");
+      if (!el) return;
+      if (prev[i] === v || reduce) { el.textContent = v; return; }
+      st.classList.remove("up", "down"); void st.offsetWidth; st.classList.add(v > prev[i] ? "up" : "down");
+      const from = prev[i], t0 = performance.now(), dur = 600;
+      const step = (t) => { const k = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - k, 3); el.textContent = Math.round(from + (v - from) * e); if (k < 1) requestAnimationFrame(step); };
+      requestAnimationFrame(step);
+      setTimeout(() => st.classList.remove("up", "down"), 1300);
+    });
+  }
+  // Board: eine Spalte je Status, Karten per Drag & Drop verschieben
+  function boardHtml(rows, infoOf) {
+    const cols = APP_STATI.concat([...new Set(rows.map(([, a]) => a.status).filter((x) => x && !APP_STATI.includes(x)))]);
+    return `<div class="kb">${cols.map((st) => {
+      const items = rows.filter(([, a]) => (a.status || "Offen") === st);
+      return `<div class="kcol" data-kcol="${esc(st)}"><div class="khead"><span>${esc(st)}</span><span class="badge">${items.length}</span></div>${items.map(([id, a]) => {
+        const rt = rateOf(a.url), i = infoOf(a), d = daysSince(a.status_at);
+        return `<div class="kcard${ST_COLOR[a.status] ? "" : i.moved ? " r-moved" : i.off ? " r-off" : ""}"${stStyle(a.status)} draggable="${S.canWrite}" data-kcard="${esc(id)}" title="${esc((i.moved ? "Neu ausgeschrieben · " : i.off ? "Offline seit " + fmtDate(i.off) + " · " : "") + (rt ? rateTip(rt) : ""))}"><div class="kt">${esc(a.title || "")}</div><div class="kc">${esc(a.company || "")}</div>
+          <div class="km">${prioBadge(rt)}${i.sd ? `<span>Start ${esc(i.sd)}</span>` : ""}${d != null ? `<span>seit ${d} T.</span>` : ""}${a.url ? `<a href="${esc(i.moved || a.url)}" target="_blank" rel="noopener">öffnen</a>` : ""}</div></div>`;
+      }).join("")}</div>`;
+    }).join("")}</div>`;
+  }
+
+  /* ---------- Profil (config/profile) ---------- */
+  function fillProfile() {
+    const p = S.profile || {};
+    for (const [sel, k] of [["#pCv", "cv"], ["#pWish", "wishes"]]) { const el = $(sel); if (el && document.activeElement !== el && !el.dataset.dirty) el.value = p[k] || ""; }
+  }
+  function renderProfile() {
+    const r = S.ratings?.by_url || {}, vals = Object.values(r);
+    const cnt = { A: 0, B: 0, C: 0, D: 0 }; for (const v of vals) cnt[v.p] = (cnt[v.p] || 0) + 1;
+    const cur = vals.filter((v) => v.pa === S.profile?.updated_at).length;
+    $("#pInfo").innerHTML = !S.profile?.cv ? "Noch kein Profil gespeichert – ohne Profil bewertet der Lauf nichts."
+      : `Profil gespeichert am ${esc(fmtDate(S.profile.updated_at, true))} · bewertet: <b>${vals.length}</b> Stellen (A ${cnt.A} · B ${cnt.B} · C ${cnt.C} · D ${cnt.D})${vals.length && cur < vals.length ? ` · ${vals.length - cur} noch mit altem Profil bewertet` : ""}${S.ratings?.updated_at ? ` · letzte Bewertung ${esc(fmtDate(S.ratings.updated_at, true))}` : ""}`;
+    $("#c-profil").textContent = S.profile?.cv ? "" : "!";
+  }
+
+  function renderErrors() {
+    const box = $("#errList");
+    const res = S.scan?.results || {};
+    const errs = Object.entries(res).filter(([id, r]) => r.s === "err" && S.startups.get(id)?.active)
+      .map(([id, r]) => ({ id, r, s: S.startups.get(id) })).sort((a, b) => a.s.name.localeCompare(b.s.name, "de"));
+    if (!S.scan) { box.innerHTML = `<div class="list"><div class="empty"><strong>Noch kein Scan</strong>Fehler erscheinen hier nach dem ersten Lauf.</div></div>`; return; }
+    if (!errs.length) { box.innerHTML = `<div class="list"><div class="empty"><strong>Alle Quellen erreichbar</strong>Beim letzten Lauf konnte jede aktive Karriereseite gelesen werden.</div></div>`; return; }
+    box.innerHTML = `<div class="list">${errs.map(({ id, r, s }) => `<div class="row errrow">
+      <div style="min-width:0">
+        <div class="title">${esc(s.name)}</div>
+        <div class="e">${esc(r.e || "Abruf fehlgeschlagen")}</div>
+        <div class="src">${esc(s.source_url)}</div>
+      </div>
+      <div class="side"><span class="when">${esc(fmtDate(r.at, true))}</span><button class="btn small" type="button" data-edit="${esc(id)}"${S.canWrite ? "" : " disabled"}>Quelle ändern</button></div>
+    </div>`).join("")}</div>`;
+  }
+
+  function renderRuns() {
+    const sc = $("#sched");
+    const missing = unapprovedSources();
+    sc.innerHTML = `<div class="kv"><span>Rhythmus: <b>${esc(S.config?.schedule_text || "–")}</b></span>
+        ${S.sched ? `<span>Nächster Lauf: <b>${esc(fmtDate(S.sched.next, true))}</b></span><span>Letzter Lauf: <b>${esc(S.sched.lastStatus || "–")}</b></span>` : ""}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+        <button class="btn small" type="button" id="schedBtn">Zeitplan abfragen</button>
+        ${missing.length ? `<button class="btn small" type="button" id="syncBtn">Neue Quellen für geplante Läufe freigeben (${missing.length})</button>` : ""}
+        <span class="sub">${esc(S.schedMsg || "")}</span>
+      </div>`;
+    const box = $("#runList");
+    if (!S.runs.length) { box.innerHTML = `<div class="list"><div class="empty"><strong>Noch keine Läufe</strong>Jeder Scan wird hier mit Dauer, Treffern und Fehlern protokolliert.</div></div>`; return; }
+    const modeL = { geplant: "geplant", manuell: "per Knopf", test: "Test" };
+    box.innerHTML = `<div class="tablewrap"><table class="runs" style="min-width:640px">
+      <thead><tr><th>Start</th><th>Art</th><th>Status</th><th>Geprüft</th><th>Fehler</th><th>Treffer</th><th>Neu</th><th>Dauer</th><th></th></tr></thead>
+      <tbody>${S.runs.map((r) => {
+        const dur = r.finished_at ? Math.max(1, Math.round((new Date(r.finished_at) - new Date(r.started_at)) / 60000)) + " Min." : "–";
+        const status = r.status === "running" ? (runningRun() === r ? `<span class="pill idle">läuft</span>` : `<span class="pill err">abgebrochen</span>`)
+          : r.status === "failed" ? `<span class="pill err" title="${esc(r.error || "")}">abgebrochen</span>`
+          : r.status === "cancelled" ? `<span class="pill idle" title="${esc(r.error || "")}">per Knopf gestoppt</span>` : `<span class="pill ok">fertig</span>`;
+        const open = S.openLog === r.run_id;
+        return `<tr><td class="num">${esc(fmtDate(r.started_at, true))}</td><td>${esc(modeL[r.mode] || r.mode || "–")}</td><td>${status}</td>
+          <td class="num">${esc(r.checked ?? r.progress ?? "–")}</td><td class="num">${esc(r.errors ?? "–")}</td><td class="num">${esc(r.hits_total ?? "–")}</td><td class="num">${esc(r.new_hits ?? "–")}</td><td class="num">${dur}</td>
+          <td>${r.log?.length ? `<button class="btn small" type="button" data-runlog="${esc(r.run_id)}" aria-expanded="${open}">${open ? "Protokoll schließen" : "Protokoll"}</button>` : ""}</td></tr>
+          ${open ? `<tr class="logrow"><td colspan="9"><div class="term" role="log">${termHtml(r, false)}</div></td></tr>` : ""}`;
+      }).join("")}</tbody></table></div>`;
+  }
+
+  /* ---------- Filter-Box ---------- */
+  const lines = (v) => String(v || "").split(/\n|,/).map((s) => s.trim()).filter(Boolean);
+  function renderFilterBox() {
+    settleDraft();
+    const u = userFilter();
+    $("#ftopics").innerHTML = FTOPICS.map((k) => `<button class="chip" type="button" data-ftopic="${esc(k)}" aria-pressed="${u.off_topics.includes(k) ? "false" : "true"}">${esc(k)}</button>`).join("");
+    if (!FDRAFT) { $("#fExtra").value = u.extra.join("\n"); $("#fExcl").value = u.exclude_extra.join("\n"); }
+    $("#fsum").textContent = `· ${FTOPICS.length - u.off_topics.length} von ${FTOPICS.length} Themen aktiv${u.extra.length ? ` · ${u.extra.length} eigene Wörter` : ""}${u.exclude_extra.length ? ` · ${u.exclude_extra.length} ausgeschlossen` : ""}${FDRAFT ? " · nicht gespeichert" : ""}`;
+    $("#fSave").disabled = !FDRAFT || !S.canWrite || !S.db;
+    if (!$("#fwords").childElementCount) $("#fwords").innerHTML = [
+      `<p><b>Immer passend (Founder &amp; CEO-Office):</b> ${esc(FDEF.track.join(", "))}</p>`,
+      ...FTOPICS.map((k) => `<p><b>${esc(k)}:</b> ${esc(FDEF.topics[k].join(", "))}</p>`),
+      `<p><b>Stellentyp (Pflicht für Themen-Treffer):</b> ${esc(FDEF.typ.join(", "))}</p>`,
+      `<p><b>Fliegt raus, außer der Titel enthält ${esc(FDEF.strong.join(", "))}:</b> ${esc(FDEF.exclude.join(", "))}</p>`,
+      `<p><b>Fliegt immer raus:</b> ${esc(FDEF.hard.join(", "))}</p>`,
+      `<p>Allgemeine Ausschreibungen („Internship“, „Open Internship Application“) zählen ebenfalls als passend.</p>`].join("");
+  }
+  function draft() { if (!FDRAFT) { const u = userFilter(); FDRAFT = { off_topics: [...u.off_topics], extra: [...u.extra], exclude_extra: [...u.exclude_extra] }; } return FDRAFT; }
+  function settleDraft() {
+    if (!FDRAFT) return;
+    const f = S.config?.filter || {}, saved = { off_topics: f.off_topics || [], extra: f.extra || [], exclude_extra: f.exclude_extra || [] };
+    const norm = (o) => JSON.stringify({ off_topics: [...o.off_topics].sort(), extra: o.extra, exclude_extra: o.exclude_extra });
+    if (norm(FDRAFT) === norm(saved)) FDRAFT = null;
+  }
+  async function saveFilter() {
+    if (!FDRAFT || !S.db) return;
+    $("#fSave").disabled = true; $("#fMsg").textContent = "Speichere …";
+    try { await S.db.doc("config/main").update({ filter: FDRAFT }); FDRAFT = null; $("#fMsg").textContent = ""; toast("Filter gespeichert"); }
+    catch (e) { $("#fMsg").textContent = e?.code === "invalid_argument" ? "Keine Schreibrechte." : `Speichern fehlgeschlagen (${e?.code || "Fehler"}).`; }
+    schedule();
+  }
+
+  /* ---------- Quellen & Scan ---------- */
+  function currentSources() {
+    const set = new Set();
+    for (const s of S.startups.values()) {
+      if (!s.active || !s.source_url) continue;
+      for (const u of [s.source_url, s.career_url]) if (u && !u.includes("startupmap.one")) set.add(u);
+    }
+    return [...set].sort();
+  }
+  function unapprovedSources() {
+    // Skript-Scan (seit 12.10.): kein Freigabeverfahren mehr nötig, das Skript ruft Quellen direkt ab.
+    return [];
+  }
+  function buildPrompt(urls) {
+    const tpl = $("#scan-template").textContent;
+    return tpl.replace("{{ARTIFACT_URL}}", S.config?.artifact_url || "").replace("{{APPROVED}}", urls.map((u) => "- " + u).join("\n"));
+  }
+  function mcpMessage(e, what) {
+    const code = e?.code;
+    if (code === "server_not_connected") return `Der Connector „${MCP}“ ist nicht verbunden. In claude.ai unter Einstellungen → Connectors hinzufügen, dann erneut versuchen.`;
+    if (code === "needs_reauth") return `„${MCP}“ muss neu verbunden werden (Einstellungen → Connectors).`;
+    if (code === "not_in_manifest" || code === "approval_required") return `${what} wurde nicht erlaubt. Über das Berechtigungen-Menü des Artefakts kannst du „${MCP}“ freigeben.`;
+    if (code === "blocked_by_policy") return `${what} ist durch eine Richtlinie deiner Organisation gesperrt.`;
+    if (code === "tool_error") return `${what} fehlgeschlagen: ${e.message || "unbekannter Fehler"}`;
+    if (code === "selection_required") return `Wähle in claude.ai aus, welche Verbindung „${MCP}“ das Artefakt nutzen soll, dann erneut versuchen.`;
+    if (code === "consent_required") return `Erlaube „${MCP}“ für dieses Artefakt, dann erneut versuchen.`;
+    if (code === "server_unavailable" || code === "upstream_error") return what === "Der Scan"
+      ? `${MCP} hat nicht rechtzeitig geantwortet – der Scan kann trotzdem gestartet sein. Schau in ein paar Minuten unter „Läufe“, bevor du erneut startest.`
+      : `${MCP} hat gerade nicht geantwortet. Versuch es in einer Minute noch einmal.`;
+    if (code === "not_granted" || code === "capability_disabled" || code === "capability_removed") return `In dieser Ansicht kann der Scan nicht ausgelöst werden. Öffne das Artefakt in claude.ai.`;
+    return `${what} fehlgeschlagen (${code || "unbekannt"}).`;
+  }
+
+  async function startScan() {
+    if (!S.mcp) { S.scanMsg = "Scannen per Knopf geht nur, wenn das Artefakt in claude.ai geöffnet ist."; schedule(); return; }
+    const trig = S.config?.trigger_id;
+    if (!trig) { S.scanMsg = "Kein Zeitplan hinterlegt."; schedule(); return; }
+    S.busy = true; S.scanMsg = ""; schedule();
+    const urls = currentSources();
+    try {
+      if (unapprovedSources().length) {
+        // neue oder geänderte Quellen zuerst in die geplante Aufgabe übernehmen
+        await S.mcp.callTool(MCP, "update_trigger", { trigger_id: trig, prompt: buildPrompt(urls) });
+        try { await S.db.doc("config/main").update({ approved: urls, approved_at: new Date().toISOString() }); } catch (e) {}
+      }
+      const fr = await S.mcp.callTool(MCP, "fire_trigger", { trigger_id: trig });
+      S.lastSession = fr?.payload?.session_id || fr?.payload?.trigger?.last_run?.session_id || "";
+      toast("Scan gestartet");
+      try { await S.db.doc("config/main").update({ last_manual_request: new Date().toISOString(), last_session: S.lastSession || "" }); } catch (e) {}
+    } catch (e) {
+      S.scanMsg = mcpMessage(e, "Der Scan");
+    } finally { S.busy = false; schedule(); }
+  }
+
+  async function loadSchedule() {
+    if (!S.mcp) { S.schedMsg = "Nur in claude.ai verfügbar."; schedule(); return; }
+    S.schedMsg = "Frage Zeitplan ab …"; schedule();
+    try {
+      const res = await S.mcp.callTool(MCP, "list_triggers", { limit: 100 });
+      const p = res.payload; let list = [];
+      if (Array.isArray(p)) list = p; else if (p && Array.isArray(p.data)) list = p.data; else if (p && Array.isArray(p.triggers)) list = p.triggers;
+      const t = list.find((x) => x && (x.id === S.config?.trigger_id || x.trigger_id === S.config?.trigger_id));
+      if (!t) { S.schedMsg = "Geplante Aufgabe nicht gefunden – evtl. gelöscht."; S.sched = null; }
+      else {
+        const lr = t.last_run || {};
+        const raw = String(lr.status || "").replace(/^ROUTINE_RUN_STATUS_/, "");
+        const st = { SUCCEEDED: "erfolgreich", FAILED: "fehlgeschlagen", RUNNING: "läuft", PENDING: "läuft", CANCELLED: "abgebrochen" }[raw] || raw.toLowerCase() || "–";
+        S.sched = { next: t.next_run_at, lastStatus: lr.fired_at ? `${st} (${fmtDate(lr.fired_at, true)})` : st, enabled: t.enabled };
+        S.schedMsg = t.enabled === false ? "Die geplante Aufgabe ist pausiert." : "";
+      }
+    } catch (e) { S.schedMsg = mcpMessage(e, "Die Abfrage"); }
+    schedule();
+  }
+
+  async function syncApproved() {
+    if (!S.mcp || !S.config?.trigger_id) { S.schedMsg = "Nur in claude.ai verfügbar."; schedule(); return; }
+    const urls = currentSources();
+    S.schedMsg = "Aktualisiere geplante Aufgabe …"; schedule();
+    try {
+      await S.mcp.callTool(MCP, "update_trigger", { trigger_id: S.config.trigger_id, prompt: buildPrompt(urls) });
+      await S.db.doc("config/main").update({ approved: urls, approved_at: new Date().toISOString() });
+      S.schedMsg = "Geplante Läufe kennen jetzt alle aktuellen Quellen."; toast("Zeitplan aktualisiert");
+    } catch (e) { S.schedMsg = mcpMessage(e, "Die Aktualisierung"); }
+    schedule();
+  }
+
+  /* ---------- Bearbeiten ---------- */
+  const F = { name: "#fName", stadt: "#fCity", typ: "#fTyp", career_url: "#fCareer", source_url: "#fSource", ats: "#fAts", sm_url: "#fSm", note: "#fNote" };
+  let delArmed = false;
+  function openEdit(id) {
+    const s = id ? S.startups.get(id) : null;
+    S.editing = id || null; delArmed = false;
+    $("#dlgTitle").textContent = s ? `${s.name} bearbeiten` : "Startup hinzufügen";
+    for (const [k, sel] of Object.entries(F)) $(sel).value = s ? (s[k] || "") : (k === "typ" ? "Startup" : "");
+    $("#fActive").checked = s ? !!s.active : true;
+    $("#delBtn").hidden = !s; $("#delBtn").textContent = "Löschen";
+    $("#dlgMsg").textContent = "";
+    $("#dlg").showModal();
+  }
+  async function saveEdit(ev) {
+    ev.preventDefault();
+    const v = {}; for (const [k, sel] of Object.entries(F)) v[k] = $(sel).value.trim();
+    v.active = $("#fActive").checked;
+    if (!v.name) { $("#dlgMsg").textContent = "Bitte einen Namen eingeben."; return; }
+    for (const k of ["career_url", "source_url", "sm_url"]) if (v[k] && !/^https:\/\//.test(v[k])) { $("#dlgMsg").textContent = "Links müssen mit https:// beginnen."; return; }
+    if (v.active && !v.source_url) v.active = false;
+    $("#saveBtn").disabled = true;
+    try {
+      if (S.editing) {
+        await S.db.doc("startups/" + S.editing).update(v);
+      } else {
+        let id = slug(v.name), n = 2; while (S.startups.has(id)) id = slug(v.name) + "-" + n++;
+        await S.db.doc("startups/" + id).set({ ...v, liste: "eigene", stage: "", li_url: "", added: new Date().toISOString() });
+      }
+      $("#dlg").close(); toast("Gespeichert");
+    } catch (e) {
+      $("#dlgMsg").textContent = e?.code === "invalid_argument" ? "Du hast keine Schreibrechte für diese Datenbank." : `Speichern fehlgeschlagen (${e?.code || "Fehler"}). Bitte erneut versuchen.`;
+    } finally { $("#saveBtn").disabled = false; }
+  }
+  async function deleteCurrent() {
+    if (!S.editing) return;
+    if (!delArmed) { delArmed = true; $("#delBtn").textContent = "Wirklich löschen?"; return; }
+    try { await S.db.doc("startups/" + S.editing).delete(); $("#dlg").close(); toast("Gelöscht"); }
+    catch (e) { $("#dlgMsg").textContent = `Löschen fehlgeschlagen (${e?.code || "Fehler"}).`; }
+  }
+  async function toggleActive(id) {
+    const s = S.startups.get(id); if (!s) return;
+    try { await S.db.doc("startups/" + id).update({ active: !s.active }); }
+    catch (e) { toast(e?.code === "invalid_argument" ? "Keine Schreibrechte." : "Konnte nicht gespeichert werden."); }
+  }
+
+  /* ---------- Events ---------- */
+  const toggleMenu = (btn, menu) => { const open = menu.hidden; closePops(); menu.hidden = !open; btn.setAttribute("aria-expanded", String(open)); };
+  const closePops = (except) => {
+    for (const [b, m] of [["#aFiltBtn", "#aFiltMenu"], ["#aSortBtn", "#aSortMenu"]]) { $(m).hidden = true; $(b).setAttribute("aria-expanded", "false"); }
+    if (except !== "menu") { $("#moreMenu").hidden = true; $("#moreBtn").setAttribute("aria-expanded", "false"); }
+    if (except !== "alert") { $("#alertPop").hidden = true; $("#alertBtn").setAttribute("aria-expanded", "false"); }
+  };
+  document.addEventListener("keydown", (ev) => { if (ev.key === "Escape") { closePops(); $("#ppop").hidden = true; } });
+  document.addEventListener("click", (ev) => {
+    if (!ev.target.closest(".moremenu, .alertwrap, .ipop")) closePops();
+    const pb = ev.target.closest?.("button.prio[data-rate]");
+    if (pb) { ev.preventDefault(); showRate(pb); return; }
+    if (!ev.target.closest(".ppop")) $("#ppop").hidden = true;
+    const ivEl = ev.target.closest?.("[data-iv]");   // Kalender-Eintrag → One-Pager
+    if (ivEl && !ev.target.closest("a, input, button:not([data-iv])")) { openIv(ivEl.dataset.iv); return; }
+    if (ev.target.id === "ivDlg") { $("#ivDlg").close(); return; }   // Klick auf den Hintergrund schließt
+    const th = ev.target.closest?.("th[data-asort]");   // Klick auf Spaltenüberschrift sortiert (nicht beim Breite-Ziehen)
+    if (th && !ev.target.closest("[data-colrz]") && Date.now() - (S.rzAt || 0) > 400) { const k = th.dataset.asort, so = $("#aso");
+      S.aDir = { [k]: so.value === k ? !aDesc(k) : A_DESC_DEFAULT.has(k) }; so.value = k; schedule(); return; }
+    const t = ev.target.closest("button"); if (!t) return;
+    if (t.id === "aFiltBtn") { toggleMenu(t, $("#aFiltMenu")); return; }
+    if (t.id === "aSortBtn") { toggleMenu(t, $("#aSortMenu")); return; }
+    if (t.dataset.ast !== undefined) { $("#ast").value = t.dataset.ast; closePops(); schedule(); return; }
+    if (t.dataset.aso !== undefined) { $("#aso").value = t.dataset.aso; S.aDir = {}; closePops(); schedule(); return; }
+    if (t.id === "aAddBtn") { closePops(); $("#aMsg").textContent = ""; $("#addDlg").showModal(); $("#aCompany").focus(); return; }
+    if (t.id === "aCancel") { $("#addDlg").close(); return; }
+    if (t.id === "moreBtn") { const m = $("#moreMenu"); closePops("menu"); m.hidden = !m.hidden; t.setAttribute("aria-expanded", String(!m.hidden)); return; }
+    if (t.dataset.alertx) { dismissAlert(t.dataset.alertx); return; }
+    if (t.id === "alertBtn") { const p = $("#alertPop"); closePops("alert"); p.hidden = !p.hidden; t.setAttribute("aria-expanded", String(!p.hidden)); return; }
+    if (t.dataset.tab || t.dataset.go) closePops();
+    if (t.dataset.tab) { S.tab = t.dataset.tab; try { localStorage.setItem("radar.tab", S.tab); } catch (e) {} schedule(); setTimeout(() => document.querySelectorAll("textarea.appnote").forEach(fitNote), 60); }
+    else if (t.dataset.go) { S.tab = t.dataset.go; schedule(); }
+    else if (t.id === "cancelRun") { S.cancelArm = true; S.cancelMsg = ""; renderLive(); }
+    else if (t.id === "cancelNo") { S.cancelArm = false; renderLive(); }
+    else if (t.id === "cancelYes") cancelScan();
+    else if (t.id === "liveClose") { const id = S.runs[0]?.run_id || ""; S.liveClosed = id; try { localStorage.setItem("radar.liveClosed", id); } catch (e) {} renderLive(); }
+    else if (t.dataset.appview) { S.appView = t.dataset.appview; try { localStorage.setItem("radar.appView", S.appView); } catch (e) {} schedule(); }
+    else if (t.id === "fToggle") { const pn = $("#fpanel"); pn.hidden = !pn.hidden; t.setAttribute("aria-expanded", String(!pn.hidden)); }
+    else if (t.id === "fClear") { S.kind = "Alle"; for (const id of ["#city", "#srcSel", "#prioSel"]) $(id).value = ""; $("#sortSel").value = "prio"; $("#onlyMine").checked = false; try { localStorage.setItem("radar.sort", "prio"); } catch (e) {} schedule(); }
+    else if (t.dataset.runlog) { S.openLog = S.openLog === t.dataset.runlog ? null : t.dataset.runlog; schedule(); }
+    else if (t.dataset.kind) { S.kind = t.dataset.kind; schedule(); }
+    else if (t.dataset.ftopic) { const d = draft(), k = t.dataset.ftopic; d.off_topics = d.off_topics.includes(k) ? d.off_topics.filter((x) => x !== k) : [...d.off_topics, k]; schedule(); }
+    else if (t.id === "fSave") saveFilter();
+    else if (t.id === "fReset") { FDRAFT = { off_topics: [], extra: [], exclude_extra: [] }; $("#fExtra").value = ""; $("#fExcl").value = ""; schedule(); }
+    else if (t.dataset.toggle) { const c = $("#" + t.dataset.toggle); c.checked = !c.checked; c.dispatchEvent(new Event("input")); }
+    else if (t.dataset.hide) { toggleHidden(S.shownHits?.[+t.dataset.hide]); }
+    else if (t.dataset.addapp) { const h = S.shownHits?.[+t.dataset.addapp]; if (h) addApp(h); }
+    else if (t.dataset.delapp) delApp(t.dataset.delapp);
+    else if (t.dataset.restore) restoreApp(t.dataset.restore);
+    else if (t.dataset.purge) purgeApp(t.dataset.purge);
+    else if (t.id === "calPrev" || t.id === "calNext") { const m = calMonth(); S.calM = new Date(m.getFullYear(), m.getMonth() + (t.id === "calNext" ? 1 : -1), 1); schedule(); }
+    else if (t.id === "calToday") { S.calM = null; schedule(); }
+    else if (t.id === "ivClose") $("#ivDlg").close();
+    else if (t.dataset.ivsave) saveIvTime(t.dataset.ivsave);
+    else if (t.id === "cfNo") { delPending = null; $("#cfDlg").close(); }
+    else if (t.id === "cfYes") { const id = delPending; delPending = null; $("#cfDlg").close(); if (id) moveToTrash(id); }
+    else if (t.dataset.edit) openEdit(t.dataset.edit);
+    else if (t.dataset.toggle) toggleActive(t.dataset.toggle);
+    else if (t.dataset.cadopt) adoptCand(t.dataset.cadopt);
+    else if (t.dataset.crej) candStatus(t.dataset.crej, "abgelehnt", "Abgelehnt – taucht nicht mehr als offen auf");
+    else if (t.dataset.creset) candStatus(t.dataset.creset, "neu");
+    else if (t.id === "moreBtn") { S.limit += 150; schedule(); }
+    else if (t.id === "schedBtn") loadSchedule();
+    else if (t.id === "syncBtn") syncApproved();
+  });
+  // Kommentarfeld wächst mit dem Text (eine Zeile je Mail-Eintrag bzw. Notiz)
+  function fitNote(t) { if (!t.offsetParent) return; t.style.height = "auto"; t.style.height = t.scrollHeight + 2 + "px"; }
+  document.addEventListener("input", (ev) => { if (ev.target.matches?.("textarea.appnote")) fitNote(ev.target); });
+  document.addEventListener("change", (ev) => {
+    const t = ev.target;
+    if (t.dataset?.appstatus) { setStatus(t.dataset.appstatus, t.value); t.blur(); }   // blur, damit Zeile und Farbe sofort neu gezeichnet werden
+    else if (t.dataset?.appcomment) updApp(t.dataset.appcomment, { comment: t.value.trim() });
+    else if (t.dataset?.appcompany && t.value.trim()) updApp(t.dataset.appcompany, { company: t.value.trim() });
+    else if (t.dataset?.apptitle && t.value.trim()) updApp(t.dataset.apptitle, { title: t.value.trim() });
+  });
+  for (const id of ["#aq", "#ast", "#aso"]) $(id).addEventListener("input", schedule);
+  $("#appForm").addEventListener("submit", async (ev) => {
+    ev.preventDefault();
+    const company = $("#aCompany").value.trim(), title = $("#aTitle").value.trim(), url = $("#aUrl").value.trim(), comment = $("#aComment").value.trim();
+    const msg = $("#aMsg");
+    if (!company || !title) { msg.textContent = "Bitte Unternehmen und Titel eintragen."; return; }
+    if (url && !/^https?:\/\//.test(url)) { msg.textContent = "Der Link muss mit https:// beginnen."; return; }
+    if (!S.db) { msg.textContent = "Datenbank nicht verfügbar."; return; }
+    if (url) { const d = [...S.apps.values()].find((a) => normUrl(a.url) === normUrl(url)); if (d && msg.dataset.warned !== url) { msg.textContent = `Dieser Link steht schon als Nr. ${d.nr} auf der Liste. Nochmal „Hinzufügen“ klicken, um ihn trotzdem aufzunehmen.`; msg.dataset.warned = url; return; } }
+    const nr = Math.max(0, ...[...S.apps.values()].map((a) => a.nr || 0)) + 1;
+    let id = "m-" + slug(company + " " + title), n = 2; while (S.apps.has(id)) id = "m-" + slug(company + " " + title) + "-" + n++;
+    try {
+      await S.db.doc("applications/" + id).set({ nr, status: "Offen", company, title, comment, url, added: new Date().toISOString(), source: "manuell" });
+      $("#appForm").reset(); msg.textContent = ""; $("#addDlg").close(); toast("Zur Bewerberliste hinzugefügt");
+    } catch (e) { msg.textContent = e?.code === "invalid_argument" ? "Keine Schreibrechte." : "Konnte nicht gespeichert werden."; }
+  });
+  $("#scanBtn").addEventListener("click", startScan);
+  // Volltext beim Überfahren: Felder der Bewerberliste, deren Inhalt abgeschnitten ist
+  const tip = $("#tip");
+  const fullText = (el) => el.matches?.(".appcom") ? el.value : el.dataset.full || el.textContent.trim();
+  const mctx = document.createElement("canvas").getContext("2d");
+  function overflows(el) {
+    if (el.tagName === "TEXTAREA") return el.scrollHeight > el.clientHeight + 1;
+    const cs = getComputedStyle(el), txt = fullText(el);
+    mctx.font = `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+    const avail = el.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+    return mctx.measureText(txt).width > avail + 1 || el.scrollWidth > el.clientWidth + 1;
+  }
+  const HOVER = ".appcom, [data-full], td[data-fit]";
+  document.addEventListener("mouseover", (ev) => {
+    const el = ev.target.closest?.(HOVER);
+    const txt = el && document.activeElement !== el ? fullText(el) : "";
+    if (!txt || (!el.dataset.full && !overflows(el))) { tip.hidden = true; return; }
+    tip.textContent = txt; tip.hidden = false;
+    const r = el.getBoundingClientRect(), tw = Math.min(420, window.innerWidth - 32);
+    tip.style.maxWidth = tw + "px";
+    tip.style.left = Math.max(16, Math.min(r.left, window.innerWidth - tw - 16)) + "px";
+    const below = r.bottom + 6, h = tip.offsetHeight;
+    tip.style.top = (below + h > window.innerHeight - 8 ? r.top - h - 6 : below) + "px";
+  });
+  document.addEventListener("mouseout", (ev) => { const el = ev.target.closest?.(HOVER); if (el && !el.contains(ev.relatedTarget)) tip.hidden = true; });
+  document.addEventListener("focusin", () => { tip.hidden = true; });
+  document.addEventListener("click", (ev) => { const i = ev.target.closest?.(".grp .info"); if (i) setTimeout(() => i.dispatchEvent(new MouseEvent("mouseover", { bubbles: true })), 0); });
+  document.addEventListener("scroll", () => { tip.hidden = true; $("#ppop").hidden = true; }, true);
+  document.addEventListener("pointerdown", (ev) => {
+    const h = ev.target.closest?.("[data-colrz]"); if (!h) return;
+    ev.preventDefault();
+    const i = +h.dataset.colrz, table = h.closest("table"), cols = table.querySelectorAll("col"), x0 = ev.clientX;
+    const tw = table.getBoundingClientRect().width, a0 = cols[i].getBoundingClientRect().width, b0 = cols[i + 1].getBoundingClientRect().width;
+    h.classList.add("on");
+    const calc = (e) => { const d = Math.max(32 - a0, Math.min(b0 - 32, e.clientX - x0)); return [a0 + d, b0 - d]; };
+    const move = (e) => { const [a, b] = calc(e); cols[i].style.width = (100 * a / tw) + "%"; cols[i + 1].style.width = (100 * b / tw) + "%"; };
+    const up = (e) => {
+      S.rzAt = Date.now(); h.classList.remove("on"); document.removeEventListener("pointermove", move); document.removeEventListener("pointerup", up);
+      const [a, b] = calc(e), w = colW(), sum = w.reduce((x, y) => x + y, 0), k = sum / tw;
+      setColW(i, a * k); setColW(i + 1, b * k); schedule();
+    };
+    document.addEventListener("pointermove", move); document.addEventListener("pointerup", up);
+  });
+  document.addEventListener("dblclick", (ev) => { const h = ev.target.closest?.("[data-colrz]"); if (h) { S.appCols = null; try { localStorage.removeItem("radar.appCols2"); } catch (e) {} schedule(); } });
+  document.addEventListener("keydown", (ev) => {
+    const t = ev.target;
+    if (!t.classList?.contains("appcom")) return;
+    if (ev.key === "Enter" && t.tagName === "TEXTAREA" && (ev.shiftKey || ev.altKey)) {   // Kommentar: neue Zeile wie in Excel
+      if (ev.altKey) { ev.preventDefault(); t.setRangeText("\n", t.selectionStart, t.selectionEnd, "end"); fitNote(t); }
+      return;
+    }
+    if (ev.key === "Enter" || ev.key === "Escape") { ev.preventDefault(); if (ev.key === "Escape") { t.value = t.defaultValue; if (t.tagName === "TEXTAREA") fitNote(t); } t.blur(); schedule(); }
+  });
+  let dragId = null;
+  document.addEventListener("dragstart", (ev) => { const c = ev.target.closest?.("[data-kcard]"); if (c) { dragId = c.dataset.kcard; ev.dataTransfer.effectAllowed = "move"; ev.dataTransfer.setData("text/plain", dragId); } });
+  document.addEventListener("dragover", (ev) => { const col = ev.target.closest?.("[data-kcol]"); if (col && dragId) { ev.preventDefault(); document.querySelectorAll(".kcol.drop").forEach((x) => x !== col && x.classList.remove("drop")); col.classList.add("drop"); } });
+  document.addEventListener("dragleave", (ev) => { const col = ev.target.closest?.("[data-kcol]"); if (col && !col.contains(ev.relatedTarget)) col.classList.remove("drop"); });
+  document.addEventListener("drop", (ev) => { const col = ev.target.closest?.("[data-kcol]"); if (col && dragId) { ev.preventDefault(); col.classList.remove("drop"); setStatus(dragId, col.dataset.kcol); } dragId = null; });
+  document.addEventListener("dragend", () => { dragId = null; document.querySelectorAll(".kcol.drop").forEach((x) => x.classList.remove("drop")); });
+  for (const sel of ["#pCv", "#pWish"]) $(sel).addEventListener("input", (ev) => { ev.target.dataset.dirty = "1"; $("#pMsg").textContent = "Nicht gespeichert"; });
+  $("#profForm").addEventListener("submit", async (ev) => {
+    ev.preventDefault();
+    const cv = $("#pCv").value.trim(), wishes = $("#pWish").value.trim(), msg = $("#pMsg");
+    if (cv.length < 80) { msg.textContent = "Bitte etwas mehr aus dem Lebenslauf einfügen (mindestens ein paar Zeilen)."; return; }
+    try {
+      await S.db.doc("config/profile").set({ cv, wishes, updated_at: new Date().toISOString() });
+      for (const sel of ["#pCv", "#pWish"]) delete $(sel).dataset.dirty;
+      msg.textContent = "Gespeichert – der nächste Lauf bewertet die Stellen."; toast("Profil gespeichert");
+    } catch (e) { msg.textContent = "Konnte nicht gespeichert werden: " + (e?.message || e?.code || "unbekannter Fehler"); }
+  });
+  $("#addBtn").addEventListener("click", () => openEdit(null));
+  $("#cancelBtn").addEventListener("click", () => $("#dlg").close());
+  $("#delBtn").addEventListener("click", deleteCurrent);
+  $("#dlgForm").addEventListener("submit", saveEdit);
+  for (const id of ["#q", "#city", "#srcSel", "#prioSel", "#onlyNew", "#onlyMine", "#kq", "#kst"]) $(id).addEventListener("input", schedule);
+  $("#kindSel").addEventListener("input", () => { S.kind = $("#kindSel").value; schedule(); });
+  try { const v = localStorage.getItem("radar.sort"); if (v) $("#sortSel").value = v; } catch (e) {}
+  $("#sortSel").addEventListener("input", () => { try { localStorage.setItem("radar.sort", $("#sortSel").value); } catch (e) {} schedule(); });
+  $("#onlyFit").addEventListener("input", schedule);   // Passend, Neu und Praktikum sind beim Öffnen immer aktiv
+  $("#fExtra").addEventListener("input", () => { draft().extra = lines($("#fExtra").value); schedule(); });
+  $("#fExcl").addEventListener("input", () => { draft().exclude_extra = lines($("#fExcl").value); schedule(); });
+  for (const id of ["#sq", "#sfilter"]) $(id).addEventListener("input", () => { S.limit = 150; schedule(); });
+  setInterval(() => { if (runningRun() || requestedPending()) schedule(); }, 60000);
+  setInterval(() => { if (S.db && !$("#live").hidden) { if (liveRun()) tickLive(); else renderLive(); } }, 1000);
+
+  render();
+
+  /* ---------- Start ---------- */
+  (async () => {
+    const C = window.claude;
+    if (!C || typeof C.use !== "function") { S.dbMissing = true; render(); return; }
+    const [db, mcp, user] = await Promise.all([C.use("db"), C.use("mcp").catch(() => null), C.use("user").catch(() => null)]);
+    S.mcp = mcp; S.user = user;
+    if (!db) { S.dbMissing = true; render(); return; }
+    S.db = db;
+    try { const w = await user?.can?.("data.write"); if (w === false) S.canWrite = false; } catch (e) {}
+    if (!S.canWrite) { $("#addBtn").hidden = true; }
+    const onErr = (e) => { if (e?.code === "revoked") { S.db = null; S.dbMissing = true; schedule(); } };
+    db.collection("startups").limit(1000).onSnapshot((snap) => {
+      const m = new Map(); for (const d of snap.docs) m.set(d.id, d.data());
+      S.startups = m; S.loaded.startups = true; schedule();
+    }, onErr);
+    db.collection("trash").limit(500).onSnapshot((snap) => {
+      const m = new Map(); for (const d of snap.docs) m.set(d.id, d.data());
+      S.trash = m; schedule();
+    }, onErr);
+    db.collection("interviews").limit(300).onSnapshot((snap) => {
+      const m = new Map(); for (const d of snap.docs) m.set(d.id, d.data());
+      S.ivs = m; schedule();
+    }, onErr);
+    db.collection("applications").limit(500).onSnapshot((snap) => {
+      const m = new Map(); for (const d of snap.docs) m.set(d.id, d.data());
+      S.apps = m; schedule();
+    }, onErr);
+    db.doc("scans/latest").onSnapshot((snap) => { S.scan = snap.exists ? snap.data() : null; S.loaded.scan = true; schedule(); }, onErr);
+    db.doc("scans/boards").onSnapshot((snap) => { S.boards = snap.exists ? snap.data() : null; schedule(); }, onErr);
+    db.doc("scans/candidates").onSnapshot((snap) => { S.cands = snap.exists ? snap.data() : null; schedule(); }, onErr);
+    db.doc("scans/details").onSnapshot((snap) => { S.details = snap.exists ? snap.data() : null; schedule(); }, onErr);
+    db.doc("prefs/hidden").onSnapshot((snap) => { S.hidden = (snap.exists && snap.data().by_url) || {}; schedule(); }, onErr);
+    db.doc("scans/ratings").onSnapshot((snap) => { S.ratings = snap.exists ? snap.data() : null; schedule(); }, onErr);
+    db.doc("config/profile").onSnapshot((snap) => { S.profile = snap.exists ? snap.data() : null; S.profileLoaded = true; fillProfile(); schedule(); }, onErr);
+    db.collection("runs").orderBy("started_at", "desc").limit(20).onSnapshot((snap) => { S.runs = snap.docs.map((d) => d.data()); schedule(); }, onErr);
+    db.doc("config/main").onSnapshot((snap) => { S.config = snap.exists ? snap.data() : null; schedule(); }, onErr);
+    schedule();
+  })();
+})();
+</script>

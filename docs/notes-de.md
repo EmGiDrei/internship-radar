@@ -84,7 +84,7 @@ Claude vergibt `fit`, `imp` (Impact), `su` (Startup-Stärke), je 0–100, plus `
 ## Pipeline
 Statuswechsel im Artefakt schreiben `status_at` und `hist[<Status>]` in `applications/<id>`. Die Pipeline zählt je Stufe, wie viele Bewerbungen sie erreicht haben (aktueller Status oder Verlauf). Board-Ansicht mit Drag & Drop.
 
-`config/main.trigger_id` muss auf die aktive Aufgabe „Praktikums-Radar Scan“ zeigen (`trig_012zMiJBTYKuXzEPAmn85Ko5`, täglich 06:55 Europe/Paris). Die alten, deaktivierten Aufgaben laufen in einer Umgebung ohne Netzwerkzugriff.
+`config/main.trigger_id` muss auf die aktive Aufgabe „Praktikums-Radar Scan“ zeigen. Die alten, deaktivierten Aufgaben laufen in einer Umgebung ohne Netzwerkzugriff.
 
 ## Termine (Kalender + One-Pager)
 
