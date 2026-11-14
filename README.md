@@ -60,7 +60,7 @@ Live progress panel with a terminal-style log and a hard cancel that stops the c
 |---|---|---|
 | ![Live scan](docs/img/scan-live.png) | ![Dark mode](docs/img/bewerberliste-dark.png) | ![Mobile](docs/img/mobile.png) |
 
-*Screenshots are taken from the demo with fictional data. The UI is in German; feature names in this README are translated.*
+*Screenshots are taken from the demo with fictional data and show the German UI. The app switches between English (default) and German under More → English / Deutsch.*
 
 ## How it works
 

@@ -14,7 +14,7 @@ mock = (ROOT / 'demo' / 'mock-runtime.js').read_text()
 
 banner = """
 <div id="demo-bar" role="note">
-  <span><b>Live demo</b><i> · fictional companies and data · UI in German</i></span>
+  <span><b>Live demo</b><i> · fictional companies and data</i></span>
   <a href="https://github.com/EmGiDrei/internship-radar">GitHub</a>
   <button type="button" onclick="radarDemoReset()">Reset</button>
 </div>

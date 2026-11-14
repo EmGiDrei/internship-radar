@@ -546,6 +546,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
           <button class="mi" role="menuitem" id="tab-profil" data-tab="profil">Profil (für KI-Bewertung)<span class="c" id="c-profil"></span></button>
           <button class="mi" role="menuitem" id="tab-papierkorb" data-tab="papierkorb">Papierkorb<span class="c" id="c-papierkorb"></span></button>
           <button class="mi" role="menuitem" id="tab-info" data-tab="info">So funktioniert der Radar</button>
+          <button class="mi" role="menuitem" id="langBtn" type="button">English / Deutsch</button>
         </div>
       </div>
     </div>
@@ -767,6 +768,253 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
 <div class="tip" id="tip" role="tooltip" hidden></div>
 <div class="ppop" id="ppop" role="dialog" aria-label="Prio-Details" hidden></div>
 
+<script>
+// English UI layer for Internship Radar.
+// The app's source strings and all stored values (statuses, keys, notes) stay German; this layer only rewrites what is
+// displayed: text nodes and the title / placeholder / aria-label attributes. Option values are pinned before their
+// label is translated, so selects keep working. Text typed by the user or written by the agents is left alone.
+// Switch language under "More → Language"; the choice is kept in localStorage (default: English).
+(() => {
+  "use strict";
+  let lang = "en";
+  try { lang = localStorage.getItem("radar-lang") || "en"; } catch (e) {}
+  window.radarLang = lang;
+  window.radarSetLang = (l) => { try { localStorage.setItem("radar-lang", l); } catch (e) {} location.reload(); };
+  const lb = document.getElementById("langBtn");
+  if (lb) lb.addEventListener("click", () => window.radarSetLang(lang === "en" ? "de" : "en"));
+  if (lang !== "en") return;
+
+  const EXACT = {
+    // header, menus, tabs
+    "Jetzt scannen": "Scan now", "Mehr": "More", "Founder & CEO-Office": "Founder & CEO office", "Kandidaten": "Candidates", "Fehler": "Errors", "Läufe": "Runs",
+    "Profil (für KI-Bewertung)": "Profile (for AI rating)", "Papierkorb": "Trash", "So funktioniert der Radar": "How the radar works",
+    "Praktika": "Postings", "Bewerberliste": "Applications", "Termine": "Calendar", "Hinweise": "Alerts", "Hinweise anzeigen": "Show alerts",
+    "Ansicht": "View", "Fortschritt des Scans": "Scan progress", "Prio-Details": "Priority details",
+    // postings toolbar + filters
+    "Suche nach Rolle, Firma oder Ort": "Search by role, company or city", "Suche": "Search", "Passend": "Relevant", "Neu": "New",
+    "Nur Stellen, die zu deinen Themen passen": "Only postings that match your topics", "Nur Stellen aus dem letzten Lauf": "Only postings from the last run",
+    "Weitere Filter und Themen": "More filters and topics", "Weitere Filter": "More filters", "Stellenart": "Role type", "Stadt": "City",
+    "Alle Städte": "All cities", "Quelle": "Source", "Alle Quellen": "All sources", "Startup-Liste": "Startup list", "Jobbörsen": "Job boards",
+    "Jobbörse": "Job board", "Prio": "Prio", "Alle Prios": "All priorities", "nur Prio A": "Priority A only", "Prio A + B": "Priority A + B",
+    "Prio A – C": "Priority A – C", "Sortierung": "Sort", "Nach Prio": "By priority", "Neueste zuerst": "Newest first", "nur meine Liste": "my list only",
+    "Zurücksetzen": "Reset", "Themen & Suchwörter": "Topics & keywords", "Themen, die als passend zählen": "Topics that count as relevant",
+    "Eigene Suchwörter": "Own keywords", "eine pro Zeile – zählen immer als passend": "one per line – always count as relevant",
+    "Ausschließen": "Exclude", "eine pro Zeile – Stellen mit diesen Wörtern verschwinden": "one per line – postings with these words are hidden",
+    "z. B. sustainability": "e.g. sustainability", "z. B. sales": "e.g. sales",
+    "Gesucht wird nur im Stellentitel, per Wortliste – keine KI. Wörter ab 4 Zeichen zählen auch als Wortteil („strateg“ findet Strategy und Strategie), kürzere nur als ganzes Wort.":
+      "Only the job title is searched, with a word list – no AI. Words with 4+ letters also match as part of a word (“strateg” finds Strategy and Strategie), shorter ones only as whole words.",
+    "Welche Wörter zählen?": "Which words count?", "Filter speichern": "Save filters", "Standard wiederherstellen": "Restore defaults",
+    "Stellentyp (Pflicht für Themen-Treffer):": "Role type (required for a topic match):", "Fliegt immer raus:": "Always excluded:",
+    "Eigene Wörter": "Own words", "Immer passend (Founder & CEO-Office):": "Always relevant (Founder & CEO office):",
+    "Allgemeine Ausschreibungen („Internship“, „Open Internship Application“) zählen ebenfalls als passend.":
+      "General openings (“Internship”, “Open Internship Application”) also count as relevant.",
+    "Alle": "All", "Praktikum": "Internship", "Werkstudent": "Working student", "Thesis": "Thesis",
+    // postings list
+    "Neu im letzten Lauf": "New in the last run", "+ Bewerberliste": "+ Applications", "Ausblenden": "Hide", "Einblenden": "Show",
+    "Ausgrauen – bleibt in der Liste": "Grey out – stays in the list", "✓ auf der Liste": "✓ on the list", "Anzeige öffnen": "Open posting",
+    "KI-Bewertung nach deinem Profil": "AI rating based on your profile", "KI-Bewertung": "AI rating", "von 100": "of 100",
+    "Gefunden über eine externe Jobbörse bzw. ein VC-Portfolio": "Found on an external job board or VC portfolio",
+    "Keine neuen Stellen im letzten Lauf": "No new postings in the last run", "Noch keine Treffer": "No hits yet", "Noch keine Daten": "No data yet",
+    "Schalte „nur neue“ aus, um alle Stellen zu sehen.": "Turn off “New” to see all postings.", "Andere Suche oder Filter probieren.": "Try another search or filter.",
+    "Setze Suche oder Filter zurück.": "Reset the search or filters.", "Suche oder Filter zurücksetzen.": "Reset the search or filters.",
+    "Der letzte Lauf hat keine passenden Stellen gefunden.": "The last run found no relevant postings.",
+    "Nach dem ersten Scan stehen hier alle Praktika, Werkstudenten- und Founders-Associate-Stellen.": "After the first scan, all internships, working-student and founder's associate roles show up here.",
+    "Die Trefferliste erscheint, sobald die Datenbank geladen ist.": "The list appears as soon as the database has loaded.",
+    "Unter „Filter anpassen“ mehr Themen zulassen oder „nur passende“ ausschalten.": "Allow more topics under the filters, or turn off “Relevant”.",
+    "Auf die Bewerberliste gesetzt": "Added to applications", "Zur Bewerberliste hinzugefügt": "Added to applications",
+    // applications
+    "Bewerbungs-Pipeline": "Application pipeline", "Auf der Liste": "On the list", "Einladung / Gespräch": "Invite / interview",
+    "Suche in der Liste": "Search the list", "Suche in der Bewerberliste": "Search applications", "Alle Status": "All statuses",
+    "Nach Status filtern": "Filter by status", "Sortieren": "Sort", "Sortieren nach": "Sort by", "Eigene Stelle hinzufügen": "Add your own posting",
+    "Liste": "List", "Board": "Board", "Nr.": "No.", "Firma": "Company", "Unternehmen": "Company", "Job-Titel": "Job title", "Online": "Online",
+    "Start": "Start", "Kommentar": "Notes", "Status": "Status", "Notiz …": "Note …", "Notiz": "Note",
+    "Kommentar (Umschalt+Enter oder Alt+Enter: neue Zeile)": "Notes (Shift+Enter or Alt+Enter: new line)",
+    "Startdatum laut Anzeige": "Start date from the posting", "Wann die Anzeige veröffentlicht wurde": "When the posting was published",
+    "Neu ausgeschrieben – Nr. öffnet die neue Anzeige": "Re-posted – the number opens the new posting",
+    "Breite ziehen · Doppelklick: Standard": "Drag to resize · double-click: default", "In den Papierkorb": "Move to trash",
+    "Stelle löschen?": "Delete posting?", "Löschen": "Delete", "Abbrechen": "Cancel", "Zur Liste hinzufügen": "Add to list",
+    "Link": "Link", "Noch nichts auf der Liste": "Nothing on the list yet",
+    "Im Tab „Praktika“ bei einer Stelle auf „+ Bewerberliste“ klicken.": "In the Postings tab, click “+ Applications” on a posting.",
+    "Status oder Suche ändern.": "Change the status filter or search.", "Bitte Unternehmen und Titel eintragen.": "Please enter company and title.",
+    "Der Link muss mit https:// beginnen.": "The link must start with https://", "Links müssen mit https:// beginnen.": "Links must start with https://",
+    "ab sofort": "immediately", "flexibel": "flexible", "Gespeichert": "Saved", "Gelöscht": "Deleted",
+    // statuses (display only; stored values stay German)
+    "Offen": "Open", "Unbedingt bewerben": "Must apply", "Anschreiben nötig": "Cover letter needed", "Beworben": "Applied",
+    "Gespräch": "Interview", "2. Interview": "2nd interview", "3. Interview": "3rd interview", "Zusage": "Offer", "Absage": "Rejected",
+    "Nicht relevant": "Not relevant", "Gesprächen": "interviews",
+    // calendar + interviews
+    "Heute": "Today", "Vorheriger Monat": "Previous month", "Nächster Monat": "Next month", "Nächste Termine": "Upcoming",
+    "Keine anstehenden Gespräche.": "No upcoming interviews.", "Vorbei": "Past", "Wann": "When", "Mit": "With", "Termin": "Date & time",
+    "LinkedIn-Profil": "LinkedIn profile", "Speichern": "Save", "Call beitreten ↗": "Join call ↗", "Stellenanzeige ↗": "Job posting ↗",
+    "Termin buchen ↗": "Book a slot ↗", "auf LinkedIn suchen ↗": "search on LinkedIn ↗", "One-Pager öffnen →": "Open one-pager →",
+    "One-Pager wird beim nächsten Mail-Abgleich erstellt.": "The one-pager is written at the next inbox sync.",
+    "Gebucht? Zeit im One-Pager eintragen – oder der Mail-Abgleich trägt sie ein.": "Booked? Enter the time in the one-pager, or the inbox sync will add it.",
+    "Eingeladen – noch zu buchen": "Invited – not booked yet", "Termin noch nicht gebucht": "Not booked yet",
+    "Sitz": "HQ", "Gegründet": "Founded", "Finanzierung": "Funding", "Investoren": "Investors", "Gründer": "Founders", "Traktion": "Traction",
+    "Produkt": "Product", "ICP – wer kauft": "ICP – who buys", "Geschäftsmodell": "Business model", "Wettbewerb": "Competitors",
+    "Aktuell / worauf achten": "Latest / what to watch", "Gute Fragen fürs Gespräch": "Good questions to ask", "Dein Bezug": "Your angle",
+    "Quellen:": "Sources:", "Fenster schließen": "Close window", "Schließen": "Close", "✕ Schließen": "✕ Close",
+    // more: startups, candidates, errors, runs, profile, trash
+    "Startup suchen": "Search startups", "Aktiv": "Active", "Ausgeschaltet": "Switched off", "Mit Fehler": "With errors", "Ohne Quelle": "No source",
+    "Mit Treffern": "With hits", "Meine Liste": "My list", "Von startupmap": "From startupmap", "+ Startup": "+ Startup", "Startup hinzufügen": "Add startup",
+    "Startup bearbeiten": "Edit startup", "Name": "Name", "Typ": "Type", "Karriereseite": "Careers page", "Link für dich zum Anklicken": "link for you to click",
+    "Scan-Quelle": "Scan source", "diese Adresse liest der Scan; leer = nicht scannen": "the scan reads this address; empty = don't scan",
+    "Bewerbungssystem": "Applicant tracking system", "Eigene Seite": "Own website", "startupmap-Profil": "startupmap profile",
+    "Beim Scan berücksichtigen": "Include in the scan", "Programm / Uni": "Programme / university", "unklar": "unclear", "keine Quelle": "no source",
+    "Bearbeiten": "Edit", "Quelle ändern": "Change source", "Keine Startups gefunden": "No startups found", "Lade Startups …": "Loading startups …",
+    "Kandidat suchen": "Search candidates", "Übernommen": "Added", "Abgelehnt": "Rejected", "Übernehmen": "Add", "Ablehnen": "Reject",
+    "Noch keine Kandidaten": "No candidates yet", "Sie entstehen beim nächsten Lauf aus den Jobbörsen.": "They come from the job boards on the next run.",
+    "Abgelehnt – taucht nicht mehr als offen auf": "Rejected – no longer shown as open",
+    "Firmen, die auf externen Jobbörsen (YC, VC-Portfolios, Berlin Startup Jobs) passende Stellen haben und noch nicht gescannt werden. „Übernehmen“ legt sie mit ihrem Karriere-Board als Startup an (bzw. schaltet ein ausgeschaltetes wieder ein) – ab dem nächsten Lauf wird das ganze Board gelesen.":
+      "Companies with relevant postings on external job boards (YC, VC portfolios, Berlin Startup Jobs) that aren't scanned yet. “Add” creates them as a startup with their careers board (or switches a disabled one back on) – from the next run on, the whole board is read.",
+    "Alle Quellen erreichbar": "All sources reachable", "Beim letzten Lauf konnte jede aktive Karriereseite gelesen werden.": "Every active careers page could be read in the last run.",
+    "Fehler erscheinen hier nach dem ersten Lauf.": "Errors show up here after the first run.", "Fehler ansehen": "View errors", "Geprüft": "Checked",
+    "Hauptquelle fehlgeschlagen – über Ersatzquelle gelesen": "Main source failed – read via fallback", "unbekannter Fehler": "unknown error",
+    "Läufe ansehen": "View runs", "Noch keine Läufe": "No runs yet", "Jeder Scan wird hier mit Dauer, Treffern und Fehlern protokolliert.": "Every scan is logged here with duration, hits and errors.",
+    "Starte den ersten mit „Jetzt scannen“.": "Start the first one with “Scan now”.", "Lauf": "Run", "Dauer": "Duration", "Treffer": "Hits",
+    "Protokoll": "Log", "Protokoll anzeigen": "Show log", "Protokoll schließen": "Close log", "Zeitplan abfragen": "Check schedule",
+    "täglich um 06:55": "daily at 06:55", "geplant": "scheduled", "manuell": "manual", "geplanter Lauf": "scheduled run", "fertig": "done", "Fertig": "Done",
+    "Die geplante Aufgabe ist pausiert.": "The scheduled task is paused.", "Geplante Aufgabe nicht gefunden – evtl. gelöscht.": "Scheduled task not found – it may have been deleted.",
+    "Lebenslauf": "CV", "Text aus deinem CV einfügen: Studium, Erfahrung, Projekte, Skills und Tools": "paste text from your CV: studies, experience, projects, skills and tools",
+    "Was ich suche": "What I'm looking for", "Rollen, Themen, Städte, Zeitraum, Dauer, No-Gos": "roles, topics, cities, timing, duration, no-gos",
+    "Profil speichern": "Save profile", "Profil öffnen": "Open profile", "Profil": "Profile",
+    "Noch kein Profil gespeichert – ohne Profil bewertet der Lauf nichts.": "No profile saved yet – without a profile, nothing gets rated.",
+    "Bitte etwas mehr aus dem Lebenslauf einfügen (mindestens ein paar Zeilen).": "Please paste a bit more from your CV (at least a few lines).",
+    "Gespeichert – der nächste Lauf bewertet die Stellen.": "Saved – the next run rates the postings.",
+    "Papierkorb ist leer": "Trash is empty", "Gelöschte Stellen aus der Bewerberliste landen hier und lassen sich wiederherstellen.": "Postings deleted from the application list land here and can be restored.",
+    "Wiederherstellen": "Restore", "Endgültig löschen": "Delete permanently", "Wirklich endgültig?": "Really delete permanently?", "Endgültig gelöscht": "Deleted permanently",
+    "So funktioniert’s": "How it works",
+    "Die Datenbank enthält alle Startups mit Scan-Quelle. Bei Firmen mit Bewerbungssystem (Personio, Greenhouse, Ashby, Join …) wird direkt dessen Stellenliste gelesen, sonst die Karriereseite.":
+      "The database holds every startup with a scan source. For companies with an applicant tracking system (Personio, Greenhouse, Ashby, Join …) its job list is read directly, otherwise the careers page.",
+    "Jeden Morgen um 06:55 läuft der Scan automatisch, „Jetzt scannen“ startet ihn sofort. Ein Lauf dauert etwa 5–10 Minuten; Fortschritt und Protokoll siehst du live, „Abbrechen“ stoppt ihn sofort.":
+      "The scan runs automatically every morning at 06:55; “Scan now” starts it right away. A run takes about 5–10 minutes; progress and log are shown live, and “Cancel” stops it immediately.",
+    "Zusätzlich liest jeder Lauf externe Jobbörsen (YC, VC-Portfolios von Earlybird, Cherry, Speedinvest, Point Nine, Creandum, Atomico, HV Capital, Berlin Startup Jobs, Arbeitnow). Jede Stelle zeigt, woher sie kommt.":
+      "Each run also reads external job boards (YC, VC portfolios of Earlybird, Cherry, Speedinvest, Point Nine, Creandum, Atomico, HV Capital, Berlin Startup Jobs, Arbeitnow). Every posting shows where it came from.",
+    "„nur passende“ filtert per Wortliste nach deinen Themen (unter ⋯ → Themen & Suchwörter anpassbar). Die Prio A–D vergibt Claude anhand deines Profils (Mehr → Profil): Fit, Impact und Stärke des Startups.":
+      "“Relevant” filters by your topics with a word list (adjustable under ⋯ → Topics & keywords). Claude assigns the A–D priority based on your profile (More → Profile): fit, impact and startup strength.",
+    "Für die Bewerberliste prüft jeder Lauf Startdatum, Online-Datum und ob die Anzeige noch online ist.":
+      "For the application list, every run checks the start date, the posting date and whether the posting is still online.",
+    "Firmen, die auf Jobbörsen auftauchen, aber noch nicht gescannt werden, stehen unter Mehr → Kandidaten und lassen sich mit einem Klick übernehmen. Nicht lesbare Quellen stehen unter Mehr → Fehler.":
+      "Companies that show up on job boards but aren't scanned yet are listed under More → Candidates and can be added with one click. Sources that can't be read are listed under More → Errors.",
+    // scan + live panel
+    "Scan läuft": "Scan running", "Scan läuft …": "Scan running …", "Scan gestartet": "Scan started", "Scan fertig": "Scan finished", "Scan": "Scan",
+    "Scan wird abgebrochen": "Cancelling scan", "■ Abbrechen": "■ Cancel", "Lauf wirklich abbrechen?": "Really cancel the run?",
+    "Abbruch angefordert – stoppt nach der aktuellen Phase": "Cancel requested – stops after the current phase",
+    "Lauf angefordert – Cloud-Sitzung startet, Skript wird geschrieben …": "Run requested – cloud session starting, writing script …",
+    "Noch kein Scan": "No scan yet", "Noch kein Scan gelaufen.": "No scan has run yet.", "läuft": "running", "Datenbank": "Database",
+    "Lese Startups, Jobbörsen und Bewerberliste aus der Datenbank …": "Reading startups, job boards and applications from the database …",
+    "Lese externe Jobbörsen (YC, VC-Portfolios, Berlin Startup Jobs, Arbeitnow) …": "Reading external job boards (YC, VC portfolios, Berlin Startup Jobs, Arbeitnow) …",
+    "Prüfe Bewerberliste auf Startdatum und Online-Datum …": "Checking applications for start date and posting date …",
+    "Bereite KI-Bewertung vor …": "Preparing AI rating …", "Speichere Ergebnisse …": "Saving results …",
+    "Meldung ausblenden": "Dismiss", "Datenbank nicht verfügbar": "Database not available", "Datenbank nicht verfügbar.": "Database not available.",
+    "Konnte nicht gespeichert werden.": "Could not be saved.", "Konnte nicht gelöscht werden.": "Could not be deleted.", "Konnte nicht wiederhergestellt werden.": "Could not be restored.",
+    "Du hast keine Schreibrechte für diese Datenbank.": "You don't have write access to this database.",
+    "Venture & Startup": "Venture & Startup", "Generalist": "Generalist", "neu": "new", "Hinzufügen": "Add",
+    "Art": "Type", "Rhythmus:": "Schedule:", "öffnen": "open", "konnten beim letzten Lauf nicht gelesen werden.": "couldn't be read in the last run.",
+    "keine Karriereseite gefunden": "no careers page found", "Demo – fiktive Daten": "Demo – made-up data", "ungeprüft": "unchecked", "Gelöschte": "Deleted",
+    "z. B. B.Sc. BWL (TUM, 5. Semester) · Werkstudent Business Development bei … · Tools: HubSpot, Pipedrive, Make, Snowflake …": "e.g. B.Sc. Business (TUM, 5th semester) · Working student Business Development at … · Tools: HubSpot, Pipedrive, Make, Snowflake …",
+    "z. B. Founders Associate oder Strategy/BizDev in AI-Startups · Berlin oder München · Start Feb.–Apr. 2027 · 6 Monate · kein reines Sales": "e.g. Founder's Associate or Strategy/BizDev at AI startups · Berlin or Munich · start Feb–Apr 2027 · 6 months · no pure sales",
+    "Wirklich löschen?": "Really delete?", "Konnte nicht gespeichert werden:": "Could not be saved:", "Abbruch konnte nicht gespeichert werden:": "Cancel could not be saved:",
+    "Die Cloud-Sitzung ließ sich nicht direkt stoppen; startet sie doch noch, kannst du den Lauf hier abbrechen.": "The cloud session couldn't be stopped directly; if it still starts, you can cancel the run here.",
+    "In dieser Ansicht kann der Scan nicht ausgelöst werden. Öffne das Artefakt in claude.ai.": "The scan can't be started from this view. Open the artifact in claude.ai.",
+    "Scannen per Knopf geht nur, wenn das Artefakt in claude.ai geöffnet ist.": "Scanning by button only works when the artifact is open in claude.ai.",
+    "Datenbank nur in Claude verfügbar – öffne das Artefakt in claude.ai.": "The database is only available in Claude – open the artifact in claude.ai.",
+    "Nur in claude.ai verfügbar.": "Only available in claude.ai.", "Öffne das Artefakt in Claude.": "Open the artifact in Claude.",
+    "Öffne das Artefakt in Claude, um Startups zu bearbeiten.": "Open the artifact in Claude to edit startups.",
+    "Öffne das Artefakt in Claude, um die Bewerberliste zu sehen.": "Open the artifact in Claude to see the application list.",
+    "Geplante Läufe kennen jetzt alle aktuellen Quellen.": "Scheduled runs now know all current sources.",
+    "Steht ausgeschaltet in der Startup-Liste": "Switched off in the startup list", "wird ab dem nächsten Lauf gescannt": "will be scanned from the next run",
+    "Startup": "Startup", "Stelle": "Posting", "Termin noch nicht gebucht": "Not booked yet", "Uhr": "", "seit": "since", "von": "of", "über": "via",
+  };
+  const WD = { Mo: "Mon", Di: "Tue", Mi: "Wed", Do: "Thu", Fr: "Fri", Sa: "Sat", So: "Sun" };
+  const MON = { Januar: "January", Februar: "February", "März": "March", April: "April", Mai: "May", Juni: "June", Juli: "July", August: "August",
+    September: "September", Oktober: "October", November: "November", Dezember: "December" };
+  const ST = { Offen: "Open", "Unbedingt bewerben": "Must apply", "Anschreiben nötig": "Cover letter needed", Beworben: "Applied", "Gespräch": "Interview",
+    "2. Interview": "2nd interview", "3. Interview": "3rd interview", Zusage: "Offer", Absage: "Rejected", "Nicht relevant": "Not relevant" };
+  const tr = (s) => (s in EXACT ? EXACT[s] : s);
+  const kind = (k) => k.replace(/^Erstgespräch/, "First call").replace(/^Kennenlernen/, "Intro call").replace(/^Zweitgespräch/, "Second interview")
+    .replace(/^Hiring-Manager-Interview/, "Hiring manager interview").replace(/\((\d+) Min\.\)/, "($1 min)");
+  const RX = [
+    [/^Prio ([ABCD]) · Score (\d+) – (.*)$/s, (m, p, s, r) => `Priority ${p} · score ${s} – ${r}`],
+    [/^(Offline seit|Neu ausgeschrieben) · Prio ([ABCD]) · Score (\d+) – (.*)$/s, (m, o, p, s, r) => `${o === "Neu ausgeschrieben" ? "Re-posted" : "Offline since"} · Priority ${p} · score ${s} – ${r}`],
+    [/^Offline seit (\S+)(.*)$/s, (m, d, r) => `Offline since ${d}${r.replace(/ · Prio ([ABCD]) · Score (\d+)/, " · Priority $1 · score $2")}`],
+    [/^Score (\d+)$/, "Score $1"],
+    [/^radar scan --lauf (\S+) --modus (\S+)$/, (m, id, md) => `radar scan --run ${id} --mode ${md === "geplant" ? "scheduled" : "manual"}`],
+    [/^(Mo|Di|Mi|Do|Fr|Sa|So)\.?, (\d\d\.\d\d\.), (\d\d:\d\d) Uhr( · .*)?$/, (m, w, d, t, r = "") => `${WD[w]}, ${d}, ${t}${r.replace(/(\d+) Min\./, "$1 min").replace(/ · mit /, " · with ")}`],
+    [/^(Mo|Di|Mi|Do|Fr|Sa|So)$/, (m, w) => WD[w]],
+    [/^(Januar|Februar|März|April|Mai|Juni|Juli|August|September|Oktober|November|Dezember) (\d{4})$/, (m, mo, y) => `${MON[mo]} ${y}`],
+    [/^Start (.+)$/, (m, v) => `Start ${tr(v).replace(/^(Januar|Februar|März|Mai|Juni|Juli|Oktober|Dezember)/, (x) => MON[x])}`],
+    [/^Termin noch nicht gebucht · (.*)$/, (m, r) => `Not booked yet · ${r.replace(/(\d+) Min\./, "$1 min").replace(/^mit /, "with ")}`],
+    [/^(.+) · (Erstgespräch|Kennenlernen|Zweitgespräch|Hiring-Manager-Interview)(.*)$/, (m, a, k, r) => `${a} · ${kind(k + r)}`],
+    [/^(Erstgespräch|Kennenlernen|Zweitgespräch|Hiring-Manager-Interview)(.*)$/, (m, k, r) => kind(k + r)],
+    [/^LinkedIn-Suche nach (.*)$/, "LinkedIn search for $1"], [/^Direkt beim Startup gelesen \((.*)\)$/, "Read directly from the startup ($1)"],
+    [/^Zuerst gesehen: (\S+) · online seit (\S+)$/, "First seen: $1 · online since $2"], [/^seit (\d+) T\.$/, "for $1 d"], [/^seit (\S+)$/, "since $1"],
+    [/^(.+) scannen$/, "Scan $1"], [/^ok · (\d+) Stellen$/, "ok · $1 postings"], [/^(\d+) Stellen(.*)$/, "$1 postings$2"],
+    [/^(\d+) Min\.$/, "$1 min"], [/^Dauer (.*)$/, "Duration $1"], [/^Nr\. (\d+)$/, "No. $1"], [/^Status: (.*)$/, (m, s) => `Status: ${ST[s] || s}`],
+    [/^(\d+):(\d\d) · noch ca\. (\d+) Min\.$/, "$1:$2 · about $3 min left"], [/^(\d+) Hinweise?$/, (m, n) => `${n} alert${n === "1" ? "" : "s"}`],
+    [/^(\d+) Karriereseiten?$/, "$1 careers pages"], [/^davon offen: (\d+) · unbedingt: (\d+) · Anschreiben: (\d+)$/, "open: $1 · must apply: $2 · cover letter: $3"],
+    [/^von (.+)$/, (m, s) => `of ${{ Liste: "list", Beworben: "applied", Gesprächen: "interviews", "2. Interview": "2nd interview", "3. Interview": "3rd interview" }[s] || s}`],
+    [/^· (\d+) von (\d+) Themen aktiv$/, "· $1 of $2 topics active"], [/^· Stand (.+)$/, "· as of $1"],
+    [/^gelöscht (.+)$/, "deleted $1"], [/^per Knopf · Lauf (\S+)(.*)$/, (m, id, r) => `manual · run ${id}${r.replace(/(\d+) Treffer, (\d+) neu/, "$1 hits, $2 new")}`],
+    [/^geplant · Lauf (\S+)(.*)$/, (m, id, r) => `scheduled · run ${id}${r.replace(/(\d+) Treffer, (\d+) neu/, "$1 hits, $2 new")}`],
+    [/^Profil gespeichert am (.+) · bewertet:$/, "Profile saved on $1 · rated:"],
+    [/^Stellen \(A (\d+) · B (\d+) · C (\d+) · D (\d+)\) · letzte Bewertung (.+)$/, "postings (A $1 · B $2 · C $3 · D $4) · last rated $5"],
+    [/^„(.+)“ bei (.+) wirklich löschen\? Die Stelle landet im Papierkorb und lässt sich dort wiederherstellen\.$/s, "Delete “$1” at $2? It goes to the trash and can be restored there."],
+    [/^(\d+) Startups? konnten beim letzten Lauf nicht gelesen werden\.$/, "$1 startups couldn't be read in the last run."],
+    [/^(.+) wird ab dem nächsten Lauf gescannt$/, "$1 will be scanned from the next run"],
+    [/^(.+) · nicht gespeichert$/, "$1 · not saved"],
+    // run log lines written by scanner/scan.py
+    [/^Lauf (\S+) gestartet \((geplant|manuell)\)$/, (m, id, md) => `Run ${id} started (${md === "geplant" ? "scheduled" : "manual"})`],
+    [/^Datenbank gelesen: (\d+) Startups(?: \((\d+) aktiv\))?, (\d+) Jobbörsen, (\d+) Bewerbungen$/, (m, a, b, c, d) => `Database read: ${a} startups${b ? ` (${b} active)` : ""}, ${c} job boards, ${d} applications`],
+    [/^Scanne (\d+) Karriereseiten \(24 parallel, max\. 4 je Host\) …$/, "Scanning $1 careers pages (24 in parallel, max. 4 per host) …"],
+    [/^Startups: (\d+) ok, (\d+) Fehler · (\d+) Treffer, davon (\d+) neu$/, "Startups: $1 ok, $2 errors · $3 hits, $4 new"],
+    [/^Jobbörsen: (\d+) Treffer \((\d+) neu\) aus (\d+) Quellen(.*)$/, (m, a, b, c, r) => `Job boards: ${a} hits (${b} new) from ${c} sources${r.replace(/(\d+) Kandidaten/, "$1 candidates")}`],
+    [/^Bewerberliste: (\d+) Links · Startdatum bei (\d+) · Online-Datum bei (\d+) · (\d+) offline(.*)$/, "Applications: $1 links · start date for $2 · posting date for $3 · $4 offline$5"],
+    [/^KI-Bewertung: (\d+) neue Stellen vorbereitet(.*)$/, (m, n, r) => `AI rating: ${n} new postings prepared${r.replace(/\((\d+) über der Grenze ausgelassen\)/, "($1 above the cap skipped)")}`],
+    [/^KI-Bewertung: (\d+) Stellen bewertet(.*)$/, (m, n, r) => `AI rating: ${n} postings rated${r.replace(/Prio /, "priority ")}`],
+    [/^Claude bewertet (\d+) Stellen nach deinem Profil \(Fit, Impact, Startup\) …$/, "Claude is rating $1 postings against your profile (fit, impact, startup) …"],
+    [/^Fertig nach (.+) min$/, "Done after $1 min"],
+  ];
+  function translate(s) {
+    if (!s || !/[A-Za-zÄÖÜäöüß]/.test(s)) return s;
+    const lead = s.match(/^\s*/)[0], tail = s.match(/\s*$/)[0], core = s.trim();
+    if (core in EXACT) return lead + EXACT[core] + tail;
+    for (const [re, to] of RX) if (re.test(core)) return lead + core.replace(re, to) + tail;
+    return s;
+  }
+  const ATTRS = ["title", "placeholder", "aria-label", "data-full"];
+  const seen = new WeakMap();   // node → last value we wrote, to avoid feedback loops
+  function doText(n) {
+    const pe = n.parentElement; if (!pe || pe.closest("script,style,textarea,[contenteditable]")) return;
+    const v = n.nodeValue; if (seen.get(n) === v) return;
+    if (pe.tagName === "OPTION" && !pe.hasAttribute("value")) pe.setAttribute("value", pe.textContent);
+    const t = translate(v); seen.set(n, t); if (t !== v) n.nodeValue = t;
+  }
+  function doEl(el) {
+    for (const a of ATTRS) { const v = el.getAttribute(a); if (v) { const t = translate(v); if (t !== v) el.setAttribute(a, t); } }
+  }
+  function walk(root) {
+    if (root.nodeType === 3) return doText(root);
+    if (root.nodeType !== 1) return;
+    if (root.matches("script,style")) return;
+    doEl(root); root.querySelectorAll("[title],[placeholder],[aria-label],[data-full]").forEach(doEl);
+    const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT); let n; while ((n = w.nextNode())) doText(n);
+  }
+  const start = () => {
+    document.documentElement.lang = "en";
+    walk(document.body);
+    new MutationObserver((ms) => {
+      for (const m of ms) {
+        if (m.type === "characterData") doText(m.target);
+        else if (m.type === "attributes") doEl(m.target);
+        else m.addedNodes.forEach(walk);
+      }
+    }).observe(document.body, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ATTRS });
+  };
+  if (document.body) start(); else document.addEventListener("DOMContentLoaded", start);
+  window.radarT = translate;
+})();
+</script>
 <script type="text/plain" id="scan-template">(Skript-Scan: Prompt der geplanten Aufgabe wird nicht mehr aus dem Artefakt gesetzt.)</script>
 <script>
 (() => {
