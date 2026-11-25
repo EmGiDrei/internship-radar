@@ -420,6 +420,7 @@ a.badge.moved { background: var(--new-bg); color: var(--new); display: inline-bl
 .stage .cv { font-size: 11.5px; color: var(--ink-3); margin-top: 2px; }
 .stage .cv b { color: var(--accent); font-weight: 600; }
 .stage.s-Beworben { background: color-mix(in srgb, var(--accent) 10%, var(--surface-2)); }
+.stage.s-Einladung { background: color-mix(in srgb, var(--accent) 15%, var(--surface-2)); }
 .stage.s-Gespräch { background: color-mix(in srgb, var(--accent) 20%, var(--surface-2)); }
 .stage.s-Zusage { background: var(--ok-bg); }
 .stage.s-Zusage .n { color: var(--ok); }
@@ -840,8 +841,8 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     "ab sofort": "immediately", "flexibel": "flexible", "Gespeichert": "Saved", "Gelöscht": "Deleted",
     // statuses (display only; stored values stay German)
     "Offen": "Open", "Unbedingt bewerben": "Must apply", "Anschreiben nötig": "Cover letter needed", "Beworben": "Applied",
-    "Gespräch": "Interview", "2. Interview": "2nd interview", "3. Interview": "3rd interview", "Zusage": "Offer", "Absage": "Rejected",
-    "Nicht relevant": "Not relevant", "Gesprächen": "interviews",
+    "Einladung": "Interview invite", "Gespräch": "Interview booked", "2. Interview": "2nd interview", "3. Interview": "3rd interview", "Zusage": "Offer", "Absage": "Rejected",
+    "Nicht relevant": "Not relevant", "Feedback ausstehend": "Awaiting feedback", "Angebot abgelehnt": "Offer declined", "Selbst abgebrochen": "Withdrawn", "Gesprächen": "interviews", "Einladung Interview": "Interview invite", "Interview gebucht": "Interview booked",
     // calendar + interviews
     "Heute": "Today", "Vorheriger Monat": "Previous month", "Nächster Monat": "Next month", "Nächste Termine": "Upcoming",
     "Keine anstehenden Gespräche.": "No upcoming interviews.", "Vorbei": "Past", "Wann": "When", "Mit": "With", "Termin": "Date & time",
@@ -929,8 +930,8 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
   const WD = { Mo: "Mon", Di: "Tue", Mi: "Wed", Do: "Thu", Fr: "Fri", Sa: "Sat", So: "Sun" };
   const MON = { Januar: "January", Februar: "February", "März": "March", April: "April", Mai: "May", Juni: "June", Juli: "July", August: "August",
     September: "September", Oktober: "October", November: "November", Dezember: "December" };
-  const ST = { Offen: "Open", "Unbedingt bewerben": "Must apply", "Anschreiben nötig": "Cover letter needed", Beworben: "Applied", "Gespräch": "Interview",
-    "2. Interview": "2nd interview", "3. Interview": "3rd interview", Zusage: "Offer", Absage: "Rejected", "Nicht relevant": "Not relevant" };
+  const ST = { Offen: "Open", "Unbedingt bewerben": "Must apply", "Anschreiben nötig": "Cover letter needed", Beworben: "Applied", Einladung: "Interview invite", "Gespräch": "Interview booked",
+    "2. Interview": "2nd interview", "3. Interview": "3rd interview", Zusage: "Offer", Absage: "Rejected", "Nicht relevant": "Not relevant", "Feedback ausstehend": "Awaiting feedback", "Angebot abgelehnt": "Offer declined", "Selbst abgebrochen": "Withdrawn" };
   const tr = (s) => (s in EXACT ? EXACT[s] : s);
   const kind = (k) => k.replace(/^Erstgespräch/, "First call").replace(/^Kennenlernen/, "Intro call").replace(/^Zweitgespräch/, "Second interview")
     .replace(/^Hiring-Manager-Interview/, "Hiring manager interview").replace(/\((\d+) Min\.\)/, "($1 min)");
@@ -953,7 +954,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     [/^(\d+) Min\.$/, "$1 min"], [/^Dauer (.*)$/, "Duration $1"], [/^Nr\. (\d+)$/, "No. $1"], [/^Status: (.*)$/, (m, s) => `Status: ${ST[s] || s}`],
     [/^(\d+):(\d\d) · noch ca\. (\d+) Min\.$/, "$1:$2 · about $3 min left"], [/^(\d+) Hinweise?$/, (m, n) => `${n} alert${n === "1" ? "" : "s"}`],
     [/^(\d+) Karriereseiten?$/, "$1 careers pages"], [/^davon offen: (\d+) · unbedingt: (\d+) · Anschreiben: (\d+)$/, "open: $1 · must apply: $2 · cover letter: $3"],
-    [/^von (.+)$/, (m, s) => `of ${{ Liste: "list", Beworben: "applied", Gesprächen: "interviews", "2. Interview": "2nd interview", "3. Interview": "3rd interview" }[s] || s}`],
+    [/^von (.+)$/, (m, s) => `of ${{ Liste: "list", Beworben: "applied", Gesprächen: "interviews", "gebuchten Interviews": "booked interviews", Einladungen: "invites", "2. Interview": "2nd interview", "3. Interview": "3rd interview" }[s] || s}`],
     [/^· (\d+) von (\d+) Themen aktiv$/, "· $1 of $2 topics active"], [/^· Stand (.+)$/, "· as of $1"],
     [/^gelöscht (.+)$/, "deleted $1"], [/^per Knopf · Lauf (\S+)(.*)$/, (m, id, r) => `manual · run ${id}${r.replace(/(\d+) Treffer, (\d+) neu/, "$1 hits, $2 new")}`],
     [/^geplant · Lauf (\S+)(.*)$/, (m, id, r) => `scheduled · run ${id}${r.replace(/(\d+) Treffer, (\d+) neu/, "$1 hits, $2 new")}`],
@@ -1536,7 +1537,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
   }
 
   /* ---------- Bewerberliste ---------- */
-  const APP_STATI = ["Offen", "Unbedingt bewerben", "Anschreiben nötig", "Beworben", "Gespräch", "2. Interview", "3. Interview", "Zusage", "Absage", "Nicht relevant"];
+  const APP_STATI = ["Offen", "Unbedingt bewerben", "Anschreiben nötig", "Beworben", "Einladung", "Gespräch", "2. Interview", "3. Interview", "Feedback ausstehend", "Zusage", "Angebot abgelehnt", "Absage", "Selbst abgebrochen", "Nicht relevant"];
   const normUrl = (u) => String(u || "").toLowerCase().replace(/[?#].*$/, "").replace(/\/+$/, "");
   const normCT = (c, t) => (String(c || "") + "|" + String(t || "")).toLowerCase().replace(/[^a-z0-9|äöüß]+/g, " ").trim();
   function appOnList(h) {
@@ -1707,7 +1708,7 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
     if (!rows.length && all.length) { box.innerHTML = `<div class="list"><div class="empty"><strong>Nichts passt zu den Filtern</strong>Suche oder Filter zurücksetzen.</div></div>`; return; }
     if (!all.length) { box.innerHTML = `<div class="list"><div class="empty"><strong>Noch nichts auf der Liste</strong>Im Tab „Praktika“ bei einer Stelle auf „+ Bewerberliste“ klicken.</div></div>`; return; }
     const active = document.activeElement; if (active && box.contains(active) && /INPUT|SELECT|TEXTAREA/.test(active.tagName)) return;
-    const done = all.filter(([, a]) => ["Beworben", "Gespräch", "2. Interview", "3. Interview", "Zusage"].includes(a.status)).length;
+    const done = all.filter(([, a]) => ["Beworben", "Einladung", "Gespräch", "2. Interview", "3. Interview", "Feedback ausstehend", "Zusage", "Angebot abgelehnt", "Selbst abgebrochen"].includes(a.status)).length;
     const dups = all.filter(([, a]) => dupOf(a)).length;
     if (S.appView === "board") { box.innerHTML = boardHtml(rows, infoOf); return; }
     box.innerHTML = `<div class="tablewrap"><table>
@@ -1755,9 +1756,9 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
   // Hat die Stelle einen farbigen Status, gilt nur die Statusfarbe; der Hinweis bleibt als Tooltip
   const rowMark = (i, st) => { const c = ST_COLOR[st] ? "" : i.moved ? ' class="r-moved"' : i.off ? ' class="r-off"' : "";
     return i.moved ? c + ' data-full="Neu ausgeschrieben – Nr. öffnet die neue Anzeige"' : i.off ? c + ` data-full="${esc("Offline seit " + fmtDate(i.off))}"` : ""; };
-  const PIPE = ["Offen", "Beworben", "Gespräch", "2. Interview", "3. Interview", "Zusage"];
+  const PIPE = ["Offen", "Beworben", "Einladung", "Gespräch", "2. Interview", "3. Interview", "Zusage"];
   // Statusfarbe: Streifen links in der Zeile, getöntes Status-Feld, Rand der Board-Karte (Offen bleibt neutral)
-  const ST_COLOR = { "Unbedingt bewerben": "#db2777", "Anschreiben nötig": "var(--orange)", Beworben: "var(--accent)", "Gespräch": "var(--violet)", "2. Interview": "#0891b2", "3. Interview": "#ca8a04", Zusage: "var(--ok)", Absage: "var(--err)", "Nicht relevant": "var(--ink-3)" };
+  const ST_COLOR = { "Unbedingt bewerben": "#db2777", "Anschreiben nötig": "var(--orange)", Beworben: "var(--accent)", Einladung: "#a78bfa", "Gespräch": "var(--violet)", "2. Interview": "#0891b2", "3. Interview": "#ca8a04", Zusage: "var(--ok)", "Feedback ausstehend": "#6366f1", "Angebot abgelehnt": "#0f766e", "Selbst abgebrochen": "#78716c", Absage: "var(--err)", "Nicht relevant": "var(--ink-3)" };
   const stStyle = (st) => ST_COLOR[st] ? ` style="--stc:${ST_COLOR[st]}"` : "";
   const daysSince = (iso) => iso ? Math.floor((Date.now() - new Date(iso)) / 864e5) : null;
   // Pipeline: wie viele Bewerbungen welche Stufe erreicht haben (aktueller Status + Verlauf), dazu Absagen und Hinweise
@@ -1769,12 +1770,14 @@ tr.logrow td { background: var(--surface-2); padding: 10px 12px; white-space: no
       const i = PIPE.indexOf(a.status || "Offen"), j = PIPE.indexOf(stage);
       if (i >= j) return true;
       if (a.hist?.[stage]) return true;
+      if (a.status === "Angebot abgelehnt") return true;   // ein abgelehntes Angebot hat jede Stufe erreicht
+      if ((a.status === "Feedback ausstehend" || a.status === "Selbst abgebrochen") && j <= 1) return true;   // mindestens beworben
       return a.status === "Absage" && j <= 1;   // Absage ohne Verlauf: mindestens beworben
     }).length;
     const active = all.filter(([, a]) => a.status !== "Nicht relevant").length;
     const r = PIPE.map((st) => (st === "Offen" ? active : reached(st)));
-    const stages = PIPE.map((st, i) => `<div class="stage s-${esc(st)}" data-stage="${i}"><div class="l">${i === 0 ? "Auf der Liste" : esc(st === "Gespräch" ? "Einladung / Gespräch" : st)}</div><div class="n" data-n="${r[i]}">${S.pipePrev ? S.pipePrev[i] : r[i]}</div>
-      <div class="cv">${i === 0 ? `davon offen: ${(cnt.Offen || 0) + (cnt["Anschreiben nötig"] || 0) + (cnt["Unbedingt bewerben"] || 0)}${cnt["Unbedingt bewerben"] ? ` · unbedingt: ${cnt["Unbedingt bewerben"]}` : ""}${cnt["Anschreiben nötig"] ? ` · Anschreiben: ${cnt["Anschreiben nötig"]}` : ""}` : `<b>${r[i - 1] ? Math.round((100 * r[i]) / r[i - 1]) : 0} %</b> von ${esc(i === 1 ? "Liste" : PIPE[i - 1] === "Gespräch" ? "Gesprächen" : PIPE[i - 1])}`}</div></div>`).join("");
+    const stages = PIPE.map((st, i) => `<div class="stage s-${esc(st)}" data-stage="${i}"><div class="l">${i === 0 ? "Auf der Liste" : esc(st === "Gespräch" ? "Interview gebucht" : st === "Einladung" ? "Einladung Interview" : st)}</div><div class="n" data-n="${r[i]}">${S.pipePrev ? S.pipePrev[i] : r[i]}</div>
+      <div class="cv">${i === 0 ? `davon offen: ${(cnt.Offen || 0) + (cnt["Anschreiben nötig"] || 0) + (cnt["Unbedingt bewerben"] || 0)}${cnt["Unbedingt bewerben"] ? ` · unbedingt: ${cnt["Unbedingt bewerben"]}` : ""}${cnt["Anschreiben nötig"] ? ` · Anschreiben: ${cnt["Anschreiben nötig"]}` : ""}` : `<b>${r[i - 1] ? Math.round((100 * r[i]) / r[i - 1]) : 0} %</b> von ${esc(i === 1 ? "Liste" : PIPE[i - 1] === "Gespräch" ? "gebuchten Interviews" : PIPE[i - 1] === "Einladung" ? "Einladungen" : PIPE[i - 1])}`}</div></div>`).join("");
     box.innerHTML = `<div class="pipe"><div class="pipe-head"><h3>Bewerbungs-Pipeline</h3></div>
       <div class="flow">${stages}</div></div>`;
     animatePipe(r);

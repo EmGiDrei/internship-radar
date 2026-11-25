@@ -139,7 +139,7 @@ candidates = {'updated_at': iso(latest_end), 'count': len(cands), 'candidates': 
 APPS = [  # company, title, status, comment lines
     ('Voltwerk', "Founder's Associate Intern (m/f/d)", 'Gespräch', ['Mail: Eingangsbestätigung', 'Mail: Einladung Erstgespräch', 'Termin gebucht']),
     ('Fabrikant AI', 'Venture Development Intern', '2. Interview', ['Mail: Eingangsbestätigung', 'Mail: Einladung Erstgespräch', 'Mail: Einladung Hiring-Manager-Interview']),
-    ('Nordlicht Energy', 'Founders Associate Praktikum (m/w/d)', 'Gespräch', ['Mail: Einladung Kennenlernen (Calendly)']),
+    ('Nordlicht Energy', 'Founders Associate Praktikum (m/w/d)', 'Einladung', ['Mail: Einladung Kennenlernen (Calendly)']),
     ('Ledgerly', 'Chief of Staff Intern', 'Beworben', ['Mail: Eingangsbestätigung']),
     ('Baustein Labs', 'Entrepreneur in Residence Intern', 'Beworben', ['Mail: Eingangsbestätigung']),
     ('Polaris Payments', 'Intern Strategy & Operations', 'Beworben', ['Mail: Eingangsbestätigung']),
@@ -171,7 +171,8 @@ for i, (co, title, status, lines) in enumerate(APPS, 1):
     added = BASE - dt.timedelta(days=random.randint(8, 24))
     d0 = added + dt.timedelta(days=1)
     comment = '\n'.join(f'{(d0 + dt.timedelta(days=2 * j)).strftime("%d.%m.")} {l}' for j, l in enumerate(lines))
-    hist = {'Beworben': iso(d0)} if status in ('Beworben', 'Gespräch', '2. Interview', 'Absage') else {}
+    hist = {'Beworben': iso(d0)} if status in ('Beworben', 'Einladung', 'Gespräch', '2. Interview', 'Absage') else {}
+    if status in ('Einladung', 'Gespräch', '2. Interview'): hist['Einladung'] = iso(d0 + dt.timedelta(days=2))
     if status in ('Gespräch', '2. Interview'): hist['Gespräch'] = iso(d0 + dt.timedelta(days=3))
     if status == '2. Interview': hist['2. Interview'] = iso(d0 + dt.timedelta(days=6))
     apps[f'demo-{i:02d}'] = {'nr': i, 'company': co, 'title': title, 'url': url, 'status': status, 'status_at': iso(d0 + dt.timedelta(days=2)),
